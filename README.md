@@ -130,7 +130,6 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 
 #### SWI68 0.3.2-beta
 - Comandi veri dalla schermata (verificati sull'auto con il test automatico).
-- Menù a tendina di sistema bloccato con MG4 Clima aperta, richiuso subito dal tasto fisico.
 - Bocchette come la MG4: laterale guidatore, due centrali, laterale passeggero.
 - Impostazioni e conferme con la grafica del launcher.
 - Test automatico: HI raggiunto un grado alla volta, AUTO come l'originale, direzione dell'aria rimessa com'era.
