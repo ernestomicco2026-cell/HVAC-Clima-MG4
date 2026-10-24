@@ -15,9 +15,9 @@
 | Software dell'auto / Car software | Auto / Car | Versione / Version | Stato / Status | Download |
 |---|---|---|---|---|
 | **SWI68 SAIC 1.0+** | MG4 MY22 | **0.3.2-beta** | 🧪 beta, provata in auto / beta, tested in the car | [⬇️ MG4Clima-SWI68-0.3.2-beta.apk](releases/MG4Clima-SWI68-0.3.2-beta.apk) |
-| **SWI69 Color Radio** | MG4 MY23 | **0.1.0-beta** | 🧪 prima beta / first beta | [⬇️ MG4Clima-SWI69-SWI132-0.1.0-beta.apk](releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk) |
-| **SWI132** | MG4 MY24 | **0.1.0-beta** | 🧪 prima beta / first beta (stesso file della SWI69 / same file as SWI69) | [⬇️ MG4Clima-SWI69-SWI132-0.1.0-beta.apk](releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk) |
-| **SWI133** | MG4 Luxury MY24 | — | 🛠️ in programmazione / in development | — |
+| **SWI69 Color Radio** | MG4 MY23 | **0.1.0-beta** | 🧪 prima beta, da provare / first beta, to be tested | [⬇️ MG4Clima-SWI69-SWI132-0.1.0-beta.apk](releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk) |
+| **SWI132** | MG4 MY24 | **0.1.0-beta** | 🧪 prima beta, da provare / first beta, to be tested (stesso file della SWI69 / same file as SWI69) | [⬇️ MG4Clima-SWI69-SWI132-0.1.0-beta.apk](releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk) |
+| **SWI133** | MG4 Luxury MY24 | **0.1.0-beta** | 🧪 prima beta, da provare / first beta, to be tested | [⬇️ MG4Clima-SWI133-0.1.0-beta.apk](releases/MG4Clima-SWI133-0.1.0-beta.apk) |
 
 **Come sapere quale software hai / How to check your software:**
 `adb shell getprop ro.build.mt2712.version` → `SWI68-…`, `SWI69-…`, `SWI132-…` o/or `SWI133-…`.
@@ -67,8 +67,11 @@ disinstallata tutto torna come prima.
 
 Lo sviluppo procede **un modello alla volta, con le prove sulle auto vere**: prima la sola lettura dello stato, poi un
 **test automatico** che prova ogni comando e invia il log, poi i comandi veri. La SWI68 ha superato il test (22 comandi su
-24 al primo colpo, i due rimanenti erano errori del test, corretti). SWI69 e SWI132 sono alla prima beta; la SWI133 è in
-programmazione.
+24 al primo colpo, i due rimanenti erano errori del test, corretti). SWI69, SWI132 e SWI133 sono alla prima beta, da provare.
+
+Sulla **SWI133** il clima originale non è un'app ma un pannello del sistema: MG4 Clima non lo sostituisce, si apre dal
+tasto del clima di MG4 Launcher (dalla prossima versione del launcher) o dall'elenco delle app; dalle impostazioni si
+apre il pannello originale.
 
 ### Funzioni
 
@@ -139,12 +142,14 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 - Stessa schermata, impostazioni e test automatico della SWI68, con il servizio clima di SWI69 e SWI132.
 - Temperatura 16–30 °C con LO e HI; sedili e volante riscaldati nascosti.
 
-#### In programmazione
-- **SWI133**: sulla 133 il clima è un pannello del sistema; analisi del servizio in corso.
+#### SWI133 0.1.0-beta — prima versione
+- Stessa schermata, comandi, impostazioni e test automatico della SWI68 (stesso servizio clima, codici verificati sul
+  firmware della 133).
+- Si apre dal launcher o dall'elenco app; il pannello clima originale resta disponibile dalle impostazioni.
 
 ### Compilare
 
-Ogni modello ha la sua cartella (`SWI68`, `SWI69-SWI132`) con `build.sh`; strumenti e chiave in comune in `tools/` e `keys/`.
+Ogni modello ha la sua cartella (`SWI68`, `SWI69-SWI132`, `SWI133`) con `build.sh`; strumenti e chiave in comune in `tools/` e `keys/`.
 Servono JDK 17+, `tools/android.jar` (API 28) e `tools/d8.jar` (non inclusi):
 
 ```bash
@@ -177,7 +182,10 @@ Clima is uninstalled everything goes back to how it was.
 
 Development goes **one model at a time, tested on real cars**: first read-only, then an **automatic test** that tries
 every command and sends the log, then the real commands. SWI68 passed the test (22 of 24 commands at the first try; the
-other two were mistakes in the test itself, now fixed). SWI69 and SWI132 are at their first beta; SWI133 is in development.
+other two were mistakes in the test itself, now fixed). SWI69, SWI132 and SWI133 are at their first beta, to be tested.
+
+On **SWI133** the original climate is not an app but a system panel: MG4 Clima doesn't replace it, it opens from the
+MG4 Launcher climate button (from the next launcher version) or from the app list; the settings open the original panel.
 
 ### Features
 
@@ -248,12 +256,13 @@ A star on the repository or a bug report also help a lot. Thank you!
 - Same screen, settings and automatic test as SWI68, with the SWI69 and SWI132 climate service.
 - Temperature 16–30 °C with LO and HI; heated seats and wheel hidden.
 
-#### In development
-- **SWI133**: on the 133 the climate is a system panel; service analysis in progress.
+#### SWI133 0.1.0-beta — first version
+- Same screen, commands, settings and automatic test as SWI68 (same climate service, codes checked on the 133 firmware).
+- Opens from the launcher or the app list; the original climate panel is still available from the settings.
 
 ### Building
 
-Each model has its own folder (`SWI68`, `SWI69-SWI132`) with `build.sh`; shared tools and key in `tools/` and `keys/`.
+Each model has its own folder (`SWI68`, `SWI69-SWI132`, `SWI133`) with `build.sh`; shared tools and key in `tools/` and `keys/`.
 You need JDK 17+, `tools/android.jar` (API 28) and `tools/d8.jar` (not included):
 
 ```bash

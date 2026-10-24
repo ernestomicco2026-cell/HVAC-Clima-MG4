@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MG4 Climate</string>
+    <string name="a11y_desc">Opens the MG4 Climate screen when the original climate app is opened. It only reads which app is in the foreground.</string>
+</resources>

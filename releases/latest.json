@@ -10,8 +10,8 @@
     "notes": "Prima versione per SWI69 e SWI132: stessa schermata e stessi comandi della SWI68 (senza sedili e volante riscaldati)."
   },
   "SWI133": {
-    "version": "",
-    "apk": "",
-    "notes": "In programmazione."
+    "version": "0.1.0-beta",
+    "apk": "releases/MG4Clima-SWI133-0.1.0-beta.apk",
+    "notes": "Prima versione per SWI133: stessa schermata e stessi comandi della SWI68; si apre dal launcher (il clima originale della 133 è un pannello di sistema)."
   }
 }

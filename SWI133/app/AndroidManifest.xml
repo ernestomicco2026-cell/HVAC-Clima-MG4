@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MG4 Clima per SWI133: schermata clima in stile Tesla che si apre al posto dell'app clima originale.
+     La schermata è in sola lettura; i comandi li manda solo il test automatico avviato a mano (auto ferma). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.mg4.clima">
+
+    <!-- app in primo piano (firma platform) -->
+    <uses-permission android:name="android.permission.REAL_GET_TASKS" />
+    <!-- attiva il proprio servizio di accessibilità senza toccare gli altri (firma platform) -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- invio della diagnostica nel repository privato dei log -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- chiudere il menù a tendina che il sistema apre all'accensione del clima -->
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
+    <!-- bloccare il menù a tendina mentre MG4 Clima è aperta (firma di sistema) -->
+    <uses-permission android:name="android.permission.STATUS_BAR" />
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_clima"
+        android:allowBackup="false"
+        android:hardwareAccelerated="true"
+        android:directBootAware="true"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+
+        <activity
+            android:name=".ClimaActivity"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.mg4.clima.schermata"
+            android:excludeFromRecents="true"
+            android:screenOrientation="landscape"
+            android:configChanges="uiMode|orientation|screenSize|screenLayout|keyboard|keyboardHidden|navigation|locale|layoutDirection|density|fontScale"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- il launcher MG4 può aprirla direttamente -->
+            <intent-filter>
+                <action android:name="com.mg4.clima.APRI" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- solo per sapere quando l'app clima originale va in primo piano (nessun contenuto dello schermo) -->
+        <service
+            android:name=".ClimaGuard"
+            android:label="@string/app_name"
+            android:directBootAware="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_clima" />
+        </service>
+
+        <receiver
+            android:name=".BootReceiver"
+            android:directBootAware="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>
