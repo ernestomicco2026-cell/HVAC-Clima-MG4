@@ -20,19 +20,12 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 > The MG / MG4 names only identify the compatible car. Install and use it at your own risk.
 
 ## Download
-
 | Software dell'auto / Car software | Auto / Car | Versione / Version | Stato / Status | Download |
-
 |---|---|---|---|---|
-
-| **SWI68 SAIC 1.0+** | MG4 MY22 | **0.3.2-beta** | 🧪 beta, provata in auto / beta, tested in the car | [⬇️ MG4Clima-SWI68-0.3.2-beta.apk](releases/MG4Clima-SWI68-0.3.2-beta.apk) |
-
-| **SWI69 Color Radio** | MG4 MY23 | **0.1.0-beta** | 🧪 prima beta, da provare / first beta, to be tested | [⬇️ MG4Clima-SWI69-SWI132-0.1.0-beta.apk](releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk) |
-
-| **SWI132** | MG4 MY24 | **0.1.0-beta** | 🧪 prima beta, da provare / first beta, to be tested (stesso file della SWI69 / same file as SWI69) | [⬇️ MG4Clima-SWI69-SWI132-0.1.0-beta.apk](releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk) |
-
-| **SWI133** | MG4 Luxury MY24 | **0.1.0-beta** | 🧪 prima beta, da provare / first beta, to be tested | [⬇️ MG4Clima-SWI133-0.1.0-beta.apk](releases/MG4Clima-SWI133-0.1.0-beta.apk) |
-
+| **SWI68 SAIC 1.0+** | MG4 MY22 | **0.3.2-beta** | 🧪 Beta collaudata in auto / Beta, tested in the car | [⬇️ MG4Clima-SWI68-0.3.2-beta.apk](releases/MG4Clima-SWI68-0.3.2-beta.apk) |
+| **SWI69 Color Radio** | MG4 MY23 | **0.1.0-beta** | 🧪 Prima beta, da provare / First beta, to be tested | [⬇️ MG4Clima-SWI69-SWI132-0.1.0-beta.apk](releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk) |
+| **SWI132** | MG4 MY24 | **0.1.0-beta** | 🧪 Prima beta, da provare (stesso file della SWI69 / same file as SWI69) | [⬇️ MG4Clima-SWI69-SWI132-0.1.0-beta.apk](releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk) |
+| **SWI133** | MG4 Luxury MY24 | **0.1.0-beta** | 🧪 Prima beta, da provare / First beta, to be tested | [⬇️ MG4Clima-SWI133-0.1.0-beta.apk](releases/MG4Clima-SWI133-0.1.0-beta.apk) |
 **Come sapere quale software hai / How to check your software:**
 
 `adb shell getprop ro.build.mt2712.version` → `SWI68-…`, `SWI69-…`, `SWI132-…` o/or `SWI133-…`.
