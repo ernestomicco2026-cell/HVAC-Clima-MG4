@@ -83,7 +83,7 @@ apre il pannello originale.
 - **Comandi completi**: accensione, temperatura un grado alla volta fino a LO e HI, ventola (da AUTO riparte dall'ultima
   velocità), AUTO, A/C, ECO, ricircolo (interno → esterno → automatico), direzioni combinabili come nell'originale,
   sedili a 3 livelli e volante (SWI68).
-- **Menù a tendina**: il sistema lo apre ogni volta che il clima si accende o si spegne. Con MG4 Clima aperta non scende;
+- **Menù a tendina**: il sistema lo apre ogni volta che il clima si accende o si spegne. Con MG4 Clima in programmazione;
   dal tasto fisico, fuori da MG4 Clima, si richiude subito. Si può disattivare.
 - **Apertura dal launcher**: con le prossime versioni di MG4 Launcher il tasto del clima apre direttamente MG4 Clima,
   senza far vedere per un istante l'app originale.
