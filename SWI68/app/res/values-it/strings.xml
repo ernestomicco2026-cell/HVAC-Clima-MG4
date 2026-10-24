@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MG4 Clima</string>
+    <string name="a11y_desc">Apre la schermata MG4 Clima quando si apre l\'app clima originale. Legge solo quale app è in primo piano.</string>
+</resources>

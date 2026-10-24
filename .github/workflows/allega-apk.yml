@@ -1,0 +1,51 @@
+# Quando pubblichi una release, allega in automatico gli APK attuali di ogni modello (elencati in releases/latest.json)
+# e, se la descrizione è vuota, scrive le note di ogni versione.
+name: Allega APK alla release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag della release (es. 2026.10.24)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  allega:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+
+      - name: Allega gli APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          NOTES=""
+          for M in $(jq -r 'keys[]' releases/latest.json); do
+            APK="$(jq -r --arg m "$M" '.[$m].apk' releases/latest.json)"
+            VER="$(jq -r --arg m "$M" '.[$m].version' releases/latest.json)"
+            [ -z "$APK" ] && { NOTES="$NOTES
+          - **$M**: in programmazione / in development"; continue; }
+            if [ ! -f "$APK" ]; then
+              echo "::error::Non trovo $APK per il tag $TAG"
+              ls releases
+              exit 1
+            fi
+            gh release upload "$TAG" "$APK" --clobber -R "$GITHUB_REPOSITORY"
+            echo "Allegato $APK"
+            NOTES="$NOTES
+          - **$M** $VER: $(jq -r --arg m "$M" '.[$m].notes' releases/latest.json) → \`$(basename "$APK")\`"
+          done
+          BODY="$(gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json body -q .body)"
+          if [ -z "$BODY" ]; then
+            gh release edit "$TAG" -R "$GITHUB_REPOSITORY" --notes "MG4 Clima$NOTES
+
+          Installazione / Installation: \`adb install -r -f <file>.apk\`"
+          fi

@@ -1,0 +1,6 @@
+build/
+*.class
+tools/android.jar
+tools/d8.jar
+tools/log-token.txt
+__pycache__/

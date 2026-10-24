@@ -1,0 +1,17 @@
+{
+  "SWI68": {
+    "version": "0.3.2-beta",
+    "apk": "releases/MG4Clima-SWI68-0.3.2-beta.apk",
+    "notes": "Comandi del clima, test automatico, menù a tendina bloccato, bocchette come la MG4, impostazioni con la grafica del launcher."
+  },
+  "SWI69-SWI132": {
+    "version": "0.1.0-beta",
+    "apk": "releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk",
+    "notes": "Prima versione per SWI69 e SWI132: stessa schermata e stessi comandi della SWI68 (senza sedili e volante riscaldati)."
+  },
+  "SWI133": {
+    "version": "",
+    "apk": "",
+    "notes": "In programmazione."
+  }
+}
