@@ -26,6 +26,7 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 | **SWI69 Color Radio** | MG4 MY23 | **0.1.0-beta** | 🧪 Prima beta, da provare / First beta, to be tested | [⬇️ MG4Clima-SWI69-SWI132-0.1.0-beta.apk](releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk) |
 | **SWI132** | MG4 MY24 | **0.1.0-beta** | 🧪 Prima beta, da provare (stesso file della SWI69 / same file as SWI69) | [⬇️ MG4Clima-SWI69-SWI132-0.1.0-beta.apk](releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk) |
 | **SWI133** | MG4 Luxury MY24 | **0.1.0-beta** | 🧪 Prima beta, da provare / First beta, to be tested | [⬇️ MG4Clima-SWI133-0.1.0-beta.apk](releases/MG4Clima-SWI133-0.1.0-beta.apk) |
+
 **Come sapere quale software hai / How to check your software:**
 
 `adb shell getprop ro.build.mt2712.version` → `SWI68-…`, `SWI69-…`, `SWI132-…` o/or `SWI133-…`.
