@@ -52,7 +52,7 @@ SWI68, night: automatic climate, air to face and feet, heated wheel and driver s
 
 ## Italiano
 
-### Cos'è e cosa stiamo facendo
+### Cos'è e cosa stò facendo
 
 **MG4 Clima** è una nuova schermata del climatizzatore in stile Tesla per l'infotainment della MG4. Sostituisce l'app
 clima originale senza modificarla:
@@ -70,7 +70,7 @@ MG4 Clima legge e comanda il clima con **gli stessi servizi dell'auto usati dall
 compare al suo posto. L'app originale non viene toccata: si può sempre riaprire dalle impostazioni, e se MG4 Clima viene
 disinstallata tutto torna come prima.
 
-Lo sviluppo procede **un modello alla volta, con le prove sulle auto vere**: prima la sola lettura dello stato, poi un
+Lo sviluppo procede **un modello alla volta**: prima la sola lettura dello stato, poi un
 **test automatico** che prova ogni comando e invia il log, poi i comandi veri. La SWI68 ha superato il test (22 comandi su
 24 al primo colpo, i due rimanenti erano errori del test, corretti). SWI69, SWI132 e SWI133 sono alla prima beta, da provare.
 
