@@ -24,7 +24,7 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 > [!CAUTION]
 > # 🚨 USI QUESTA APP A TUO RISCHIO E PERICOLO
 > **MG4 Clima è un progetto amatoriale e sperimentale.** Comanda il climatizzatore della tua auto e, se lo attivi,
-> **sostituisce il SystemUI di sistema** dell'infotainment. Un errore, un firmware diverso o un'installazione
+> può **modificare un componente di sistema** dell'infotainment. Un errore, un firmware diverso o un'installazione
 > interrotta possono causare **malfunzionamenti dell'infotainment** (barra in alto, dock, pannelli, clima).
 >
 > - **Non è un'app ufficiale** e non è approvata da MG Motor o SAIC Motor.
@@ -39,7 +39,7 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 > [!CAUTION]
 > # 🚨 USE THIS APP ENTIRELY AT YOUR OWN RISK
 > **MG4 Clima is an experimental hobby project.** It controls your car's climate and, if you turn it on,
-> **replaces the infotainment's SystemUI**. A mistake, a different firmware or an interrupted install can cause
+> can **modify a system component** of the infotainment. A mistake, a different firmware or an interrupted install can cause
 > **infotainment malfunctions** (top bar, dock, panels, climate).
 >
 > - **Not an official app**, not endorsed by MG Motor or SAIC Motor.
@@ -169,34 +169,26 @@ apre il pannello originale.
 
 - **Aggiornamenti dalle impostazioni** (dalla 1.0.0), come MG4 Launcher: controlla, scarica, verifica e installa.
 
-- **SystemUI corretto** (dalla 1.0.0, solo SWI68 e SWI133, facoltativo): vedi sotto.
+- **Integrazione col pannello clima di sistema** (dalla 1.0.0, solo SWI68 e SWI133, facoltativa): vedi sotto.
 
 - **Test automatico dei comandi** (solo ad auto ferma): prova un comando alla volta, controlla che l'auto risponda,
 
   rimette tutto com'era e invia il log. Si ferma da solo se l'auto si muove o se si esce dalla schermata.
 
-### SystemUI corretto (SWI68 e SWI133)
+### Integrazione col pannello clima di sistema (SWI68 e SWI133)
 
-Su SWI68 e SWI133 il pannello clima che scende dall'alto quando si accende il clima è del **SystemUI** dell'auto: un'app
+Su SWI68 e SWI133 l'auto apre un proprio pannello clima quando il clima si accende. Dalle impostazioni puoi attivare
 
-normale non può impedirgli di aprirsi. Per questo, dalle impostazioni, MG4 Clima può installare un **SystemUI corretto**:
+un'**integrazione facoltativa**: MG4 Clima prende il posto di quel pannello, anche dal tasto fisico del clima.
 
-è quello originale della tua auto con due piccole modifiche, attive solo con l'opzione accesa:
+Si scarica solo se la attivi, viene controllata prima di installarla ed è disponibile solo per le versioni software già
 
-- all'accensione del clima il pannello di sistema **non si apre più**;
+provate. Si toglie con **Rimuovi** o disinstallando MG4 Clima, e si disattiva da sola dopo un aggiornamento del firmware.
 
-- il **tasto fisico del clima** (e la barra di stato) apre **MG4 Clima** invece del pannello.
-
-Il file non è dentro MG4 Clima e non è pubblico: si scarica da un archivio privato solo se lo attivi, ed è controllato
-
-con la sua **impronta SHA-256** prima di installarlo. Versioni supportate: **SWI68 R46, R59, R63, R67, R69** e **SWI133**;
-
-con un'altra versione l'opzione non compare. È legato a MG4 Clima: con **Rimuovi**, disinstallando MG4 Clima o dopo un
-
-aggiornamento del firmware torna da solo il **SystemUI di fabbrica**. SWI69 e SWI132 non ne hanno bisogno.
+SWI69 e SWI132 non ne hanno bisogno.
 
 > [!WARNING]
-> **Sostituire il SystemUI è l'operazione più delicata di MG4 Clima: falla a tuo rischio e pericolo, ad auto ferma.**
+> **L'integrazione modifica un componente di sistema dell'infotainment: attivala a tuo rischio e pericolo, ad auto ferma.**
 
 ### Sicurezza
 
@@ -252,11 +244,11 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 
 - Aggiornamenti dalle impostazioni, come MG4 Launcher.
 
-- SystemUI corretto per SWI68 (R46, R59, R63, R67, R69) e SWI133, scaricato da GitHub e controllato prima di installarlo:
+- Integrazione facoltativa col pannello clima di sistema (SWI68 e SWI133): MG4 Clima ne prende il posto, anche dal
 
-  il pannello clima di sistema non si apre più e il tasto fisico del clima apre MG4 Clima.
+  tasto fisico del clima.
 
-- Pannello clima di sistema chiuso col comando del SystemUI stesso, anche quando si apre col tasto fisico.
+- Pannello clima di sistema richiuso subito anche quando si apre col tasto fisico.
 
 - Impostazioni riscritte: Schermata, Apertura del clima, Pannello clima di sistema, Aggiornamenti, Auto, Strumenti.
 
@@ -378,34 +370,26 @@ MG4 Launcher climate button (from the next launcher version) or from the app lis
 
 - **Updates from the settings** (from 1.0.0), like MG4 Launcher: check, download, verify and install.
 
-- **Fixed SystemUI** (from 1.0.0, SWI68 and SWI133 only, optional): see below.
+- **System climate panel integration** (from 1.0.0, SWI68 and SWI133 only, optional): see below.
 
 - **Automatic command test** (car stopped only): tries one command at a time, checks that the car responds, restores
 
   everything and sends the log. It stops by itself if the car moves or you leave the screen.
 
-### Fixed SystemUI (SWI68 and SWI133)
+### System climate panel integration (SWI68 and SWI133)
 
-On SWI68 and SWI133 the climate panel that drops down when the climate turns on belongs to the car's **SystemUI**: a
+On SWI68 and SWI133 the car opens its own climate panel when the climate turns on. From the settings you can turn on an
 
-normal app cannot stop it from opening. So, from the settings, MG4 Clima can install a **fixed SystemUI**: it is your
+**optional integration**: MG4 Clima takes the place of that panel, also from the physical climate button.
 
-car's original one with two small changes, active only with the option on:
+It is downloaded only if you turn it on, checked before installing and available only for software versions already
 
-- when the climate turns on the system panel **no longer opens**;
+tested. It is removed with **Remove** or by uninstalling MG4 Clima, and switches itself off after a firmware update.
 
-- the **physical climate button** (and the status bar) opens **MG4 Clima** instead of the panel.
-
-The file is not inside MG4 Clima and not public: it is downloaded from private storage only if you turn it on, and
-
-checked against its **SHA-256 fingerprint** before installing. Supported versions: **SWI68 R46, R59, R63, R67, R69** and
-
-**SWI133**; with any other version the option doesn't appear. It is tied to MG4 Clima: with **Remove**, by uninstalling
-
-MG4 Clima or after a firmware update the **factory SystemUI** comes back by itself. SWI69 and SWI132 don't need it.
+SWI69 and SWI132 don't need it.
 
 > [!WARNING]
-> **Replacing the SystemUI is the most delicate thing MG4 Clima does: do it at your own risk, with the car stopped.**
+> **The integration modifies a system component of the infotainment: turn it on at your own risk, with the car stopped.**
 
 ### Safety
 
@@ -463,11 +447,11 @@ A star on the repository or a bug report also help a lot. Thank you!
 
 - Updates from the settings, like MG4 Launcher.
 
-- Fixed SystemUI for SWI68 (R46, R59, R63, R67, R69) and SWI133, downloaded from GitHub and checked before installing:
+- Optional integration with the system climate panel (SWI68 and SWI133): MG4 Clima takes its place, also from the
 
-  the system climate panel no longer opens and the physical climate button opens MG4 Clima.
+  physical climate button.
 
-- System climate panel closed with the SystemUI's own command, also when opened with the physical button.
+- System climate panel closed at once, also when opened with the physical button.
 
 - Settings rewritten: Screen, Opening the climate, System climate panel, Updates, Car, Tools.
 

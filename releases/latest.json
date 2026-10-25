@@ -4,6 +4,6 @@
     "apk": "releases/MG4Clima-1.0.0.apk",
     "size": 91649,
     "sha256": "8d9af129d7023641875e4ea2297cb811c79cc04f2a28621bfd24ef464f8bb73d",
-    "notes": "Un'unica app per SWI68, SWI69, SWI132 e SWI133 (modello riconosciuto da solo), aggiornamenti dalle impostazioni, SystemUI corretto per SWI68 e SWI133, impostazioni riscritte. Sperimentale: a tuo rischio."
+    "notes": "Un'unica app per SWI68, SWI69, SWI132 e SWI133 (modello riconosciuto da solo), aggiornamenti dalle impostazioni, integrazione facoltativa col pannello clima di sistema (SWI68 e SWI133), impostazioni riscritte. Sperimentale: a tuo rischio."
   }
 }
