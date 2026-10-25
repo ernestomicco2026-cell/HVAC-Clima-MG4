@@ -19,13 +19,53 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 
 > The MG / MG4 names only identify the compatible car. Install and use it at your own risk.
 
+## ⚠️ ATTENZIONE · WARNING ⚠️
+
+> [!CAUTION]
+> # 🚨 USI QUESTA APP A TUO RISCHIO E PERICOLO
+> **MG4 Clima è un progetto amatoriale e sperimentale.** Comanda il climatizzatore della tua auto e, se lo attivi,
+> **sostituisce il SystemUI di sistema** dell'infotainment. Un errore, un firmware diverso o un'installazione
+> interrotta possono causare **malfunzionamenti dell'infotainment** (barra in alto, dock, pannelli, clima).
+>
+> - **Non è un'app ufficiale** e non è approvata da MG Motor o SAIC Motor.
+> - Può far **decadere la garanzia** sull'infotainment.
+> - Installala e usala **solo ad auto ferma** e solo se sai usare **adb** per tornare indietro
+>   (`adb uninstall com.mg4.clima`).
+> - **Nessuna garanzia** e **nessuna responsabilità** dell'autore per qualsiasi danno, guasto, costo o problema
+>   all'auto, all'infotainment o a persone.
+>
+> **Installando l'app dichiari di aver letto e accettato tutto questo.**
+
+> [!CAUTION]
+> # 🚨 USE THIS APP ENTIRELY AT YOUR OWN RISK
+> **MG4 Clima is an experimental hobby project.** It controls your car's climate and, if you turn it on,
+> **replaces the infotainment's SystemUI**. A mistake, a different firmware or an interrupted install can cause
+> **infotainment malfunctions** (top bar, dock, panels, climate).
+>
+> - **Not an official app**, not endorsed by MG Motor or SAIC Motor.
+> - It may **void the infotainment warranty**.
+> - Install and use it **only with the car stopped** and only if you can use **adb** to go back
+>   (`adb uninstall com.mg4.clima`).
+> - **No warranty** and **no liability** of the author for any damage, fault, cost or problem to the car,
+>   the infotainment or people.
+>
+> **By installing the app you declare that you have read and accepted all of this.**
+
 ## Download
+
 | Software dell'auto / Car software | Auto / Car | Versione / Version | Stato / Status | Download |
 |---|---|---|---|---|
-| **SWI68 SAIC 1.0+** | MG4 MY22 | **0.3.2-beta** | 🧪 Beta collaudata in auto / Beta, tested in the car | [⬇️ MG4Clima-SWI68-0.3.2-beta.apk](releases/MG4Clima-SWI68-0.3.2-beta.apk) |
-| **SWI69 Color Radio** | MG4 MY23 | **0.1.0-beta** | 🧪 Prima beta, da provare / First beta, to be tested | [⬇️ MG4Clima-SWI69-SWI132-0.1.0-beta.apk](releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk) |
-| **SWI132** | MG4 MY24 | **0.1.0-beta** | 🧪 Prima beta, da provare (stesso file della SWI69 / same file as SWI69) | [⬇️ MG4Clima-SWI69-SWI132-0.1.0-beta.apk](releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk) |
-| **SWI133** | MG4 Luxury MY24 | **0.1.0-beta** | 🧪 Prima beta, da provare / First beta, to be tested | [⬇️ MG4Clima-SWI133-0.1.0-beta.apk](releases/MG4Clima-SWI133-0.1.0-beta.apk) |
+| **SWI68 SAIC 1.0+** · **SWI69 Color Radio** · **SWI132** · **SWI133** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.0.0** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.0.0.apk](releases/MG4Clima-1.0.0.apk) |
+
+**Un unico APK per tutti i modelli**: il software dell'auto si riconosce da solo. Dalla 1.0.0 gli aggiornamenti si
+
+installano anche da **Impostazioni → Aggiornamenti**. · **One APK for every model**: the car software is detected
+
+by itself. From 1.0.0 updates can also be installed from **Settings → Updates**.
+
+Le versioni precedenti (una per modello) restano nella cartella [`releases/`](releases/). · Older versions (one per
+
+model) are still in the [`releases/`](releases/) folder.
 
 **Come sapere quale software hai / How to check your software:**
 
@@ -119,13 +159,44 @@ apre il pannello originale.
 
   senza far vedere per un istante l'app originale.
 
-- **Impostazioni con la grafica del launcher**: sostituzione dell'app originale, lato di guida, menù a tendina, app
+- **Impostazioni con la grafica del launcher**, divise in Schermata, Apertura del clima, Pannello clima di sistema,
 
-  originale, test automatico, diagnostica, invio dei log.
+  Aggiornamenti, Auto e Strumenti.
+
+- **Un'unica app per tutti i modelli** (dalla 1.0.0): riconosce da sola SWI68, SWI69, SWI132 e SWI133 (dal software
+
+  dell'auto o dalle app di sistema); se serve il modello si può scegliere a mano.
+
+- **Aggiornamenti dalle impostazioni** (dalla 1.0.0), come MG4 Launcher: controlla, scarica, verifica e installa.
+
+- **SystemUI corretto** (dalla 1.0.0, solo SWI68 e SWI133, facoltativo): vedi sotto.
 
 - **Test automatico dei comandi** (solo ad auto ferma): prova un comando alla volta, controlla che l'auto risponda,
 
   rimette tutto com'era e invia il log. Si ferma da solo se l'auto si muove o se si esce dalla schermata.
+
+### SystemUI corretto (SWI68 e SWI133)
+
+Su SWI68 e SWI133 il pannello clima che scende dall'alto quando si accende il clima è del **SystemUI** dell'auto: un'app
+
+normale non può impedirgli di aprirsi. Per questo, dalle impostazioni, MG4 Clima può installare un **SystemUI corretto**:
+
+è quello originale della tua auto con due piccole modifiche, attive solo con l'opzione accesa:
+
+- all'accensione del clima il pannello di sistema **non si apre più**;
+
+- il **tasto fisico del clima** (e la barra di stato) apre **MG4 Clima** invece del pannello.
+
+Il file non è dentro MG4 Clima e non è pubblico: si scarica da un archivio privato solo se lo attivi, ed è controllato
+
+con la sua **impronta SHA-256** prima di installarlo. Versioni supportate: **SWI68 R46, R59, R63, R67, R69** e **SWI133**;
+
+con un'altra versione l'opzione non compare. È legato a MG4 Clima: con **Rimuovi**, disinstallando MG4 Clima o dopo un
+
+aggiornamento del firmware torna da solo il **SystemUI di fabbrica**. SWI69 e SWI132 non ne hanno bisogno.
+
+> [!WARNING]
+> **Sostituire il SystemUI è l'operazione più delicata di MG4 Clima: falla a tuo rischio e pericolo, ad auto ferma.**
 
 ### Sicurezza
 
@@ -147,7 +218,7 @@ Il firmware MG blocca l'installazione normale delle app: l'opzione `-f` la perme
 
    ```bash
 
-   adb install -r -f MG4Clima-SWI68-0.3.2-beta.apk
+   adb install -r -f MG4Clima-1.0.0.apk
 
    ```
 
@@ -174,6 +245,20 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 [![Offrimi un caffè con PayPal](https://img.shields.io/badge/Offrimi%20un%20caff%C3%A8-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/pool/9tv7fQ36nA?sr=wccr)
 
 ### Versioni
+
+#### 1.0.0 — app unica (sperimentale)
+
+- Un'unica app per SWI68, SWI69, SWI132 e SWI133: il modello si riconosce da solo (o si sceglie nelle impostazioni).
+
+- Aggiornamenti dalle impostazioni, come MG4 Launcher.
+
+- SystemUI corretto per SWI68 (R46, R59, R63, R67, R69) e SWI133, scaricato da GitHub e controllato prima di installarlo:
+
+  il pannello clima di sistema non si apre più e il tasto fisico del clima apre MG4 Clima.
+
+- Pannello clima di sistema chiuso col comando del SystemUI stesso, anche quando si apre col tasto fisico.
+
+- Impostazioni riscritte: Schermata, Apertura del clima, Pannello clima di sistema, Aggiornamenti, Auto, Strumenti.
 
 #### SWI68 0.3.2-beta
 
@@ -213,13 +298,13 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 
 ### Compilare
 
-Ogni modello ha la sua cartella (`SWI68`, `SWI69-SWI132`, `SWI133`) con `build.sh`; strumenti e chiave in comune in `tools/` e `keys/`.
+Dalla 1.0.0 c'è un'unica app nella cartella `MG4Clima` con `build.sh`; strumenti e chiave in `tools/` e `keys/`.
 
 Servono JDK 17+, `tools/android.jar` (API 28) e `tools/d8.jar` (non inclusi):
 
 ```bash
 
-cd SWI68 && ./build.sh      # → build/MG4Clima-SWI68-<versione>.apk
+cd MG4Clima && ./build.sh      # → build/MG4Clima-<versione>.apk
 
 ```
 
@@ -283,13 +368,44 @@ MG4 Launcher climate button (from the next launcher version) or from the app lis
 
   without briefly showing the original app.
 
-- **Settings with the launcher's look**: original app replacement, driving side, pull-down menu, original app,
+- **Settings with the launcher's look**, split into Screen, Opening the climate, System climate panel, Updates, Car
 
-  automatic test, diagnostics, log sending.
+  and Tools.
+
+- **One app for every model** (from 1.0.0): it detects SWI68, SWI69, SWI132 and SWI133 by itself (from the car software
+
+  or the system apps); the model can also be chosen by hand.
+
+- **Updates from the settings** (from 1.0.0), like MG4 Launcher: check, download, verify and install.
+
+- **Fixed SystemUI** (from 1.0.0, SWI68 and SWI133 only, optional): see below.
 
 - **Automatic command test** (car stopped only): tries one command at a time, checks that the car responds, restores
 
   everything and sends the log. It stops by itself if the car moves or you leave the screen.
+
+### Fixed SystemUI (SWI68 and SWI133)
+
+On SWI68 and SWI133 the climate panel that drops down when the climate turns on belongs to the car's **SystemUI**: a
+
+normal app cannot stop it from opening. So, from the settings, MG4 Clima can install a **fixed SystemUI**: it is your
+
+car's original one with two small changes, active only with the option on:
+
+- when the climate turns on the system panel **no longer opens**;
+
+- the **physical climate button** (and the status bar) opens **MG4 Clima** instead of the panel.
+
+The file is not inside MG4 Clima and not public: it is downloaded from private storage only if you turn it on, and
+
+checked against its **SHA-256 fingerprint** before installing. Supported versions: **SWI68 R46, R59, R63, R67, R69** and
+
+**SWI133**; with any other version the option doesn't appear. It is tied to MG4 Clima: with **Remove**, by uninstalling
+
+MG4 Clima or after a firmware update the **factory SystemUI** comes back by itself. SWI69 and SWI132 don't need it.
+
+> [!WARNING]
+> **Replacing the SystemUI is the most delicate thing MG4 Clima does: do it at your own risk, with the car stopped.**
 
 ### Safety
 
@@ -311,7 +427,7 @@ The MG firmware blocks normal app installs: the `-f` option allows it.
 
    ```bash
 
-   adb install -r -f MG4Clima-SWI68-0.3.2-beta.apk
+   adb install -r -f MG4Clima-1.0.0.apk
 
    ```
 
@@ -340,6 +456,20 @@ A star on the repository or a bug report also help a lot. Thank you!
 
 
 ### Changelog
+
+#### 1.0.0 — one app (experimental)
+
+- One app for SWI68, SWI69, SWI132 and SWI133: the model is detected by itself (or chosen in the settings).
+
+- Updates from the settings, like MG4 Launcher.
+
+- Fixed SystemUI for SWI68 (R46, R59, R63, R67, R69) and SWI133, downloaded from GitHub and checked before installing:
+
+  the system climate panel no longer opens and the physical climate button opens MG4 Clima.
+
+- System climate panel closed with the SystemUI's own command, also when opened with the physical button.
+
+- Settings rewritten: Screen, Opening the climate, System climate panel, Updates, Car, Tools.
 
 #### SWI68 0.3.2-beta
 
@@ -379,13 +509,13 @@ A star on the repository or a bug report also help a lot. Thank you!
 
 ### Building
 
-Each model has its own folder (`SWI68`, `SWI69-SWI132`, `SWI133`) with `build.sh`; shared tools and key in `tools/` and `keys/`.
+From 1.0.0 there is one app in the `MG4Clima` folder with `build.sh`; tools and key in `tools/` and `keys/`.
 
 You need JDK 17+, `tools/android.jar` (API 28) and `tools/d8.jar` (not included):
 
 ```bash
 
-cd SWI68 && ./build.sh      # → build/MG4Clima-SWI68-<version>.apk
+cd MG4Clima && ./build.sh      # → build/MG4Clima-<version>.apk
 
 ```
 The APK is signed with the AOSP test platform key (like the MG firmware), required for the system permissions.

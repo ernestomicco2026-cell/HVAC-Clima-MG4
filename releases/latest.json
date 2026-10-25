@@ -1,17 +1,9 @@
 {
-  "SWI68": {
-    "version": "0.3.2-beta",
-    "apk": "releases/MG4Clima-SWI68-0.3.2-beta.apk",
-    "notes": "Comandi del clima, test automatico, menù a tendina bloccato, bocchette come la MG4, impostazioni con la grafica del launcher."
-  },
-  "SWI69-SWI132": {
-    "version": "0.1.0-beta",
-    "apk": "releases/MG4Clima-SWI69-SWI132-0.1.0-beta.apk",
-    "notes": "Prima versione per SWI69 e SWI132: stessa schermata e stessi comandi della SWI68 (senza sedili e volante riscaldati)."
-  },
-  "SWI133": {
-    "version": "0.1.0-beta",
-    "apk": "releases/MG4Clima-SWI133-0.1.0-beta.apk",
-    "notes": "Prima versione per SWI133: stessa schermata e stessi comandi della SWI68; si apre dal launcher (il clima originale della 133 è un pannello di sistema)."
+  "MG4Clima": {
+    "version": "1.0.0",
+    "apk": "releases/MG4Clima-1.0.0.apk",
+    "size": 91649,
+    "sha256": "8d9af129d7023641875e4ea2297cb811c79cc04f2a28621bfd24ef464f8bb73d",
+    "notes": "Un'unica app per SWI68, SWI69, SWI132 e SWI133 (modello riconosciuto da solo), aggiornamenti dalle impostazioni, SystemUI corretto per SWI68 e SWI133, impostazioni riscritte. Sperimentale: a tuo rischio."
   }
 }
