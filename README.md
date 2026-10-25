@@ -55,7 +55,7 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 
 | Software dell'auto / Car software | Auto / Car | Versione / Version | Stato / Status | Download |
 |---|---|---|---|---|
-| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.0.0** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.0.0.apk](releases/MG4Clima-1.0.0.apk) |
+| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.0.1** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.0.1.apk](releases/MG4Clima-1.0.1.apk) |
 
 **Un unico APK per tutti i modelli**: il software dell'auto si riconosce da solo. Dalla 1.0.0 gli aggiornamenti si
 
@@ -210,7 +210,7 @@ Il firmware MG blocca l'installazione normale delle app: l'opzione `-f` la perme
 
    ```bash
 
-   adb install -r -f MG4Clima-1.0.0.apk
+   adb install -r -f MG4Clima-1.0.1.apk
 
    ```
 
@@ -237,6 +237,10 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 [![Offrimi un caffè con PayPal](https://img.shields.io/badge/Offrimi%20un%20caff%C3%A8-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/pool/9tv7fQ36nA?sr=wccr)
 
 ### Versioni
+
+#### 1.0.1
+- Integrazione col pannello clima di sistema: prima di scaricare controlla l'accesso e, se non riesce, dice il
+  motivo esatto (connessione, accesso negato) e invia il log.
 
 #### 1.0.0 — app unica (sperimentale)
 
@@ -411,7 +415,7 @@ The MG firmware blocks normal app installs: the `-f` option allows it.
 
    ```bash
 
-   adb install -r -f MG4Clima-1.0.0.apk
+   adb install -r -f MG4Clima-1.0.1.apk
 
    ```
 
@@ -440,6 +444,10 @@ A star on the repository or a bug report also help a lot. Thank you!
 
 
 ### Changelog
+
+#### 1.0.1
+- System climate panel integration: before downloading it checks access and, if it fails, tells the exact reason
+  (connection, access denied) and sends the log.
 
 #### 1.0.0 — one app (experimental)
 

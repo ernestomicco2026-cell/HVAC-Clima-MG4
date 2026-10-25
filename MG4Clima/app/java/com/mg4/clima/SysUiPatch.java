@@ -40,6 +40,7 @@ final class SysUiPatch {
     /** Repository privato dei SystemUI corretti (non pubblico: contiene il SystemUI MG modificato). */
     static final String API_URL = "https://api.github.com/repos/ernestomicco2026-cell/clima/contents/";
     static final String RAW_URL = "https://raw.githubusercontent.com/ernestomicco2026-cell/clima/main/";
+    static final String REPO_URL = "https://api.github.com/repos/ernestomicco2026-cell/clima";
 
     /** {modello, versione del SystemUI di fabbrica, file, nome, dimensione, SHA-256}. */
     private static final String[][] VERSIONS = {
@@ -232,6 +233,7 @@ final class SysUiPatch {
         Exception first = null;
         if (SysUiConfig.token().length() < 10) throw new Exception(BuildInfo.t("download non configurato in questa versione",
                 "download not configured in this version"));
+        checkAccess(app);
         try {
             download(API_URL + e[2], "application/vnd.github.raw", tmp, size, prog);
         } catch (Exception ex) {
@@ -252,6 +254,35 @@ final class SysUiPatch {
         if (!tmp.renameTo(f)) throw new Exception("file non salvato");
         Store.event(app, "SystemUI " + e[3] + " scaricato e controllato (SHA-256 ok)");
         return f;
+    }
+
+    /**
+     * 1.0.1: prima del download si controlla l'accesso al repository privato, così l'errore dice il motivo vero
+     * (GitHub risponde 404 sia per un file che manca sia per un repository privato che il token non vede).
+     */
+    private static void checkAccess(Context app) throws Exception {
+        int code;
+        try {
+            HttpURLConnection c = (HttpURLConnection) new URL(REPO_URL).openConnection();
+            c.setConnectTimeout(15000);
+            c.setReadTimeout(20000);
+            c.setRequestProperty("Accept", "application/vnd.github+json");
+            c.setRequestProperty("User-Agent", "MG4Clima");
+            c.setRequestProperty("Authorization", "Bearer " + SysUiConfig.token());
+            code = c.getResponseCode();
+            c.disconnect();
+        } catch (Exception ex) {
+            Store.event(app, "SystemUI: GitHub non raggiungibile " + ex);
+            throw new Exception(BuildInfo.t("GitHub non raggiungibile: controlla la connessione", "GitHub not reachable: check the connection"));
+        }
+        Store.event(app, "SystemUI: controllo accesso al repository privato → HTTP " + code);
+        if (code == 200) return;
+        LogSend.send(app, "systemui", null);
+        if (code == 401) throw new Exception(BuildInfo.t("token non valido o scaduto (HTTP 401)", "token invalid or expired (HTTP 401)"));
+        if (code == 404 || code == 403) throw new Exception(BuildInfo.t(
+                "il token non ha accesso al repository privato (HTTP " + code + ")",
+                "the token has no access to the private repository (HTTP " + code + ")"));
+        throw new Exception("GitHub HTTP " + code);
     }
 
     private static void download(String url, String accept, File out, long size, Progress prog) throws Exception {
@@ -276,7 +307,8 @@ final class SysUiPatch {
         }
         if (code != 200) {
             c.disconnect();
-            throw new Exception(code == 404 ? BuildInfo.t("file non trovato su GitHub", "file not found on GitHub")
+            android.util.Log.w("MG4Clima", "SystemUI download " + url + " → HTTP " + code);
+            throw new Exception(code == 404 ? BuildInfo.t("file non trovato su GitHub (HTTP 404)", "file not found on GitHub (HTTP 404)")
                     : code == 401 || code == 403 ? BuildInfo.t("accesso negato (token scaduto?)", "access denied (token expired?)")
                     : "HTTP " + code);
         }
