@@ -175,17 +175,43 @@ apre il pannello originale.
 
   rimette tutto com'era e invia il log. Si ferma da solo se l'auto si muove o se si esce dalla schermata.
 
-### Integrazione col pannello clima di sistema (SWI68 e SWI133)
+### Impostazioni → Pannello clima di sistema (SWI68 e SWI133)
 
-Su SWI68 e SWI133 l'auto apre un proprio pannello clima quando il clima si accende. Dalle impostazioni puoi attivare
+Su SWI68 e SWI133, quando accendi il clima (dallo schermo o dal tasto fisico) l'auto apre in automatico il suo
 
-un'**integrazione facoltativa**: MG4 Clima prende il posto di quel pannello, anche dal tasto fisico del clima.
+pannello del clima, che scende dall'alto e si sovrappone a tutto. Questa voce del menù serve a toglierlo di mezzo:
 
-Si scarica solo se la attivi, viene controllata prima di installarla ed è disponibile solo per le versioni software già
+- **Installa** attiva l'integrazione: il pannello del clima dell'auto **non si apre più da solo** e il **tasto fisico
 
-provate. Si toglie con **Rimuovi** o disinstallando MG4 Clima, e si disattiva da sola dopo un aggiornamento del firmware.
+  del clima** apre direttamente **MG4 Clima**;
 
-SWI69 e SWI132 non ne hanno bisogno.
+- **Rimuovi** la disattiva: torna tutto esattamente come prima.
+
+**Come funziona in pratica**
+
+1. Apri MG4 Clima → **Impostazioni** (icona dell'ingranaggio) → sezione **Pannello clima di sistema**.
+
+2. Premi **Installa** e conferma. Serve la connessione a internet: l'app scarica l'integrazione adatta al software
+
+   della tua auto (10–20 MB, da qualche decina di secondi a 2–3 minuti, a seconda del segnale) e la controlla prima di
+
+   installarla.
+
+3. Per qualche secondo barra in alto e dock spariscono e ricompaiono: è normale.
+
+4. Fatto: la riga mostra **Attivo**. Il file resta nell'auto, quindi se la togli e la rimetti non si riscarica.
+
+**Da sapere**
+
+- Compare solo sulle versioni software già provate (SWI68 R46, R59, R63, R67, R69 e SWI133); sulle altre la riga dice
+
+  che non è disponibile. SWI69 e SWI132 non ne hanno bisogno.
+
+- È legata a MG4 Clima: se **disinstalli MG4 Clima** l'integrazione si toglie da sola, e dopo un **aggiornamento del
+
+  software dell'auto** si disattiva da sola.
+
+- Se l'installazione non riesce, la riga dice il motivo (connessione, accesso) e l'app invia il log.
 
 > [!WARNING]
 > **L'integrazione modifica un componente di sistema dell'infotainment: attivala a tuo rischio e pericolo, ad auto ferma.**
@@ -380,17 +406,45 @@ MG4 Launcher climate button (from the next launcher version) or from the app lis
 
   everything and sends the log. It stops by itself if the car moves or you leave the screen.
 
-### System climate panel integration (SWI68 and SWI133)
+### Settings → System climate panel (SWI68 and SWI133)
 
-On SWI68 and SWI133 the car opens its own climate panel when the climate turns on. From the settings you can turn on an
+On SWI68 and SWI133, when you turn the climate on (from the screen or the physical button) the car automatically opens
 
-**optional integration**: MG4 Clima takes the place of that panel, also from the physical climate button.
+its own climate panel, which drops down from the top over everything. This menu entry gets it out of the way:
 
-It is downloaded only if you turn it on, checked before installing and available only for software versions already
+- **Install** turns the integration on: the car's climate panel **no longer opens by itself** and the **physical
 
-tested. It is removed with **Remove** or by uninstalling MG4 Clima, and switches itself off after a firmware update.
+  climate button** opens **MG4 Clima** directly;
 
-SWI69 and SWI132 don't need it.
+- **Remove** turns it off: everything goes back exactly as before.
+
+**How it works**
+
+1. Open MG4 Clima → **Settings** (gear icon) → **System climate panel** section.
+
+2. Tap **Install** and confirm. You need an internet connection: the app downloads the integration for your car's
+
+   software (10–20 MB, from a few tens of seconds to 2–3 minutes depending on the signal) and checks it before
+
+   installing.
+
+3. For a few seconds the top bar and the dock disappear and come back: that's normal.
+
+4. Done: the row shows **Active**. The file stays in the car, so if you remove it and turn it on again it isn't
+
+   downloaded again.
+
+**Good to know**
+
+- It only appears on the software versions already tested (SWI68 R46, R59, R63, R67, R69 and SWI133); on the others the
+
+  row says it isn't available. SWI69 and SWI132 don't need it.
+
+- It is tied to MG4 Clima: if you **uninstall MG4 Clima** the integration removes itself, and after a **car software
+
+  update** it switches itself off.
+
+- If the installation fails, the row tells you why (connection, access) and the app sends the log.
 
 > [!WARNING]
 > **The integration modifies a system component of the infotainment: turn it on at your own risk, with the car stopped.**
