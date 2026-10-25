@@ -134,8 +134,12 @@ public final class ClimaView extends View {
         // ---- colonna lato guida
         drawDriverColumn(c, usable, on);
 
-        // ---- impostazioni (lato passeggero) e scritta "prova"
-        float gx = rhd ? 40 : W - 40 - 72;
+        // ---- chiudi (nell'angolo) e impostazioni accanto (lato passeggero)
+        float xx = rhd ? 40 : W - 40 - 72;
+        float gx = rhd ? 40 + 72 + 16 : W - 40 - 72 - 16 - 72;
+        tile(c, xx, 40, 72, 72, 22, CHIP);
+        icon(c, R.drawable.ic_close, xx + 9, 40 + 16, 54, 40, SUB);
+        hit("chiudi", xx, 40, 72, 72);
         tile(c, gx, 40, 72, 72, 22, CHIP);
         icon(c, R.drawable.ic_gear, gx + 9, 40 + 16, 54, 40, SUB);
         hit("impostazioni", gx, 40, 72, 72);

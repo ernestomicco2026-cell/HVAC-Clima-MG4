@@ -124,17 +124,14 @@ public final class ClimaGuard extends AccessibilityService {
                 if (um == null || um.isUserUnlocked()) {
                     if (hvac == null) {
                         hvac = new HvacClient(ClimaGuard.this);
+                        // 1.0.2: avviso immediato dal servizio clima (SWI68/SWI133), oltre al controllo periodico
+                        hvac.setOnChange(() -> {
+                            android.os.Handler b = bg;
+                            if (b != null) b.postAtFrontOfQueue(ClimaGuard.this::checkPower);
+                        });
                         hvac.startLight();
                     } else {
-                        int p = hvac.readPower();
-                        long now = SystemClock.elapsedRealtime();
-                        if (p >= 0 && knownPower >= 0 && p != knownPower) {
-                            powerChangedAt = now;
-                            // SWI68/SWI133: il SystemUI apre il pannello clima quando il clima si accende (segnale 4001);
-                            // SWI69/SWI132: il menù si è aperto un attimo prima che ce ne accorgessimo
-                            if ((panel && p == 1) || now - sysUiAt < 1500) collapse("clima " + (p == 1 ? "acceso" : "spento"));
-                        }
-                        if (p >= 0) knownPower = p;
+                        checkPower();
                     }
                 }
             } catch (Throwable t) {
@@ -144,6 +141,21 @@ public final class ClimaGuard extends AccessibilityService {
             bg.postDelayed(this, 300);
         }
     };
+
+    /** Legge l'accensione; se il clima si è appena acceso richiude il pannello del SystemUI. */
+    private void checkPower() {
+        HvacClient c = hvac;
+        if (c == null) return;
+        int p = c.readPower();
+        long now = SystemClock.elapsedRealtime();
+        if (p >= 0 && knownPower >= 0 && p != knownPower) {
+            powerChangedAt = now;
+            // SWI68/SWI133: il SystemUI apre il pannello clima quando il clima si accende (segnale 4001);
+            // SWI69/SWI132: il menù si è aperto un attimo prima che ce ne accorgessimo
+            if ((panel && p == 1) || now - sysUiAt < 1500) collapse("clima " + (p == 1 ? "acceso" : "spento"));
+        }
+        if (p >= 0) knownPower = p;
+    }
 
     private static boolean isSysUi(CharSequence pkg) {
         return pkg != null && pkg.toString().toLowerCase(java.util.Locale.ROOT).contains("systemui");

@@ -110,6 +110,10 @@ public final class ClimaActivity extends Activity {
     };
 
     private void onTap(String id) {
+        if ("chiudi".equals(id)) {
+            onBackPressed();
+            return;
+        }
         if (testRunning) {
             toast(t("Test automatico in corso…", "Automatic test running…"));
             return;

@@ -225,8 +225,9 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 ### Versioni
 
 #### 1.0.2
-- **Pannello clima di sistema chiuso più in fretta**: MG4 Clima si accorge prima che il clima si è acceso (anche
-  dal launcher o dal tasto fisico) e lo richiude subito, più volte nel primo secondo.
+- **Tasto per chiudere la schermata** in alto, accanto alle impostazioni.
+- **Pannello clima di sistema chiuso più in fretta**: MG4 Clima riceve l'avviso di accensione del clima nello stesso
+  istante del sistema (anche dal launcher o dal tasto fisico) e lo richiude subito, più volte nel primo secondo.
 - Tolta dalle impostazioni la voce per installare l'integrazione col pannello clima: il sistema dell'auto non la
   accetta.
 
@@ -424,8 +425,9 @@ A star on the repository or a bug report also help a lot. Thank you!
 ### Changelog
 
 #### 1.0.2
-- **System climate panel closed faster**: MG4 Clima notices sooner that the climate turned on (also from the
-  launcher or the physical button) and closes it straight away, several times in the first second.
+- **Button to close the screen** at the top, next to the settings.
+- **System climate panel closed faster**: MG4 Clima gets the climate-on notice at the same moment as the system
+  (also from the launcher or the physical button) and closes it straight away, several times in the first second.
 - Removed from the settings the entry to install the system climate panel integration: the car's system doesn't
   accept it.
 

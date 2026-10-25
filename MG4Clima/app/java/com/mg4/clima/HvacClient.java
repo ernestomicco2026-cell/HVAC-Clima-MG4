@@ -41,6 +41,10 @@ public final class HvacClient {
 
         /** Stato vuoto con i limiti del modello. */
         State empty();
+
+        /** Avviso immediato a ogni cambio del clima (se il servizio lo permette); null per toglierlo. */
+        default void setOnChange(Runnable r) {
+        }
     }
 
     /** Stato letto dall'auto (-1 = non letto). */
@@ -186,6 +190,11 @@ public final class HvacClient {
 
     public boolean running() {
         return running;
+    }
+
+    /** Avviso immediato a ogni cambio del clima (SWI68/SWI133: ascoltatore del servizio clima, come il SystemUI). */
+    public void setOnChange(Runnable r) {
+        backend.setOnChange(r);
     }
 
     /** Clima acceso (1), spento (0), -1 se non leggibile. */

@@ -62,6 +62,53 @@ final class SaicBackend implements HvacClient.Backend {
     private int fanMin = -1, fanMax = -1;
     private Runnable onConnected;
 
+    // ---- ascoltatore dei cambi del clima (1.0.2) ---------------------------------------------------
+    // Il servizio clima avvisa i suoi ascoltatori (addAirConditionListener = 1) a ogni cambio: è così che il SystemUI sa
+    // che il clima si è acceso e apre il suo pannello. MG4 Clima si registra allo stesso modo e lo sa nello stesso istante.
+    private static final String LISTENER = "com.saicmotor.sdk.vehiclesettings.IAirConditionListener";
+    private static final int ADD_LISTENER = 1;
+    private volatile Runnable onChange;
+    private volatile IBinder listenedOn;
+    private final android.os.Binder listener = new android.os.Binder() {
+        @Override
+        protected boolean onTransact(int code, android.os.Parcel data, android.os.Parcel reply, int flags) {
+            if (code == INTERFACE_TRANSACTION) {
+                if (reply != null) reply.writeString(LISTENER);
+                return true;
+            }
+            if (code == 1 || code == 2) {   // onChangeEvent, onErrorEvent
+                Runnable r = onChange;
+                if (r != null) {
+                    try {
+                        r.run();
+                    } catch (Throwable ignored) {
+                    }
+                }
+                if (reply != null) reply.writeNoException();
+                return true;
+            }
+            return false;
+        }
+    };
+
+    @Override
+    public void setOnChange(Runnable r) {
+        onChange = r;
+    }
+
+    /** Registra l'ascoltatore sul servizio clima (una volta per collegamento). */
+    private void ensureListener(IBinder a) {
+        if (onChange == null || a == null || a == listenedOn) return;
+        try {
+            Rpc.call(a, AC, ADD_LISTENER, p -> p.writeStrongBinder(listener));
+            listenedOn = a;
+            Store.event(ctx, "ascolto dei cambi del clima attivo");
+        } catch (Throwable e) {
+            listenedOn = a;   // non riprovare a ogni lettura
+            Store.event(ctx, "ascolto dei cambi del clima non disponibile: " + e);
+        }
+    }
+
     SaicBackend(Context c, boolean swi133) {
         ctx = c;
         condAcAvailable = swi133 ? 45 : 49;
@@ -148,6 +195,7 @@ final class SaicBackend implements HvacClient.Backend {
     public int readPower() {
         try {
             IBinder a = sub("aircondition");
+            ensureListener(a);
             return a == null ? -1 : Rpc.callInt(a, AC, GET_POWER);
         } catch (Throwable e) {
             reset();
