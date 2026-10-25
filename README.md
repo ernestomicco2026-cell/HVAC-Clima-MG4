@@ -55,7 +55,7 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 
 | Software dell'auto / Car software | Auto / Car | Versione / Version | Stato / Status | Download |
 |---|---|---|---|---|
-| **SWI68 SAIC 1.0+** · **SWI69 Color Radio** · **SWI132** · **SWI133** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.0.0** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.0.0.apk](releases/MG4Clima-1.0.0.apk) |
+| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.0.0** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.0.0.apk](releases/MG4Clima-1.0.0.apk) |
 
 **Un unico APK per tutti i modelli**: il software dell'auto si riconosce da solo. Dalla 1.0.0 gli aggiornamenti si
 
