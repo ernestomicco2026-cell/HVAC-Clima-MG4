@@ -140,7 +140,8 @@ public final class ClimaGuard extends AccessibilityService {
             } catch (Throwable t) {
                 Store.event(ClimaGuard.this, "controllo accensione: " + t);
             }
-            bg.postDelayed(this, 1000);
+            // 1.0.2: ogni 300 ms (prima 1 s), così l'accensione del clima si vede prima e il pannello si richiude subito
+            bg.postDelayed(this, 300);
         }
     };
 

@@ -23,9 +23,9 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 
 > [!CAUTION]
 > # 🚨 USI QUESTA APP A TUO RISCHIO E PERICOLO
-> **MG4 Clima è un progetto amatoriale e sperimentale.** Comanda il climatizzatore della tua auto e, se lo attivi,
-> può **modificare un componente di sistema** dell'infotainment. Un errore, un firmware diverso o un'installazione
-> interrotta possono causare **malfunzionamenti dell'infotainment** (barra in alto, dock, pannelli, clima).
+> **MG4 Clima è un progetto amatoriale e sperimentale.** Comanda il climatizzatore della tua auto e lavora accanto
+> ai servizi di sistema dell'infotainment. Un errore o un firmware diverso possono causare **malfunzionamenti
+> dell'infotainment** (barra in alto, dock, pannelli, clima).
 >
 > - **Non è un'app ufficiale** e non è approvata da MG Motor o SAIC Motor.
 > - Può far **decadere la garanzia** sull'infotainment.
@@ -38,9 +38,9 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 
 > [!CAUTION]
 > # 🚨 USE THIS APP ENTIRELY AT YOUR OWN RISK
-> **MG4 Clima is an experimental hobby project.** It controls your car's climate and, if you turn it on,
-> can **modify a system component** of the infotainment. A mistake, a different firmware or an interrupted install can cause
-> **infotainment malfunctions** (top bar, dock, panels, climate).
+> **MG4 Clima is an experimental hobby project.** It controls your car's climate and works alongside the
+> infotainment's system services. A mistake or a different firmware can cause **infotainment malfunctions**
+> (top bar, dock, panels, climate).
 >
 > - **Not an official app**, not endorsed by MG Motor or SAIC Motor.
 > - It may **void the infotainment warranty**.
@@ -55,7 +55,7 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 
 | Software dell'auto / Car software | Auto / Car | Versione / Version | Stato / Status | Download |
 |---|---|---|---|---|
-| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.0.1** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.0.1.apk](releases/MG4Clima-1.0.1.apk) |
+| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.0.2** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.0.2.apk](releases/MG4Clima-1.0.2.apk) |
 
 **Un unico APK per tutti i modelli**: il software dell'auto si riconosce da solo. Dalla 1.0.0 gli aggiornamenti si
 
@@ -159,7 +159,7 @@ apre il pannello originale.
 
   senza far vedere per un istante l'app originale.
 
-- **Impostazioni con la grafica del launcher**, divise in Schermata, Apertura del clima, Pannello clima di sistema,
+- **Impostazioni con la grafica del launcher**, divise in Schermata, Apertura del clima,
 
   Aggiornamenti, Auto e Strumenti.
 
@@ -169,52 +169,12 @@ apre il pannello originale.
 
 - **Aggiornamenti dalle impostazioni** (dalla 1.0.0), come MG4 Launcher: controlla, scarica, verifica e installa.
 
-- **Integrazione col pannello clima di sistema** (dalla 1.0.0, solo SWI68 e SWI133, facoltativa): vedi sotto.
+- **Pannello clima di sistema** (SWI68 e SWI133): quando l'auto lo apre all'accensione del clima o col tasto fisico,
+  MG4 Clima lo richiude subito.
 
 - **Test automatico dei comandi** (solo ad auto ferma): prova un comando alla volta, controlla che l'auto risponda,
 
   rimette tutto com'era e invia il log. Si ferma da solo se l'auto si muove o se si esce dalla schermata.
-
-### Impostazioni → Pannello clima di sistema (SWI68 e SWI133)
-
-Su SWI68 e SWI133, quando accendi il clima (dallo schermo o dal tasto fisico) l'auto apre in automatico il suo
-
-pannello del clima, che scende dall'alto e si sovrappone a tutto. Questa voce del menù serve a toglierlo di mezzo:
-
-- **Installa** attiva l'integrazione: il pannello del clima dell'auto **non si apre più da solo** e il **tasto fisico
-
-  del clima** apre direttamente **MG4 Clima**;
-
-- **Rimuovi** la disattiva: torna tutto esattamente come prima.
-
-**Come funziona in pratica**
-
-1. Apri MG4 Clima → **Impostazioni** (icona dell'ingranaggio) → sezione **Pannello clima di sistema**.
-
-2. Premi **Installa** e conferma. Serve la connessione a internet: l'app scarica l'integrazione adatta al software
-
-   della tua auto (10–20 MB, da qualche decina di secondi a 2–3 minuti, a seconda del segnale) e la controlla prima di
-
-   installarla.
-
-3. Per qualche secondo barra in alto e dock spariscono e ricompaiono: è normale.
-
-4. Fatto: la riga mostra **Attivo**. Il file resta nell'auto, quindi se la togli e la rimetti non si riscarica.
-
-**Da sapere**
-
-- Compare solo sulle versioni software già provate (SWI68 R46, R59, R63, R67, R69 e SWI133); sulle altre la riga dice
-
-  che non è disponibile. SWI69 e SWI132 non ne hanno bisogno.
-
-- È legata a MG4 Clima: se **disinstalli MG4 Clima** l'integrazione si toglie da sola, e dopo un **aggiornamento del
-
-  software dell'auto** si disattiva da sola.
-
-- Se l'installazione non riesce, la riga dice il motivo (connessione, accesso) e l'app invia il log.
-
-> [!WARNING]
-> **L'integrazione modifica un componente di sistema dell'infotainment: attivala a tuo rischio e pericolo, ad auto ferma.**
 
 ### Sicurezza
 
@@ -236,7 +196,7 @@ Il firmware MG blocca l'installazione normale delle app: l'opzione `-f` la perme
 
    ```bash
 
-   adb install -r -f MG4Clima-1.0.1.apk
+   adb install -r -f MG4Clima-1.0.2.apk
 
    ```
 
@@ -263,6 +223,12 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 [![Offrimi un caffè con PayPal](https://img.shields.io/badge/Offrimi%20un%20caff%C3%A8-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/pool/9tv7fQ36nA?sr=wccr)
 
 ### Versioni
+
+#### 1.0.2
+- **Pannello clima di sistema chiuso più in fretta**: MG4 Clima si accorge prima che il clima si è acceso (anche
+  dal launcher o dal tasto fisico) e lo richiude subito, più volte nel primo secondo.
+- Tolta dalle impostazioni la voce per installare l'integrazione col pannello clima: il sistema dell'auto non la
+  accetta.
 
 #### 1.0.1
 - Integrazione col pannello clima di sistema: prima di scaricare controlla l'accesso e, se non riesce, dice il
@@ -390,7 +356,7 @@ MG4 Launcher climate button (from the next launcher version) or from the app lis
 
   without briefly showing the original app.
 
-- **Settings with the launcher's look**, split into Screen, Opening the climate, System climate panel, Updates, Car
+- **Settings with the launcher's look**, split into Screen, Opening the climate, Updates, Car
 
   and Tools.
 
@@ -400,54 +366,12 @@ MG4 Launcher climate button (from the next launcher version) or from the app lis
 
 - **Updates from the settings** (from 1.0.0), like MG4 Launcher: check, download, verify and install.
 
-- **System climate panel integration** (from 1.0.0, SWI68 and SWI133 only, optional): see below.
+- **System climate panel** (SWI68 and SWI133): when the car opens it as the climate turns on or from the physical
+  button, MG4 Clima closes it straight away.
 
 - **Automatic command test** (car stopped only): tries one command at a time, checks that the car responds, restores
 
   everything and sends the log. It stops by itself if the car moves or you leave the screen.
-
-### Settings → System climate panel (SWI68 and SWI133)
-
-On SWI68 and SWI133, when you turn the climate on (from the screen or the physical button) the car automatically opens
-
-its own climate panel, which drops down from the top over everything. This menu entry gets it out of the way:
-
-- **Install** turns the integration on: the car's climate panel **no longer opens by itself** and the **physical
-
-  climate button** opens **MG4 Clima** directly;
-
-- **Remove** turns it off: everything goes back exactly as before.
-
-**How it works**
-
-1. Open MG4 Clima → **Settings** (gear icon) → **System climate panel** section.
-
-2. Tap **Install** and confirm. You need an internet connection: the app downloads the integration for your car's
-
-   software (10–20 MB, from a few tens of seconds to 2–3 minutes depending on the signal) and checks it before
-
-   installing.
-
-3. For a few seconds the top bar and the dock disappear and come back: that's normal.
-
-4. Done: the row shows **Active**. The file stays in the car, so if you remove it and turn it on again it isn't
-
-   downloaded again.
-
-**Good to know**
-
-- It only appears on the software versions already tested (SWI68 R46, R59, R63, R67, R69 and SWI133); on the others the
-
-  row says it isn't available. SWI69 and SWI132 don't need it.
-
-- It is tied to MG4 Clima: if you **uninstall MG4 Clima** the integration removes itself, and after a **car software
-
-  update** it switches itself off.
-
-- If the installation fails, the row tells you why (connection, access) and the app sends the log.
-
-> [!WARNING]
-> **The integration modifies a system component of the infotainment: turn it on at your own risk, with the car stopped.**
 
 ### Safety
 
@@ -469,7 +393,7 @@ The MG firmware blocks normal app installs: the `-f` option allows it.
 
    ```bash
 
-   adb install -r -f MG4Clima-1.0.1.apk
+   adb install -r -f MG4Clima-1.0.2.apk
 
    ```
 
@@ -498,6 +422,12 @@ A star on the repository or a bug report also help a lot. Thank you!
 
 
 ### Changelog
+
+#### 1.0.2
+- **System climate panel closed faster**: MG4 Clima notices sooner that the climate turned on (also from the
+  launcher or the physical button) and closes it straight away, several times in the first second.
+- Removed from the settings the entry to install the system climate panel integration: the car's system doesn't
+  accept it.
 
 #### 1.0.1
 - System climate panel integration: before downloading it checks access and, if it fails, tells the exact reason

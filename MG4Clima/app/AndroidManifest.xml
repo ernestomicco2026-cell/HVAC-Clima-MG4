@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
     <!-- bloccare il menù a tendina mentre MG4 Clima è aperta (firma di sistema) -->
     <uses-permission android:name="android.permission.STATUS_BAR" />
-    <!-- SystemUI corretto (facoltativo, SWI68 e SWI133) e aggiornamenti di MG4 Clima dalle impostazioni (firma di sistema) -->
+    <!-- aggiornamenti di MG4 Clima dalle impostazioni (firma di sistema) -->
     <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.DELETE_PACKAGES" />
 

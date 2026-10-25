@@ -120,7 +120,7 @@ public final class Store {
                 .append(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.ITALY).format(new Date())).append('\n');
         sb.append("modello: ").append(Model.get(c)).append(Model.manual(c) ? " (scelto a mano)" : " (riconosciuto: " + Model.how(c) + ")")
                 .append(" · software ").append(Model.software().isEmpty() ? "?" : Model.software()).append('\n');
-        sb.append("SystemUI: ").append(SysUiPatch.factoryVersion(c)).append(" · ").append(SysUiPatch.state(c)).append('\n');
+        sb.append("chiusura pannello/tendina: ").append(closeShade(c) ? "attiva" : "spenta").append('\n');
         sb.append("app clima originale: ").append(ClimaGuard.originalVersion(c))
                 .append(ClimaGuard.originalKnown(c) ? " (verificata)" : " (non verificata: niente sostituzione)").append('\n');
         sb.append("sostituzione: ").append(replace(c) ? "attiva" : "spenta")

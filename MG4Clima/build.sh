@@ -36,11 +36,10 @@ echo "==> risorse (aapt2)"
   -o "$OUT/base.apk" \
   "$OUT/res/compiled.zip"
 
-echo "==> token (log e SystemUI)"
+echo "==> token dei log"
 # I token NON sono nel repository: stanno in tools/ (esclusi da git) e diventano classi generate, offuscate con XOR
 # (solo per non lasciarli in chiaro nell'APK).
 #   tools/log-token.txt    → LogConfig    (invio dei log nel repository privato dei log)
-#   tools/sysui-token.txt  → SysUiConfig  (sola lettura: download del SystemUI corretto dal repository privato)
 gen_token() {
 python3 - "$1" "$2" "$3" <<'PY'
 import os, random, re, sys
@@ -61,7 +60,6 @@ print("    %s:" % cls, "presente" if tok else "ASSENTE")
 PY
 }
 gen_token "$T/log-token.txt" "$OUT/gen/com/mg4/clima/LogConfig.java" LogConfig
-gen_token "$T/sysui-token.txt" "$OUT/gen/com/mg4/clima/SysUiConfig.java" SysUiConfig
 
 echo "==> java (javac, bytecode 8)"
 find "$SRC" "$OUT/gen" -name '*.java' > "$OUT/sources.txt"

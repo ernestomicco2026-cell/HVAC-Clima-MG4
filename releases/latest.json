@@ -1,9 +1,9 @@
 {
   "MG4Clima": {
-    "version": "1.0.1",
-    "apk": "releases/MG4Clima-1.0.1.apk",
-    "size": 91649,
-    "sha256": "97cc0c200df9858e39ff92b789c56048d4b5906277112943b78a41f066f180a6",
-    "notes": "Integrazione col pannello clima: controlla l'accesso prima di scaricare e dice il motivo esatto se non riesce (con invio del log). Sperimentale: a tuo rischio."
+    "version": "1.0.2",
+    "apk": "releases/MG4Clima-1.0.2.apk",
+    "size": 83457,
+    "sha256": "b31a5246ae87931a854246a4e1fd5b463ffda3072e6e360a3de85516a50187f3",
+    "notes": "Pannello clima di sistema chiuso più in fretta (anche quando il clima si accende dal launcher o dal tasto fisico). Tolta la voce di installazione dell'integrazione, che il sistema dell'auto non accetta."
   }
 }

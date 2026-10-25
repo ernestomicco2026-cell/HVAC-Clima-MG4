@@ -16,7 +16,7 @@ import android.widget.Toast;
 /**
  * Schermata MG4 Clima (una sola app per SWI68, SWI69, SWI132 e SWI133, il modello si riconosce da solo): mostra lo
  * stato reale del clima e i tasti comandano l'auto come l'app originale. Dalle impostazioni: apertura del clima,
- * SystemUI corretto (SWI68, SWI133), aggiornamenti, modello, clima originale, test automatico e diagnostica.
+ * chiusura del pannello clima di sistema, aggiornamenti, modello, clima originale, test automatico e diagnostica.
  */
 public final class ClimaActivity extends Activity {
     private static final int IMMERSIVE = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -148,7 +148,7 @@ public final class ClimaActivity extends Activity {
             case "accensione":
                 press("accensione", HvacClient.SET_POWER_PRESS);
                 // all'accensione il SystemUI MG apre il suo pannello clima: si richiude subito (non serve col SystemUI corretto)
-                if (Model.sysUiPanel(this) && Store.closeShade(this) && s.power != 1 && !SysUiPatch.active(this))
+                if (Model.sysUiPanel(this) && Store.closeShade(this) && s.power != 1)
                     SysUiPanel.closeSoon(this, "accensione da MG4 Clima");
                 break;
             case "temp-":
@@ -268,8 +268,6 @@ public final class ClimaActivity extends Activity {
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 finish();
             } else {
-                // col SystemUI corretto attivo il pannello aprirebbe di nuovo MG4 Clima: agganci sospesi per un attimo
-                SysUiPatch.suspend(this, 4000);
                 SysUiPanel.open(this);
                 moveTaskToBack(true);
             }
@@ -284,9 +282,7 @@ public final class ClimaActivity extends Activity {
     private FrameLayout root;
     private String currentSheet = "";
     private boolean updateChecked;
-    /** Avanzamento del SystemUI corretto (null = niente in corso). */
-    private String sysUiBusy;
-    private TextView sysUiText, updText;
+    private TextView updText;
 
     private boolean settingsShowing() {
         return sheet != null && sheet.showing() && SETTINGS.equals(currentSheet);
@@ -345,14 +341,6 @@ public final class ClimaActivity extends Activity {
                     shadeBlock(v);
                 }), true);
 
-        // ---- SystemUI corretto (solo SWI68 e SWI133)
-        sysUiText = null;
-        if (panelModel) {
-            s.label(t("Pannello clima di sistema", "System climate panel"));
-            LinearLayout c2 = s.card();
-            sysUiText = s.row(c2, t("SystemUI corretto", "Fixed SystemUI"), sysUiSubtitle(), sysUiButtons(s), true);
-        }
-
         // ---- aggiornamenti
         s.label(t("Aggiornamenti", "Updates"));
         LinearLayout c3 = s.card();
@@ -401,80 +389,6 @@ public final class ClimaActivity extends Activity {
         s.row(c5, t("Invia la diagnostica", "Send diagnostics"), t("Nel repository privato dei log", "To the private log repository"),
                 s.button(t("Invia", "Send"), v -> LogSend.send(this, "manuale", r -> h.post(() -> toast(
                         "ok".equals(r) ? t("Diagnostica inviata", "Diagnostics sent") : r)))), true);
-    }
-
-    private String sysUiSubtitle() {
-        if (sysUiBusy != null) return sysUiBusy;
-        String ver = SysUiPatch.versionName(this);
-        if (!SysUiPatch.supported(this)) {
-            String list = SysUiPatch.supportedList(this);
-            return t("Non disponibile per questo SystemUI (", "Not available for this SystemUI (") + SysUiPatch.factoryVersion(this) + ")"
-                    + (list.isEmpty() ? "" : t(". Supportati: ", ". Supported: ") + list);
-        }
-        if (SysUiPatch.active(this)) {
-            return t("Attivo (" + ver + "): il pannello non si apre più da solo e il tasto fisico del clima apre MG4 Clima. "
-                            + "Se disinstalli MG4 Clima si toglie da solo.",
-                    "Active (" + ver + "): the panel no longer opens by itself and the physical climate button opens MG4 Climate. "
-                            + "If you uninstall MG4 Climate it removes itself.");
-        }
-        if (SysUiPatch.installed(this)) {
-            return t("Installato ma spento (" + ver + "): il SystemUI si comporta come l'originale",
-                    "Installed but off (" + ver + "): the SystemUI behaves like the original");
-        }
-        boolean dl = SysUiPatch.downloaded(this);
-        return t("Il pannello clima di sistema non si apre più e il tasto fisico del clima apre MG4 Clima. Si scarica da GitHub ("
-                        + ver + ", " + SysUiPatch.sizeMb(this) + " MB" + (dl ? ", già scaricato" : "") + ") e si toglie quando vuoi.",
-                "The system climate panel no longer opens and the physical climate button opens MG4 Climate. Downloaded from GitHub ("
-                        + ver + ", " + SysUiPatch.sizeMb(this) + " MB" + (dl ? ", already downloaded" : "") + ") and removable at any time.");
-    }
-
-    private View sysUiButtons(Sheet s) {
-        if (sysUiBusy != null) return s.busyButton("…");
-        if (!SysUiPatch.supported(this)) return null;
-        if (SysUiPatch.active(this)) return s.button(t("Rimuovi", "Remove"), v -> sysUiRemove());
-        if (SysUiPatch.installed(this))
-            return s.group(s.button(t("Rimuovi", "Remove"), v -> sysUiRemove()), s.primary(t("Attiva", "Turn on"), v -> sysUiInstall()));
-        return s.primary(t("Installa", "Install"), v -> confirmSysUi());
-    }
-
-    private void sysUiProgress(String text) {
-        sysUiBusy = text;
-        if (sysUiText != null && settingsShowing()) sysUiText.setText(text);
-    }
-
-    private void sysUiDone(boolean ok, String okText, String msg) {
-        sysUiBusy = null;
-        toast(ok ? okText : t("Non riuscito: ", "Failed: ") + msg);
-        if (settingsShowing()) settings();
-    }
-
-    private void confirmSysUi() {
-        String v = SysUiPatch.versionName(this);
-        sheet.confirm(t("SystemUI corretto", "Fixed SystemUI"),
-                t("MG4 Clima scarica da GitHub il SystemUI della tua auto (" + v + ") con due piccole modifiche: il pannello "
-                                + "clima non si apre più da solo e il tasto fisico del clima apre MG4 Clima. Il file viene controllato "
-                                + "prima di installarlo.\n\nBarra in alto e dock spariscono per qualche secondo mentre si installa. "
-                                + "Con \"Rimuovi\", o disinstallando MG4 Clima, torna il SystemUI originale.\n\n"
-                                + "Fallo ad auto ferma, con la connessione attiva.",
-                        "MG4 Climate downloads your car's SystemUI (" + v + ") from GitHub with two small changes: the climate "
-                                + "panel no longer opens by itself and the physical climate button opens MG4 Climate. The file is "
-                                + "checked before installing.\n\nThe top bar and dock disappear for a few seconds while it installs. "
-                                + "\"Remove\", or uninstalling MG4 Climate, brings back the original SystemUI.\n\n"
-                                + "Do it with the car stopped and online."),
-                t("Annulla", "Cancel"), t("Installa", "Install"), this::sysUiInstall);
-    }
-
-    private void sysUiInstall() {
-        sysUiProgress(t("Preparazione…", "Preparing…"));
-        settings();
-        SysUiPatch.enable(this, this::sysUiProgress,
-                (ok, msg) -> sysUiDone(ok, t("SystemUI corretto attivo", "Fixed SystemUI active"), msg));
-    }
-
-    private void sysUiRemove() {
-        sysUiProgress(t("Rimozione…", "Removing…"));
-        settings();
-        SysUiPatch.disable(this, (ok, msg) -> sysUiDone(ok, t("SystemUI originale ripristinato", "Original SystemUI restored"), msg));
     }
 
     private void confirmUpdate(Updater.Release r) {

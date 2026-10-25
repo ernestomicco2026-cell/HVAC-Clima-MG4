@@ -140,7 +140,21 @@ final class Updater {
     private static boolean good(File f, Release r) {
         if (f.length() < 1024) return false;
         if (r.size > 0 && f.length() != r.size) return false;
-        return r.sha256.isEmpty() || r.sha256.equalsIgnoreCase(SysUiPatch.sha256(f));
+        return r.sha256.isEmpty() || r.sha256.equalsIgnoreCase(sha256(f));
+    }
+
+    static String sha256(File f) {
+        try (InputStream in = new FileInputStream(f)) {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] buf = new byte[65536];
+            int n;
+            while ((n = in.read(buf)) > 0) md.update(buf, 0, n);
+            StringBuilder sb = new StringBuilder();
+            for (byte x : md.digest()) sb.append(String.format(java.util.Locale.ROOT, "%02x", x));
+            return sb.toString();
+        } catch (Throwable e) {
+            return "";
+        }
     }
 
     private static String msg(Exception e) {

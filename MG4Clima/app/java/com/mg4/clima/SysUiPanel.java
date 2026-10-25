@@ -109,12 +109,15 @@ final class SysUiPanel {
         return true;
     }
 
-    /** Chiude più volte di seguito: il SystemUI apre il pannello poco dopo il cambio di stato del clima. */
+    /**
+     * Chiude più volte di seguito: il SystemUI apre il pannello poco dopo il cambio di stato del clima. 1.0.2: si parte
+     * subito e si ripete fitto nel primo secondo, così il pannello si vede il meno possibile.
+     */
     static void closeSoon(Context c, String why) {
         bind(c);
         final Context ctx = c.getApplicationContext();
         final String[] res = new String[1];
-        long[] at = {150, 500, 1000, 1800};
+        long[] at = {0, 80, 200, 350, 550, 800, 1200, 1800, 2600};
         for (int k = 0; k < at.length; k++) {
             final boolean last = k == at.length - 1;
             main.postDelayed(() -> {
