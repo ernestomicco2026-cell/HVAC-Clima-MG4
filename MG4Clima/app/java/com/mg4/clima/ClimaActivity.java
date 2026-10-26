@@ -333,7 +333,20 @@ public final class ClimaActivity extends Activity {
                         Store.event(this, "apertura dal launcher " + (v ? "attivata" : "spenta"));
                     }), false);
         }
-        s.row(c1, panelModel ? t("Chiudi il pannello clima di sistema", "Close the system climate panel")
+        if (panelModel) {
+            int pm = Store.panelMode(this);
+            s.row(c1, t("Pannello clima di sistema", "System climate panel"),
+                    t("Quando il clima si accende il sistema apre il suo pannello: chiuderlo sempre, solo sopra MG4 Clima o lasciarlo",
+                            "When the climate turns on the system opens its panel: always close it, only over MG4 Climate, or leave it"),
+                    s.choices(new String[]{t("Sempre", "Always"), t("Con MG4 Clima", "With MG4 Climate"), t("Lascia", "Leave")},
+                            pm == Store.PANEL_ALWAYS ? 0 : pm == Store.PANEL_WITH_APP ? 1 : 2, i -> {
+                                int m = i == 0 ? Store.PANEL_ALWAYS : i == 1 ? Store.PANEL_WITH_APP : Store.PANEL_LEAVE;
+                                Store.setPanelMode(this, m);
+                                Store.event(this, "pannello clima di sistema: modo " + m);
+                                shadeBlock(m != Store.PANEL_LEAVE);
+                                settings();
+                            }), true);
+        } else s.row(c1, panelModel ? t("Chiudi il pannello clima di sistema", "Close the system climate panel")
                         : t("Niente menù a tendina col clima", "No pull-down menu with the climate"),
                 panelModel ? t("Se il sistema lo apre quando il clima si accende, MG4 Clima lo richiude subito",
                         "If the system opens it when the climate turns on, MG4 Climate closes it at once")

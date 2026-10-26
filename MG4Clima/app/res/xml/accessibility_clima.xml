@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- solo i cambi di finestra (quale app è in primo piano, apertura del pannello clima di sistema): nessun contenuto -->
+<!-- cambi di finestra (quale app è in primo piano) ed elenco delle finestre (per riconoscere il pannello clima "hvac page"): nessun contenuto letto -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowsChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
-    android:accessibilityFlags="flagDefault"
-    android:canRetrieveWindowContent="false"
+    android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows"
+    android:canRetrieveWindowContent="true"
     android:notificationTimeout="50"
     android:description="@string/a11y_desc" />

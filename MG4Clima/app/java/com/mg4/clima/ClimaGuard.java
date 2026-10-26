@@ -187,6 +187,40 @@ public final class ClimaGuard extends AccessibilityService {
         });
     }
 
+    private boolean hvacPageShown;
+
+    /**
+     * 1.1.0 (idea di NoHvacPopup): la finestra del pannello clima del SystemUI si chiama "hvac page". Appena compare
+     * si chiude col comando del sistema, se sopra c'è MG4 Clima o se il clima si è appena acceso/spento (il tasto
+     * fisico del clima, sopra le altre app, continua ad aprirlo).
+     */
+    private void onWindows() {
+        boolean shown = false;
+        try {
+            java.util.List<android.view.accessibility.AccessibilityWindowInfo> ws = getWindows();
+            if (ws != null) {
+                for (android.view.accessibility.AccessibilityWindowInfo w : ws) {
+                    CharSequence t = w == null ? null : w.getTitle();
+                    if (t != null && t.toString().toLowerCase(java.util.Locale.ROOT).contains("hvac page")) {
+                        shown = true;
+                        break;
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        if (shown == hvacPageShown) return;
+        hvacPageShown = shown;
+        if (!shown) return;
+        boolean ours = getPackageName().equals(fgPkg);
+        boolean justChanged = SystemClock.elapsedRealtime() - powerChangedAt < 2500;
+        Store.event(this, "finestra \"hvac page\" vista (sopra " + fgPkg + (justChanged ? ", clima appena cambiato" : "") + ")");
+        if (ours || justChanged) {
+            lastCollapse = 0;   // subito, anche se c'è appena stata un'altra serie di chiusure
+            collapse(ours ? "finestra vista sopra MG4 Clima" : "finestra vista dopo l'accensione");
+        }
+    }
+
     private long lastCollapse;
     /** Modello col pannello clima nel SystemUI MG (SWI68, SWI133). */
     private volatile boolean panel;
@@ -194,7 +228,10 @@ public final class ClimaGuard extends AccessibilityService {
 
     /** SWI68/SWI133: comando del SystemUI MG (closeHvac / stopHVAC); SWI69/SWI132: chiusura del menù a tendina. */
     private void collapse(String why) {
-        if (!Store.closeShade(this)) return;
+        int mode = Store.panelMode(this);
+        if (mode == Store.PANEL_LEAVE) return;
+        // 1.1.0: "solo con MG4 Clima aperto" → sopra le altre app il pannello si lascia
+        if (mode == Store.PANEL_WITH_APP && !getPackageName().equals(fgPkg)) return;
         long t = SystemClock.elapsedRealtime();
         if (t - lastCollapse < 2500) return;   // una serie di chiusure alla volta
         lastCollapse = t;
@@ -244,6 +281,10 @@ public final class ClimaGuard extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent e) {
+        if (e != null && e.getEventType() == AccessibilityEvent.TYPE_WINDOWS_CHANGED) {
+            if (panel) onWindows();
+            return;
+        }
         if (e == null || e.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return;
         if (isSysUi(e.getPackageName())) {
             onSysUi(e);

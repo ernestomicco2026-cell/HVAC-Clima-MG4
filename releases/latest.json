@@ -1,9 +1,9 @@
 {
   "MG4Clima": {
-    "version": "1.0.2",
-    "apk": "releases/MG4Clima-1.0.2.apk",
+    "version": "1.1.0",
+    "apk": "releases/MG4Clima-1.1.0.apk",
     "size": 87553,
-    "sha256": "df04499b9625a042133d21f32c3ede0ebf7b1a187c81763a2946066e36ed8b2f",
-    "notes": "Tasto per chiudere la schermata. Pannello clima di sistema chiuso più in fretta: MG4 Clima riceve l'avviso di accensione nello stesso istante del sistema. Tolta la voce di installazione dell'integrazione, che il sistema dell'auto non accetta."
+    "sha256": "d26471078a700891e4799c7184e477464429022f13e118a602ba485fa270fe34",
+    "notes": "Pannello clima di sistema riconosciuto appena compare e chiuso subito. Nuova scelta: chiuderlo sempre, solo con MG4 Clima aperto oppure lasciarlo."
   }
 }

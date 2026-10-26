@@ -36,12 +36,25 @@ public final class Store {
     }
 
     /** Chiudere il menù a tendina che il sistema apre quando si accende/spegne il clima. */
+    /** Pannello clima di sistema (1.1.0): 0 lascia, 1 chiudi solo con MG4 Clima aperto, 2 chiudi sempre. */
+    public static final int PANEL_LEAVE = 0, PANEL_WITH_APP = 1, PANEL_ALWAYS = 2;
+
+    public static int panelMode(Context c) {
+        SharedPreferences s = sp(c);
+        if (s.contains("pannelloModo")) return s.getInt("pannelloModo", PANEL_ALWAYS);
+        return s.getBoolean("chiudiTendina", true) ? PANEL_ALWAYS : PANEL_LEAVE;   // come prima della 1.1.0
+    }
+
+    public static void setPanelMode(Context c, int m) {
+        sp(c).edit().putInt("pannelloModo", m).putBoolean("chiudiTendina", m != PANEL_LEAVE).apply();
+    }
+
     public static boolean closeShade(Context c) {
-        return sp(c).getBoolean("chiudiTendina", true);
+        return panelMode(c) != PANEL_LEAVE;
     }
 
     public static void setCloseShade(Context c, boolean on) {
-        sp(c).edit().putBoolean("chiudiTendina", on).apply();
+        setPanelMode(c, on ? PANEL_ALWAYS : PANEL_LEAVE);
     }
 
     /** Modello scelto a mano nelle impostazioni ("" = riconosciuto in automatico). */
@@ -120,7 +133,8 @@ public final class Store {
                 .append(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.ITALY).format(new Date())).append('\n');
         sb.append("modello: ").append(Model.get(c)).append(Model.manual(c) ? " (scelto a mano)" : " (riconosciuto: " + Model.how(c) + ")")
                 .append(" · software ").append(Model.software().isEmpty() ? "?" : Model.software()).append('\n');
-        sb.append("chiusura pannello/tendina: ").append(closeShade(c) ? "attiva" : "spenta").append('\n');
+        int pm = panelMode(c);
+        sb.append("chiusura pannello/tendina: ").append(pm == PANEL_ALWAYS ? "sempre" : pm == PANEL_WITH_APP ? "solo con MG4 Clima aperto" : "spenta").append('\n');
         sb.append("app clima originale: ").append(ClimaGuard.originalVersion(c))
                 .append(ClimaGuard.originalKnown(c) ? " (verificata)" : " (non verificata: niente sostituzione)").append('\n');
         sb.append("sostituzione: ").append(replace(c) ? "attiva" : "spenta")

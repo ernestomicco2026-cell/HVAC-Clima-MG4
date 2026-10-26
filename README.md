@@ -55,7 +55,7 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 
 | Software dell'auto / Car software | Auto / Car | Versione / Version | Stato / Status | Download |
 |---|---|---|---|---|
-| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.0.2** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.0.2.apk](releases/MG4Clima-1.0.2.apk) |
+| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.1.0** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.1.0.apk](releases/MG4Clima-1.1.0.apk) |
 
 **Un unico APK per tutti i modelli**: il software dell'auto si riconosce da solo. Dalla 1.0.0 gli aggiornamenti si
 
@@ -196,7 +196,7 @@ Il firmware MG blocca l'installazione normale delle app: l'opzione `-f` la perme
 
    ```bash
 
-   adb install -r -f MG4Clima-1.0.2.apk
+   adb install -r -f MG4Clima-1.1.0.apk
 
    ```
 
@@ -223,6 +223,12 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 [![Offrimi un caffè con PayPal](https://img.shields.io/badge/Offrimi%20un%20caff%C3%A8-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/pool/9tv7fQ36nA?sr=wccr)
 
 ### Versioni
+
+#### 1.1.0
+- **Pannello clima di sistema riconosciuto appena compare** (SWI68 e SWI133): MG4 Clima vede la finestra del pannello
+  nel momento in cui si apre e la chiude subito con il comando del sistema.
+- **Nuova scelta nelle impostazioni**: chiudere il pannello **sempre**, **solo con MG4 Clima aperto** oppure
+  **lasciarlo**. Di default resta come prima (sempre).
 
 #### 1.0.2
 - **Tasto per chiudere la schermata** in alto, accanto alle impostazioni.
@@ -394,7 +400,7 @@ The MG firmware blocks normal app installs: the `-f` option allows it.
 
    ```bash
 
-   adb install -r -f MG4Clima-1.0.2.apk
+   adb install -r -f MG4Clima-1.1.0.apk
 
    ```
 
@@ -423,6 +429,12 @@ A star on the repository or a bug report also help a lot. Thank you!
 
 
 ### Changelog
+
+#### 1.1.0
+- **System climate panel recognised as soon as it appears** (SWI68 and SWI133): MG4 Clima sees the panel window the
+  moment it opens and closes it straight away with the system's own command.
+- **New choice in the settings**: close the panel **always**, **only with MG4 Clima open** or **leave it**. By default
+  it works as before (always).
 
 #### 1.0.2
 - **Button to close the screen** at the top, next to the settings.
