@@ -61,6 +61,22 @@ public final class ClimaView extends View {
         listener = l;
     }
 
+    // ---- aria animata (1.1.0): circa 25 ridisegni al secondo solo con clima acceso, una direzione attiva e lo
+    // schermo visibile (con la vista nascosta Android non chiama onDraw e il ciclo si ferma da solo)
+    private boolean animated = true;
+    private float phase, warmth = -1;
+    private long animStart;
+
+    public void setAnimated(boolean on) {
+        animated = on;
+        invalidate();
+    }
+
+    private static int mix(int a, int b, float t) {
+        int ar = a >> 16 & 255, ag = a >> 8 & 255, ab = a & 255, br = b >> 16 & 255, bg = b >> 8 & 255, bb = b & 255;
+        return 0xFF000000 | Math.round(ar + (br - ar) * t) << 16 | Math.round(ag + (bg - ag) * t) << 8 | Math.round(ab + (bb - ab) * t);
+    }
+
     public void setRightHand(boolean on) {
         rhd = on;
         invalidate();
@@ -118,7 +134,14 @@ public final class ClimaView extends View {
         boolean[] dir = st.directions();
         int fan = st.fan == HvacClient.FAN_AUTO ? Math.max(1, st.fanMax / 2) : Math.max(0, st.fan);
         boolean warm = st.temp >= 25;
-        int fl = warm ? 0xFFFFB27A : FLOW, fl2 = warm ? HEAT : FLOW2;
+        float target = warm ? 1f : 0f;
+        if (warmth < 0 || !animated) warmth = target;
+        else if (Math.abs(warmth - target) > .02f) warmth += (target - warmth) * .12f;
+        else warmth = target;
+        int fl = mix(FLOW, 0xFFFFB27A, warmth), fl2 = mix(FLOW2, HEAT, warmth);
+        long nowMs = android.os.SystemClock.uptimeMillis();
+        if (animStart == 0) animStart = nowMs;
+        phase = (nowMs - animStart) / 1000f;
         float cx = rhd ? 750 : 1130;
 
         // ---- cruscotto (disegnato come guida a sinistra, specchiato se a destra)
@@ -150,6 +173,8 @@ public final class ClimaView extends View {
         // ---- tasti in basso
         drawTiles(c, usable, on, dir);
         c.restore();
+        // aria animata: prossimo fotogramma tra 40 ms se c'è aria che esce o se il colore sta ancora cambiando
+        if (animated && (on && (dir[0] || dir[1] || dir[2]) || Math.abs(warmth - (warm ? 1f : 0f)) > .001f)) postInvalidateDelayed(40);
     }
 
     private void drawDash(Canvas c, float cx, boolean on, boolean[] dir, int fan, int fl, int fl2, boolean frontDef, boolean wheelHot) {
@@ -202,6 +227,29 @@ public final class ClimaView extends View {
         vent(c, cx + 14, cx + 140);
         vent(c, cx + 404, cx + 508);
         // quadro strumenti dietro il volante
+        // aria al parabrezza (1.1.0): sale dal cruscotto verso il vetro, dietro agli schermi
+        if (on && dir[0]) {
+            float sp = (70 + fan * 22) * .8f;
+            for (int k = 0; k < 9; k++) {
+                float t = (k - 4) / 4f;
+                float x0 = cx - 20 + t * 400, y0 = 176, x2 = x0 + t * 80, y2 = 46;
+                path.reset();
+                path.moveTo(x0, y0);
+                path.cubicTo(x0, y0 - 40, x2 - t * 40, y2 + 40, x2, y2);
+                if (animated) {
+                    stroke(0xFF000000, 4);
+                    p.setShader(new LinearGradient(x0, y0, x2, y2, (fl & 0xFFFFFF) | 0x33000000, fl2 & 0xFFFFFF, Shader.TileMode.CLAMP));
+                    c.drawPath(path, p);
+                    p.setPathEffect(new DashPathEffect(new float[]{22, 30}, -(phase * sp) + k * 17));
+                }
+                stroke(0xFF000000, 4.5f);
+                p.setShader(new LinearGradient(x0, y0, x2, y2, (fl & 0xFFFFFF) | (animated ? 0xE6000000 : 0x99000000),
+                        fl2 & 0xFFFFFF, Shader.TileMode.CLAMP));
+                c.drawPath(path, p);
+                p.setPathEffect(null);
+                p.setShader(null);
+            }
+        }
         float wx = cx - 270, wy = 330;
         rr(c, wx - 92, 146, 184, 70, 12, DARK, BEZEL, 2);
         r.set(wx - 85, 153, wx + 85, 209);
@@ -232,7 +280,8 @@ public final class ClimaView extends View {
         rr(c, sx + 72 + c1, 137, 46, 6, 3, 0xFF262A30, 0, 0);
         rr(c, sx + 8, 200, sw - 16, 10, 4, 0xFF15171B, 0, 0);
         for (int i = 0; i < 8; i++) rr(c, sx + 30 + i * 32, 203, 14, 4, 2, 0xFF3A3F47, 0, 0);
-        // flussi verso il viso
+        // flussi verso il viso (1.1.0: animati, una traccia tenue e i soffi che scorrono; velocità dalla ventola)
+        float speed = 70 + fan * 22;
         if (on && dir[1]) {
             float[] outlets = {cx - 456, cx - 77, cx + 77, cx + 456};
             int n = 3 + Math.round(fan / 3f);
@@ -245,9 +294,18 @@ public final class ClimaView extends View {
                     path.reset();
                     path.moveTo(x0, y0);
                     path.cubicTo(x0, y0 + len * .35f, x2 - t * 30, y2 - len * .45f, x2, y2);
-                    stroke(0xFF000000, 3.5f + (1 - Math.abs(t)) * 3);
-                    p.setShader(new LinearGradient(x0, y0, x2, y2, (fl & 0xFFFFFF) | 0xD9000000, fl2 & 0xFFFFFF, Shader.TileMode.CLAMP));
+                    float w = 3.5f + (1 - Math.abs(t)) * 3;
+                    if (animated) {
+                        stroke(0xFF000000, w);
+                        p.setShader(new LinearGradient(x0, y0, x2, y2, (fl & 0xFFFFFF) | 0x40000000, fl2 & 0xFFFFFF, Shader.TileMode.CLAMP));
+                        c.drawPath(path, p);
+                        p.setPathEffect(new DashPathEffect(new float[]{34, 40}, -(phase * speed) + k * 23 + o * .37f));
+                    }
+                    stroke(0xFF000000, w);
+                    p.setShader(new LinearGradient(x0, y0, x2, y2, (fl & 0xFFFFFF) | (animated ? 0xF2000000 : 0xD9000000),
+                            fl2 & 0xFFFFFF, Shader.TileMode.CLAMP));
                     c.drawPath(path, p);
+                    p.setPathEffect(null);
                     p.setShader(null);
                 }
             }
@@ -264,7 +322,7 @@ public final class ClimaView extends View {
                 path.cubicTo(f[0] + off, y0 + 20, f[0] + off * 1.4f, y0 + (500 - y0) * .7f, f[0] + off * 1.8f, 500);
                 stroke(fl, 5);
                 p.setAlpha(204);
-                p.setPathEffect(new DashPathEffect(new float[]{3, 11}, 0));
+                p.setPathEffect(new DashPathEffect(new float[]{3, 11}, animated ? -(phase * speed * .45f) + k * 5 : 0));
                 c.drawPath(path, p);
                 p.setPathEffect(null);
             }

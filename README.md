@@ -229,6 +229,9 @@ o una segnalazione sono un aiuto prezioso. Grazie!
   nel momento in cui si apre e la chiude subito con il comando del sistema.
 - **Nuova scelta nelle impostazioni**: chiudere il pannello **sempre**, **solo con MG4 Clima aperto** oppure
   **lasciarlo**. Di default resta come prima (sempre).
+- **Aria animata**: l'aria scorre dalle bocchette verso il viso, i piedi e ora anche il **parabrezza**; più veloce e fitta
+  con la ventola alta, colore che passa gradualmente dal freddo al caldo con la temperatura. Si spegne nelle
+  impostazioni (Schermata › Aria animata).
 
 #### 1.0.2
 - **Tasto per chiudere la schermata** in alto, accanto alle impostazioni.
@@ -435,6 +438,9 @@ A star on the repository or a bug report also help a lot. Thank you!
   moment it opens and closes it straight away with the system's own command.
 - **New choice in the settings**: close the panel **always**, **only with MG4 Clima open** or **leave it**. By default
   it works as before (always).
+- **Animated air**: the air flows out of the vents towards the face, the feet and now also the **windscreen**; faster
+  and denser with a higher fan speed, colour fading gradually from cold to warm with the temperature. It can be turned
+  off in the settings (Screen › Animated air).
 
 #### 1.0.2
 - **Button to close the screen** at the top, next to the settings.

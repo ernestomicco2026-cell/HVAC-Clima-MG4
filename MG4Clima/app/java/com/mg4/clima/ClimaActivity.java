@@ -37,6 +37,7 @@ public final class ClimaActivity extends Activity {
         getWindow().getDecorView().setSystemUiVisibility(IMMERSIVE);
         view = new ClimaView(this);
         view.setRightHand(Store.rightHand(this));
+        view.setAnimated(Store.animatedAir(this));
         view.setListener(this::onTap);
         root = new FrameLayout(this);
         root.addView(view);
@@ -356,6 +357,18 @@ public final class ClimaActivity extends Activity {
                     Store.setCloseShade(this, v);
                     Store.event(this, "chiusura pannello/tendina " + (v ? "attivata" : "spenta"));
                     shadeBlock(v);
+                }), true);
+
+        // ---- schermata (1.1.0: aria animata)
+        s.label(t("Schermata", "Screen"));
+        LinearLayout cAir = s.card();
+        s.row(cAir, t("Aria animata", "Animated air"),
+                t("L'aria scorre dalle bocchette: più veloce con la ventola alta, colore dalla temperatura",
+                        "The air flows out of the vents: faster with a higher fan speed, colour from the temperature"),
+                s.toggle(Store.animatedAir(this), v -> {
+                    Store.setAnimatedAir(this, v);
+                    view.setAnimated(v);
+                    Store.event(this, "aria animata " + (v ? "accesa" : "spenta"));
                 }), true);
 
         // ---- aggiornamenti

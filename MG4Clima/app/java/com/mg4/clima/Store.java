@@ -49,6 +49,15 @@ public final class Store {
         sp(c).edit().putInt("pannelloModo", m).putBoolean("chiudiTendina", m != PANEL_LEAVE).apply();
     }
 
+    /** Aria animata nella schermata del clima (1.1.0, accesa di default). */
+    public static boolean animatedAir(Context c) {
+        return sp(c).getBoolean("ariaAnimata", true);
+    }
+
+    public static void setAnimatedAir(Context c, boolean on) {
+        sp(c).edit().putBoolean("ariaAnimata", on).apply();
+    }
+
     public static boolean closeShade(Context c) {
         return panelMode(c) != PANEL_LEAVE;
     }

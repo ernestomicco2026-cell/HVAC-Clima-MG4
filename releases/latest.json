@@ -3,7 +3,7 @@
     "version": "1.1.0",
     "apk": "releases/MG4Clima-1.1.0.apk",
     "size": 87553,
-    "sha256": "d26471078a700891e4799c7184e477464429022f13e118a602ba485fa270fe34",
-    "notes": "Pannello clima di sistema riconosciuto appena compare e chiuso subito. Nuova scelta: chiuderlo sempre, solo con MG4 Clima aperto oppure lasciarlo."
+    "sha256": "70cb310509171b8b30197a204c2291adb8440efa344d544f5585d2202093e2d3",
+    "notes": "Pannello clima di sistema riconosciuto appena compare e chiuso subito, con la scelta sempre / solo con MG4 Clima / lascia. Aria animata dalle bocchette (anche verso il parabrezza), più veloce con la ventola alta e colore dalla temperatura."
   }
 }
