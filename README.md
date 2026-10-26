@@ -29,8 +29,8 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 >
 > - **Non è un'app ufficiale** e non è approvata da MG Motor o SAIC Motor.
 > - Può far **decadere la garanzia** sull'infotainment.
-> - Installala e usala **solo ad auto ferma** e solo se sai usare **adb** per tornare indietro
->   (`adb uninstall com.mg4.clima`).
+> - Installala e usala **solo ad auto ferma** e solo se sai come toglierla per tornare indietro
+>   (Impostazioni Android › App › MG4 Clima › Disinstalla, oppure `adb uninstall com.mg4.clima`).
 > - **Nessuna garanzia** e **nessuna responsabilità** dell'autore per qualsiasi danno, guasto, costo o problema
 >   all'auto, all'infotainment o a persone.
 >
@@ -44,8 +44,8 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 >
 > - **Not an official app**, not endorsed by MG Motor or SAIC Motor.
 > - It may **void the infotainment warranty**.
-> - Install and use it **only with the car stopped** and only if you can use **adb** to go back
->   (`adb uninstall com.mg4.clima`).
+> - Install and use it **only with the car stopped** and only if you know how to remove it to go back
+>   (Android Settings › Apps › MG4 Clima › Uninstall, or `adb uninstall com.mg4.clima`).
 > - **No warranty** and **no liability** of the author for any damage, fault, cost or problem to the car,
 >   the infotainment or people.
 >
@@ -186,23 +186,39 @@ apre il pannello originale.
 
 ### Installazione
 
+Scarica l'APK dalla tabella in alto (è uno solo per tutti i modelli). Poi scegli uno dei due metodi.
+
+#### Metodo 1 — Da chiavetta USB (senza computer)
+
+Serve poter aprire un file manager sull'infotainment.
+
+1. Copia `MG4Clima-1.1.0.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
+2. Inserisci la chiavetta nell'auto, apri il file manager e tocca l'APK.
+3. Se Android avvisa che non può installare app da questa fonte: tocca **Impostazioni**, attiva
+   **Consenti da questa fonte** per il file manager e torna indietro.
+4. Tocca **Installa**.
+5. Apri il clima come al solito (tasto, barra o launcher): al primo avvio MG4 Clima si attiva da sola.
+
+Se **Impostazioni** non apre nulla o l'installazione dà errore, usa il metodo 2
+(e, se puoi, segnala il messaggio d'errore).
+
+#### Metodo 2 — Con adb da computer
+
 Serve un computer con [adb](https://developer.android.com/tools/releases/platform-tools) collegato all'auto.
+Il firmware MG può bloccare l'installazione normale delle app: l'opzione `-f` la permette.
 
-Il firmware MG blocca l'installazione normale delle app: l'opzione `-f` la permette.
-
-1. Scarica l'APK del tuo software dalla tabella in alto.
-
-2. Installa:
+1. Installa:
 
    ```bash
-
    adb install -r -f MG4Clima-1.1.0.apk
-
    ```
 
-3. Apri il clima come al solito (tasto, barra o launcher): al primo avvio MG4 Clima si attiva da sola.
+2. Apri il clima come al solito (tasto, barra o launcher): al primo avvio MG4 Clima si attiva da sola.
 
-Per toglierla: `adb uninstall com.mg4.clima`. L'app clima originale torna subito quella di sempre.
+Gli aggiornamenti successivi si installano anche da **Impostazioni → Aggiornamenti** dentro MG4 Clima.
+
+**Per toglierla:** Impostazioni Android › App › MG4 Clima › **Disinstalla**, oppure `adb uninstall com.mg4.clima`.
+L'app clima originale torna subito quella di sempre.
 
 ### Log e segnalazioni
 
@@ -393,23 +409,38 @@ MG4 Launcher climate button (from the next launcher version) or from the app lis
 
 ### Installation
 
+Download the APK from the table at the top (there is only one for every model). Then pick one of the two methods.
+
+#### Method 1 — From a USB stick (no computer)
+
+You need to be able to open a file manager on the infotainment.
+
+1. Copy `MG4Clima-1.1.0.apk` to a USB stick formatted as **FAT32** or **exFAT**.
+2. Plug it into the car, open the file manager and tap the APK.
+3. If Android says it cannot install apps from this source: tap **Settings**, enable
+   **Allow from this source** for the file manager and go back.
+4. Tap **Install**.
+5. Open the climate as usual (button, bar or launcher): MG4 Clima activates itself on first start.
+
+If **Settings** does nothing or the install fails, use method 2 (and, if you can, report the error message).
+
+#### Method 2 — With adb from a computer
+
 You need a computer with [adb](https://developer.android.com/tools/releases/platform-tools) connected to the car.
+The MG firmware may block normal app installs; the `-f` option allows it.
 
-The MG firmware blocks normal app installs: the `-f` option allows it.
-
-1. Download the APK for your software from the table at the top.
-
-2. Install:
+1. Install it:
 
    ```bash
-
    adb install -r -f MG4Clima-1.1.0.apk
-
    ```
 
-3. Open the climate as usual (button, bar or launcher): MG4 Clima activates itself on first start.
+2. Open the climate as usual (button, bar or launcher): MG4 Clima activates itself on first start.
 
-To remove it: `adb uninstall com.mg4.clima`. The original climate app is back straight away.
+Later updates can also be installed from **Settings → Updates** inside MG4 Clima.
+
+**To remove it:** Android Settings › Apps › MG4 Clima › **Uninstall**, or `adb uninstall com.mg4.clima`.
+The original climate app is back straight away.
 
 ### Logs and reports
 
