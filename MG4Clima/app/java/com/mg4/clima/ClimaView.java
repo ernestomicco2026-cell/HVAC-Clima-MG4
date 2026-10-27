@@ -111,7 +111,7 @@ public final class ClimaView extends View {
 
     /** Carica gli strati dello stile scelto (solo quello: l'altro si libera). */
     private boolean ensureImages() {
-        String pre = style == Store.STYLE_PHOTO ? "realistico" : "disegnato";
+        String pre = style == Store.STYLE_PHOTO ? "realistico" : day ? "disegnato_chiaro" : "disegnato";
         if (loadedStyle == style && loadedPre.equals(pre) && imgBase != null) return true;
         if (imgFailed && loadedStyle == style && loadedPre.equals(pre)) return false;
         Bitmap b = asset(pre + "_base"), w = asset(pre + "_volante"), h = asset(pre + "_volante_caldo");
@@ -236,7 +236,7 @@ public final class ClimaView extends View {
         // schermi: solo le nostre indicazioni
         rr(c, g.barX, g.barY, g.barW, 7, 3.5f, 0xFF34C77B, 0, 0);
         String time = new SimpleDateFormat("HH:mm", Locale.ITALY).format(new Date());
-        int scr = 0xFFF2F5FA;
+        int scr = day ? 0xFF111318 : 0xFFF2F5FA;
         flatText(c, time, g.clockX, g.clockY, g.clockSize, scr, Paint.Align.CENTER);
         flatText(c, tempText(), g.tempX, g.tempY, g.tempSize, scr, Paint.Align.LEFT);
         if (!Float.isNaN(st.outTemp)) flatText(c, L.f(R.string.v_out_short, Math.round(st.outTemp)), g.outX, g.outY, g.outSize, 0xFF9BA1A9, Paint.Align.LEFT);
@@ -292,13 +292,21 @@ public final class ClimaView extends View {
         invalidate();
     }
 
-    /** Solo tema notte, con le tinte blu del launcher (niente tema chiaro). */
+    /** Tema giorno/notte come il launcher: giorno = colori chiari del launcher, notte = tinte blu. */
     public void theme() {
-        day = false;
-        BG = 0xFF080A10; PANEL = 0xFF11151D; CHIP = 0xFF1A202B; TRACK = 0xFF232B38; TEXT = 0xFFF2F5FA; SUB = 0xFF9AA5B5;
-        ONTEXT = 0xFF0E1218; HEAT = 0xFFFF7A3D; HEATBG = 0xFF2E241F; FLOW = 0xFFD6E2F0; FLOW2 = 0xFF8E9BAE;
-        GLASS1 = 0xFF121823; GLASS2 = 0xFF1E2634; TOP1 = 0xFF2A3443; TOP2 = 0xFF1D2431; FACE1 = 0xFF1A212C; FACE2 = 0xFF121821;
-        PILLAR = 0xFF243040; LINE = 0xFF2C3746; DARK = 0xFF090C12; BEZEL = 0xFF334055;
+        int night = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        day = night == Configuration.UI_MODE_NIGHT_NO;
+        if (day) {
+            BG = 0xFFE6E8EB; PANEL = 0xFFFFFFFF; CHIP = 0xFFF1F3F5; TRACK = 0xFFE1E4E8; TEXT = 0xFF111318; SUB = 0xFF555C66;
+            ONTEXT = 0xFFFFFFFF; HEAT = 0xFFE1621F; HEATBG = 0xFFFFF1EA; FLOW = 0xFF7D8793; FLOW2 = 0xFFB9C0C8;
+            GLASS1 = 0xFFE9EEF4; GLASS2 = 0xFFD5DCE5; TOP1 = 0xFFD9DDE2; TOP2 = 0xFFC9CED4; FACE1 = 0xFFCDD2D8; FACE2 = 0xFFBFC5CC;
+            PILLAR = 0xFFB8BEC6; LINE = 0xFFB0B6BE; DARK = 0xFF2A2E35; BEZEL = 0xFF8C939C;
+        } else {
+            BG = 0xFF080A10; PANEL = 0xFF11151D; CHIP = 0xFF1A202B; TRACK = 0xFF232B38; TEXT = 0xFFF2F5FA; SUB = 0xFF9AA5B5;
+            ONTEXT = 0xFF0E1218; HEAT = 0xFFFF7A3D; HEATBG = 0xFF2E241F; FLOW = 0xFFD6E2F0; FLOW2 = 0xFF8E9BAE;
+            GLASS1 = 0xFF121823; GLASS2 = 0xFF1E2634; TOP1 = 0xFF2A3443; TOP2 = 0xFF1D2431; FACE1 = 0xFF1A212C; FACE2 = 0xFF121821;
+            PILLAR = 0xFF243040; LINE = 0xFF2C3746; DARK = 0xFF090C12; BEZEL = 0xFF334055;
+        }
         invalidate();
     }
 
@@ -537,7 +545,7 @@ public final class ClimaView extends View {
             }
         }
         // piantone e volante
-        rr(c, wx - 34, wy + 70, 68, 90, 12, 0xFF1A1F29, 0, 0);
+        rr(c, wx - 34, wy + 70, 68, 90, 12, day ? 0xFF8C939C : 0xFF1A1F29, 0, 0);
         drawWheel(c, wx, wy, wheelHot);
     }
 
@@ -599,9 +607,9 @@ public final class ClimaView extends View {
         p.setShader(null);
         path.reset();
         path.moveTo(mid - tw - 6, yP + 8); path.lineTo(mid + tw + 6, yP + 8); path.lineTo(mid + bw, yB); path.lineTo(mid - bw, yB); path.close();
-        fill(0xFF111620);
+        fill(day ? 0xFFB4BAC1 : 0xFF111620);
         c.drawPath(path, p);
-        stroke(0xFF2A3342, 3);
+        stroke(day ? 0xFF9AA1A9 : 0xFF2A3342, 3);
         c.drawLine(mid - tw + 4, yP + 44, mid + tw - 4, yP + 44, p);
         stroke(0xFF2C3036, 3);
         c.drawLine(mid - tw - 4, yP + 8, mid - bw + 2, yB, p);

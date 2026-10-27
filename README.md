@@ -243,7 +243,7 @@ o una segnalazione sono un aiuto prezioso. Grazie!
   **Realistico**, da una foto di una MG4 ripulita. Sugli schermi solo le indicazioni di MG4 Clima.
 - **L'aria esce dalle bocchette vere** e passa **dietro al volante**. Il colore dice cosa sta facendo il clima e
   cambia gradualmente con la temperatura impostata: **blu** verso i 16°, **neutro** intorno ai 21°, **arancione** dai 26° in su.
-- **Solo tema notte**, con le tinte blu del launcher (niente tema chiaro).
+- **Tema giorno e notte**, con i colori del launcher: chiaro di giorno, blu di notte.
 - **Volante riscaldato**: la corona si accende con una linea arancione luminosa lungo il bordo.
 - **AUTO**: con AUTO acceso, toccarlo cambia l'intensità **Bassa → Media → Alta**; i trattini sotto il tasto la mostrano
   e la ventola scrive "AUTO · Media". Si esce da AUTO toccando la ventola, come nell'app originale.
@@ -473,7 +473,7 @@ A star on the repository or a bug report also help a lot. Thank you!
   **Realistic**, from a cleaned-up photo of an MG4. The screens only show MG4 Clima's information.
 - **The air comes out of the real vents** and passes **behind the steering wheel**. The colour shows what the climate is
   doing and changes gradually with the set temperature: **blue** towards 16°, **neutral** around 21°, **orange** from 26° up.
-- **Night theme only**, with the blue tones of the launcher (no light theme).
+- **Day and night themes**, with the launcher's colours: light by day, blue at night.
 - **Heated steering wheel**: the rim lights up with a glowing orange line along its edge.
 - **AUTO**: with AUTO on, tapping it changes the intensity **Low → Medium → High**; the dashes under the button show it
   and the fan reads "AUTO · Medium". Leave AUTO by touching the fan, as in the original app.

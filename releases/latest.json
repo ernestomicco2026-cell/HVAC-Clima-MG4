@@ -2,8 +2,8 @@
   "MG4Clima": {
     "version": "1.2.0",
     "apk": "releases/MG4Clima-1.2.0.apk",
-    "size": 342024,
-    "sha256": "7a70b663e6a19ddca6195b01c7a7df3afaa74cecf7ae9b765f211622781f9c37",
-    "notes": "Cruscotto disegnato e realistico tra cui scegliere, con il volante che si scalda in arancione e l'aria che esce dalle bocchette vere. Colore della temperatura graduale (blu verso i 16°, arancione dai 26°). Solo tema notte, con le tinte blu del launcher. Impostazioni del clima originale: intensità AUTO (tocco su AUTO per cambiarla), segui ECO e lunotto automatico. Multilingua come il launcher."
+    "size": 411935,
+    "sha256": "e6def5d8f10db0e8dc75e9bf2e0f4d3394022e9c51f9bdaee95baf32cb8ae55b",
+    "notes": "Cruscotto disegnato e realistico tra cui scegliere, con il volante che si scalda in arancione e l'aria che esce dalle bocchette vere. Colore della temperatura graduale (blu verso i 16°, arancione dai 26°). Tema giorno e notte come il launcher. Impostazioni del clima originale: intensità AUTO (tocco su AUTO per cambiarla), segui ECO e lunotto automatico. Multilingua come il launcher."
   }
 }
