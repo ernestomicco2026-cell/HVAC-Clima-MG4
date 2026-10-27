@@ -348,11 +348,11 @@ L'APK è firmato con la chiave di piattaforma di test AOSP (come il firmware MG)
 
 modifying it:
 
-- in the middle there is a **stylised MG4 2022 dashboard**: steering wheel, instrument cluster, central screen, console
+- in the middle there is a **stylised MG4 dashboard**: steering wheel, instrument cluster, central screen, console
 
-  with the rotary knob and the **four vents** (driver side, two central, passenger side). You can see **where the air
+  with the rotary knob and the **four vents**. You can see **where the air is directed**:
 
-  goes**: face, feet, windscreen, with longer flows at higher fan speeds and a warm colour at high temperatures;
+  face, feet, windscreen, with longer flows at higher fan speeds and a warm colour at high temperatures;
 
 - **power, temperature and fan are on the driver's side** (everything is mirrored for right-hand drive);
 
@@ -360,7 +360,7 @@ modifying it:
 
   (seats and wheel only where the car has them);
 
-- the colours are those of **MG4 Launcher**, in the night theme with its blue tones.
+- the colours are those of **MG4 Launcher**.
 
 MG4 Clima reads and controls the climate through **the same car services used by the original app**, with the same
 
@@ -369,16 +369,6 @@ commands (pressing a button in MG4 Clima is like pressing it in the original app
 MG4 Clima appears instead. The original app is never modified: it can always be opened from the settings, and if MG4
 
 Clima is uninstalled everything goes back to how it was.
-
-Development goes **one model at a time, tested on real cars**: first read-only, then an **automatic test** that tries
-
-every command and sends the log, then the real commands. SWI68 passed the test (22 of 24 commands at the first try; the
-
-other two were mistakes in the test itself, now fixed). SWI69, SWI132 and SWI133 are at their first beta, to be tested.
-
-On **SWI133** the original climate is not an app but a system panel: MG4 Clima doesn't replace it, it opens from the
-
-MG4 Launcher climate button (from the next launcher version) or from the app list; the settings open the original panel.
 
 ### Features
 
@@ -423,7 +413,7 @@ MG4 Launcher climate button (from the next launcher version) or from the app lis
 
 ### Installation
 
-Download the APK from the table at the top (there is only one for every model). Then pick one of the two methods.
+Download the APK from the table at the top. Then pick one of the two methods.
 
 #### Method 1 — From a USB stick (no computer)
 
