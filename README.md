@@ -55,7 +55,7 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 
 | Software dell'auto / Car software | Auto / Car | Versione / Version | Stato / Status | Download |
 |---|---|---|---|---|
-| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.1.0** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.1.0.apk](releases/MG4Clima-1.1.0.apk) |
+| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.2.0** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.2.0.apk](releases/MG4Clima-1.2.0.apk) |
 
 **Un unico APK per tutti i modelli**: il software dell'auto si riconosce da solo. Dalla 1.0.0 gli aggiornamenti si
 
@@ -73,19 +73,29 @@ model) are still in the [`releases/`](releases/) folder.
 
 ---
 
-![MG4 Clima SWI68 — notte (simulazione / mock-up)](docs/swi68-notte.png)
+![MG4 Clima — cruscotto disegnato (simulazione / mock-up)](docs/swi68-notte.png)
 
-*SWI68, notte: clima in automatico, aria al viso e ai piedi, volante e sedile guidatore riscaldati ·
+*Cruscotto **disegnato**: AUTO media, l'aria esce dalle bocchette vere ed è arancione perché riscalda, volante riscaldato ·
 
-SWI68, night: automatic climate, air to face and feet, heated wheel and driver seat (mock-up).*
+**Drawn** dashboard: AUTO medium, the air comes out of the real vents and is orange because it is heating, heated wheel (mock-up).*
+
+![MG4 Clima — cruscotto realistico (simulazione / mock-up)](docs/realistico.png)
+
+*Cruscotto **realistico** (foto di una MG4, ripulita): stessa schermata, da scegliere nelle impostazioni ·
+
+**Realistic** dashboard (photo of an MG4, cleaned up): same screen, chosen in the settings (mock-up).*
+
+![MG4 Clima — raffresca (simulazione / mock-up)](docs/raffresca.png)
+
+*Raffresca: 19° impostati con 29° fuori, l'aria diventa azzurra · Cooling: 19° set with 29° outside, the air turns blue (mock-up).*
 
 ![MG4 Clima SWI68 — inverno (simulazione / mock-up)](docs/swi68-inverno.png)
 
-*Inverno: parabrezza, lunotto, volante e sedili riscaldati · Winter: windscreen, rear window, wheel and seats heated (mock-up).*
+*Tasti Parabrezza e Lunotto attivati nelle impostazioni, aria anche al vetro · Windscreen and Rear window buttons turned on in the settings, air to the windscreen too (mock-up).*
 
-![MG4 Clima SWI68 — giorno (simulazione / mock-up)](docs/swi68-giorno.png)
+![MG4 Clima SWI68 — realistico con volante riscaldato (simulazione / mock-up)](docs/swi68-giorno.png)
 
-*Tema giorno, come il launcher · Day theme, like the launcher (mock-up).*
+*Cruscotto realistico con il volante riscaldato, aria che esce dalle bocchette · Realistic dashboard with the heated wheel, air coming out of the vents (mock-up).*
 
 ![MG4 Clima SWI68 — guida a destra (simulazione / mock-up)](docs/swi68-guida-destra.png)
 
@@ -121,7 +131,7 @@ clima originale senza modificarla:
 
   e volante solo dove ci sono);
 
-- i colori sono gli stessi del **MG4 Launcher**, con tema giorno e notte.
+- i colori sono quelli del **MG4 Launcher**, nel tema notte con le sue tinte blu.
 
 MG4 Clima legge e comanda il clima con **gli stessi servizi dell'auto usati dall'app originale**, con gli stessi comandi
 
@@ -159,9 +169,9 @@ apre il pannello originale.
 
   senza far vedere per un istante l'app originale.
 
-- **Impostazioni con la grafica del launcher**, divise in Schermata, Apertura del clima,
+- **Impostazioni con la grafica del launcher**, a pagina intera: Schermata (lato di guida, cruscotto, aria animata,
 
-  Aggiornamenti, Auto e Strumenti.
+  tasti, lingua), Clima automatico, Apertura del clima, Versione e aggiornamenti, Auto e Strumenti.
 
 - **Un'unica app per tutti i modelli** (dalla 1.0.0): riconosce da sola SWI68, SWI69, SWI132 e SWI133 (dal software
 
@@ -192,7 +202,7 @@ Scarica l'APK dalla tabella in alto (è uno solo per tutti i modelli). Poi scegl
 
 Serve poter aprire un file manager sull'infotainment.
 
-1. Copia `MG4Clima-1.1.0.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
+1. Copia `MG4Clima-1.2.0.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
 2. Inserisci la chiavetta nell'auto, apri il file manager e tocca l'APK.
 3. Se Android avvisa che non può installare app da questa fonte: tocca **Impostazioni**, attiva
    **Consenti da questa fonte** per il file manager e torna indietro.
@@ -210,7 +220,7 @@ Il firmware MG può bloccare l'installazione normale delle app: l'opzione `-f` l
 1. Installa:
 
    ```bash
-   adb install -r -f MG4Clima-1.1.0.apk
+   adb install -r -f MG4Clima-1.2.0.apk
    ```
 
 2. Apri il clima come al solito (tasto, barra o launcher): al primo avvio MG4 Clima si attiva da sola.
@@ -239,6 +249,22 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 [![Offrimi un caffè con PayPal](https://img.shields.io/badge/Offrimi%20un%20caff%C3%A8-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/pool/9tv7fQ36nA?sr=wccr)
 
 ### Versioni
+
+#### 1.2.0
+- **Due cruscotti da scegliere** (Impostazioni › Schermata › Cruscotto): **Disegnato**, nuovo e più fedele alla MG4, e
+  **Realistico**, da una foto di una MG4 ripulita. Sugli schermi solo le indicazioni di MG4 Clima.
+- **L'aria esce dalle bocchette vere** e passa **dietro al volante**. Il colore dice cosa sta facendo il clima e
+  cambia gradualmente con la temperatura impostata: **blu** verso i 16°, **neutro** intorno ai 21°, **arancione** dai 26° in su.
+- **Solo tema notte**, con le tinte blu del launcher (niente tema chiaro).
+- **Volante riscaldato**: la corona si accende con una linea arancione luminosa lungo il bordo.
+- **AUTO**: con AUTO acceso, toccarlo cambia l'intensità **Bassa → Media → Alta**; i trattini sotto il tasto la mostrano
+  e la ventola scrive "AUTO · Media". Si esce da AUTO toccando la ventola, come nell'app originale.
+- **Impostazioni del clima originale** (SWI68, SWI133 e SWI69): intensità di AUTO, **segui la modalità di guida ECO**
+  e **lunotto riscaldato automatico** (non sulla SWI69), lette e scritte nell'auto.
+- **Tasti Parabrezza e Lunotto** nascosti di default (l'auto ha i tasti fisici): si attivano nelle impostazioni.
+- **Multilingua come il launcher**: italiano, inglese, spagnolo, tedesco, portoghese, francese, turco e polacco. Segue la
+  lingua dell'auto oppure si sceglie in Impostazioni › Schermata › Lingua.
+- **Versione nelle impostazioni** (Versione e aggiornamenti), non più nella schermata.
 
 #### 1.1.0
 - **Pannello clima di sistema riconosciuto appena compare** (SWI68 e SWI133): MG4 Clima vede la finestra del pannello
@@ -346,7 +372,7 @@ modifying it:
 
   (seats and wheel only where the car has them);
 
-- the colours are the same as **MG4 Launcher**, with day and night themes.
+- the colours are those of **MG4 Launcher**, in the night theme with its blue tones.
 
 MG4 Clima reads and controls the climate through **the same car services used by the original app**, with the same
 
@@ -382,9 +408,9 @@ MG4 Launcher climate button (from the next launcher version) or from the app lis
 
   without briefly showing the original app.
 
-- **Settings with the launcher's look**, split into Screen, Opening the climate, Updates, Car
+- **Settings with the launcher's look**, full page: Screen (driving side, dashboard, animated air, buttons,
 
-  and Tools.
+  language), Automatic climate, Opening the climate, Version and updates, Car and Tools.
 
 - **One app for every model** (from 1.0.0): it detects SWI68, SWI69, SWI132 and SWI133 by itself (from the car software
 
@@ -415,7 +441,7 @@ Download the APK from the table at the top (there is only one for every model). 
 
 You need to be able to open a file manager on the infotainment.
 
-1. Copy `MG4Clima-1.1.0.apk` to a USB stick formatted as **FAT32** or **exFAT**.
+1. Copy `MG4Clima-1.2.0.apk` to a USB stick formatted as **FAT32** or **exFAT**.
 2. Plug it into the car, open the file manager and tap the APK.
 3. If Android says it cannot install apps from this source: tap **Settings**, enable
    **Allow from this source** for the file manager and go back.
@@ -432,7 +458,7 @@ The MG firmware may block normal app installs; the `-f` option allows it.
 1. Install it:
 
    ```bash
-   adb install -r -f MG4Clima-1.1.0.apk
+   adb install -r -f MG4Clima-1.2.0.apk
    ```
 
 2. Open the climate as usual (button, bar or launcher): MG4 Clima activates itself on first start.
@@ -463,6 +489,23 @@ A star on the repository or a bug report also help a lot. Thank you!
 
 
 ### Changelog
+
+#### 1.2.0
+- **Two dashboards to choose from** (Settings › Screen › Dashboard): **Drawn**, new and closer to the MG4, and
+  **Realistic**, from a cleaned-up photo of an MG4. The screens only show MG4 Clima's information.
+- **The air comes out of the real vents** and passes **behind the steering wheel**. The colour shows what the climate is
+  doing and changes gradually with the set temperature: **blue** towards 16°, **neutral** around 21°, **orange** from 26° up.
+- **Night theme only**, with the blue tones of the launcher (no light theme).
+- **Heated steering wheel**: the rim lights up with a glowing orange line along its edge.
+- **AUTO**: with AUTO on, tapping it changes the intensity **Low → Medium → High**; the dashes under the button show it
+  and the fan reads "AUTO · Medium". Leave AUTO by touching the fan, as in the original app.
+- **Original climate app settings** (SWI68, SWI133 and SWI69): AUTO intensity, **follow ECO drive mode** and **automatic
+  rear window heating** (not on SWI69), read from and written to the car.
+- **Windscreen and Rear window buttons** hidden by default (the car has physical buttons): they can be turned on in the
+  settings.
+- **Multilingual like the launcher**: Italian, English, Spanish, German, Portuguese, French, Turkish and Polish. It
+  follows the car's language or can be chosen in Settings › Screen › Language.
+- **Version in the settings** (Version and updates), no longer on the screen.
 
 #### 1.1.0
 - **System climate panel recognised as soon as it appears** (SWI68 and SWI133): MG4 Clima sees the panel window the

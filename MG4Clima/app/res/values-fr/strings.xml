@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- generato da i18n.py: non modificare a mano -->
+<resources>
+    <string name="app_name" formatted="false">MG4 Climat</string>
+    <string name="a11y_desc" formatted="false">Ouvre l\'écran MG4 Climat quand l\'appli climat d\'origine s\'ouvre. Détecte l\'appli au premier plan et ferme le panneau que le système ouvre quand la climatisation s\'allume.</string>
+    <string name="v_unavailable" formatted="false">Climatisation indisponible</string>
+    <string name="v_on" formatted="false">Climatisation allumée</string>
+    <string name="v_off" formatted="false">Climatisation éteinte</string>
+    <string name="v_waiting" formatted="false">En attente du service du véhicule…</string>
+    <string name="v_switch_on" formatted="false">Allume la voiture</string>
+    <string name="v_outside">%1$d° extérieur</string>
+    <string name="v_out_short">%1$d° ext.</string>
+    <string name="v_temperature" formatted="false">Température</string>
+    <string name="v_fan" formatted="false">Ventilation</string>
+    <string name="v_fan_auto" formatted="false">Automatique</string>
+    <string name="v_level_low" formatted="false">Faible</string>
+    <string name="v_level_medium" formatted="false">Moyenne</string>
+    <string name="v_level_high" formatted="false">Élevée</string>
+    <string name="v_mode_heat" formatted="false">Chauffe</string>
+    <string name="v_mode_cool" formatted="false">Refroidit</string>
+    <string name="v_mode_keep" formatted="false">Maintient</string>
+    <string name="v_dir_auto" formatted="false">Répartition de l\'air automatique</string>
+    <string name="t_auto" formatted="false">Automatique</string>
+    <string name="t_ac" formatted="false">Clim</string>
+    <string name="t_eco" formatted="false">Économie</string>
+    <string name="t_glass" formatted="false">Air pare-brise</string>
+    <string name="t_face" formatted="false">Visage</string>
+    <string name="t_feet" formatted="false">Pieds</string>
+    <string name="t_recirc" formatted="false">Recyclage</string>
+    <string name="t_recirc_auto" formatted="false">Recyclage auto</string>
+    <string name="t_fresh" formatted="false">Air extérieur</string>
+    <string name="t_front" formatted="false">Pare-brise</string>
+    <string name="t_rear" formatted="false">Lunette</string>
+    <string name="t_wheel" formatted="false">Volant</string>
+    <string name="t_driver" formatted="false">Conducteur</string>
+    <string name="t_passenger" formatted="false">Passager</string>
+    <string name="a_original_unverified">Appli climat d\'origine %1$s non vérifiée : MG4 Climat ne la remplace pas.</string>
+    <string name="a_test_running" formatted="false">Test automatique en cours…</string>
+    <string name="a_not_connected" formatted="false">Service climat pas encore connecté</string>
+    <string name="a_switch_on" formatted="false">Allume la voiture pour utiliser la climatisation</string>
+    <string name="a_cmd_failed">Commande échouée : %1$s</string>
+    <string name="a_use_button">%1$s : utilise le bouton physique</string>
+    <string name="a_original_missing" formatted="false">Climat d\'origine indisponible</string>
+    <string name="a_diag_sent" formatted="false">Diagnostic envoyé</string>
+    <string name="a_test_start" formatted="false">Test automatique : démarrage…</string>
+    <string name="a_test_done">Test terminé : %1$s</string>
+    <string name="a_sending_log" formatted="false">envoi du journal…</string>
+    <string name="s_title" formatted="false">Réglages</string>
+    <string name="s_screen" formatted="false">Écran</string>
+    <string name="s_side" formatted="false">Côté conduite</string>
+    <string name="s_side_sub" formatted="false">Commandes et tableau de bord côté conducteur</string>
+    <string name="s_left" formatted="false">Gauche</string>
+    <string name="s_right" formatted="false">Droite</string>
+    <string name="s_dash" formatted="false">Tableau de bord</string>
+    <string name="s_dash_sub" formatted="false">Dessiné ou réaliste (photo) : l\'air sort des vraies bouches</string>
+    <string name="s_dash_drawn" formatted="false">Dessiné</string>
+    <string name="s_dash_photo" formatted="false">Réaliste</string>
+    <string name="s_anim" formatted="false">Air animé</string>
+    <string name="s_anim_sub" formatted="false">L\'air circule plus vite avec une ventilation élevée ; orange s\'il chauffe, bleu s\'il refroidit, blanc s\'il maintient (plus de 3° d\'écart avec l\'extérieur)</string>
+    <string name="s_defrost_tiles" formatted="false">Boutons Pare-brise et Lunette</string>
+    <string name="s_defrost_tiles_sub" formatted="false">Dans la rangée du bas (la voiture a déjà des boutons physiques)</string>
+    <string name="s_language" formatted="false">Langue</string>
+    <string name="s_language_auto">Comme la voiture (%1$s)</string>
+    <string name="s_auto_section" formatted="false">Climatisation automatique</string>
+    <string name="s_auto_level" formatted="false">Intensité AUTO</string>
+    <string name="s_auto_level_sub" formatted="false">Quantité d\'air en automatique ; change aussi en touchant AUTO quand il est actif</string>
+    <string name="s_econ_link" formatted="false">Suivre le mode de conduite ECO</string>
+    <string name="s_econ_link_sub" formatted="false">En conduite ECO la climatisation passe en économie</string>
+    <string name="s_defrost_link" formatted="false">Dégivrage automatique de la lunette</string>
+    <string name="s_defrost_link_sub" formatted="false">Comme dans l\'appli climat d\'origine</string>
+    <string name="s_auto_none" formatted="false">Réglages de la climatisation automatique</string>
+    <string name="s_auto_none_sub" formatted="false">Elles apparaissent voiture allumée, quand la voiture les envoie</string>
+    <string name="s_auto_none_model" formatted="false">Pas encore disponibles sur ce modèle</string>
+    <string name="s_opening" formatted="false">Ouverture du climat</string>
+    <string name="s_replace" formatted="false">MG4 Climat à la place de l\'appli d\'origine</string>
+    <string name="s_replace_sub" formatted="false">Quand le climat de la voiture s\'ouvre, MG4 Climat apparaît (aussi depuis le launcher)</string>
+    <string name="s_replace_unverified">Appli climat d\'origine %1$s pas encore vérifiée : l\'originale reste</string>
+    <string name="s_launcher_button" formatted="false">Le bouton climat du launcher ouvre MG4 Climat</string>
+    <string name="s_launcher_button_sub" formatted="false">Désactivé : ouvre le panneau climat d\'origine</string>
+    <string name="s_panel" formatted="false">Panneau climat du système</string>
+    <string name="s_panel_sub" formatted="false">Quand la climatisation s\'allume, le système ouvre son panneau : toujours le fermer, seulement sur MG4 Climat ou le laisser</string>
+    <string name="s_panel_always" formatted="false">Toujours</string>
+    <string name="s_panel_with" formatted="false">Avec MG4 Climat</string>
+    <string name="s_panel_leave" formatted="false">Laisser</string>
+    <string name="s_shade" formatted="false">Pas de menu déroulant avec le climat</string>
+    <string name="s_shade_sub" formatted="false">Le système l\'ouvre quand la climatisation s\'allume ou s\'éteint : MG4 Climat le referme aussitôt</string>
+    <string name="s_updates" formatted="false">Version et mises à jour</string>
+    <string name="s_version">Version %1$s</string>
+    <string name="s_installed">Version installée : %1$s</string>
+    <string name="s_car" formatted="false">Voiture</string>
+    <string name="s_model_manual">Choisi à la main · détecté : %1$s</string>
+    <string name="s_model_auto" formatted="false">Détecté automatiquement</string>
+    <string name="s_tools" formatted="false">Outils</string>
+    <string name="s_orig_app" formatted="false">Appli climat d\'origine</string>
+    <string name="s_orig_app_sub" formatted="false">S\'ouvre et n\'est pas remplacée pendant 2 minutes</string>
+    <string name="s_orig_panel" formatted="false">Panneau climat d\'origine</string>
+    <string name="s_orig_panel_sub" formatted="false">Le panneau climat du système de la voiture</string>
+    <string name="s_test" formatted="false">Test automatique des commandes</string>
+    <string name="s_test_sub" formatted="false">Voiture à l\'arrêt uniquement : essaie toutes les commandes, remet tout en place et envoie le journal</string>
+    <string name="s_diag" formatted="false">Diagnostic</string>
+    <string name="s_diag_sub" formatted="false">État lu depuis la voiture et événements</string>
+    <string name="s_send_diag" formatted="false">Envoyer le diagnostic</string>
+    <string name="s_send_diag_sub" formatted="false">Vers le dépôt privé des journaux</string>
+    <string name="b_change" formatted="false">Changer</string>
+    <string name="b_use" formatted="false">Utiliser</string>
+    <string name="b_update" formatted="false">Mettre à jour</string>
+    <string name="b_check" formatted="false">Vérifier</string>
+    <string name="b_open" formatted="false">Ouvrir</string>
+    <string name="b_start" formatted="false">Lancer</string>
+    <string name="b_show" formatted="false">Afficher</string>
+    <string name="b_send" formatted="false">Envoyer</string>
+    <string name="b_cancel" formatted="false">Annuler</string>
+    <string name="c_update" formatted="false">Mise à jour</string>
+    <string name="c_update_msg">Installer MG4 Climat %1$s ? L\'écran se ferme quelques secondes.</string>
+    <string name="c_model" formatted="false">Modèle</string>
+    <string name="c_model_auto">la détection automatique (%1$s)</string>
+    <string name="c_model_msg">Utiliser %1$s ? Choisis à la main seulement si le modèle détecté est faux : avec un mauvais modèle les commandes ne marchent pas. MG4 Climat redémarre.</string>
+    <string name="c_test_msg" formatted="false">Voiture À L\'ARRÊT et allumée, MG4 Climat essaie les commandes une à une comme les boutons de l\'appli d\'origine : marche, température, ventilation, répartition de l\'air, A/C, ECO, recyclage, AUTO, sièges et volant (si présents). Cela dure environ 2 minutes, puis tout est remis en place et le journal est envoyé.\n\nS\'arrête tout seul si la voiture roule ou si tu quittes cet écran. Ne touche pas au climat pendant le test.</string>
+    <string name="u_checking" formatted="false">Vérification…</string>
+    <string name="u_none" formatted="false">Aucune version publiée</string>
+    <string name="u_available">Disponible : %1$s</string>
+    <string name="u_latest">Tu as la dernière version (%1$s)</string>
+    <string name="u_check_failed">Vérification échouée : %1$s</string>
+    <string name="u_downloading" formatted="false">Téléchargement…</string>
+    <string name="u_download_pct">Téléchargement %1$d%%</string>
+    <string name="u_bad_file" formatted="false">le fichier téléchargé n\'est pas le bon</string>
+    <string name="u_not_app" formatted="false">ce n\'est pas MG4 Climat</string>
+    <string name="u_installing">Installation de la %1$s…</string>
+    <string name="u_failed">Échec : %1$s</string>
+    <string name="u_apk_missing" formatted="false">APK introuvable sur GitHub</string>
+    <string name="u_updated" formatted="false">Mise à jour faite</string>
+    <string name="u_install_failed">Installation échouée : %1$s</string>
+</resources>

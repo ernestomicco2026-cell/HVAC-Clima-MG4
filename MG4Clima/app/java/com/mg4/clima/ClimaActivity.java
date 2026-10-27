@@ -34,10 +34,13 @@ public final class ClimaActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        L.init(this, Store.language(this));
         getWindow().getDecorView().setSystemUiVisibility(IMMERSIVE);
         view = new ClimaView(this);
         view.setRightHand(Store.rightHand(this));
         view.setAnimated(Store.animatedAir(this));
+        view.setDashStyle(Store.dashStyle(this));
+        view.setDefrostTiles(Store.defrostTiles(this));
         view.setListener(this::onTap);
         root = new FrameLayout(this);
         root.addView(view);
@@ -54,8 +57,7 @@ public final class ClimaActivity extends Activity {
         // al primo avvio dopo l'installazione attiva la sostituzione dell'app clima
         ClimaGuard.ensureEnabled(this);
         if (ClimaGuard.hasOriginalApp(this) && !ClimaGuard.originalKnown(this)) {
-            toastLong(t("App clima originale " + ClimaGuard.originalVersion(this) + " non verificata: MG4 Clima non la sostituisce.",
-                    "Original climate app " + ClimaGuard.originalVersion(this) + " not verified: MG4 Climate won't replace it."));
+            toastLong(L.f(R.string.a_original_unverified, ClimaGuard.originalVersion(this)));
         }
         Store.event(this, "schermata aperta · " + Model.get(this) + (Model.manual(this) ? " (scelto a mano)" : ""));
         fromLauncher(getIntent());
@@ -94,6 +96,7 @@ public final class ClimaActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (L.init(this, Store.language(this))) view.invalidate();   // lingua dell'auto cambiata
         getWindow().getDecorView().setSystemUiVisibility(IMMERSIVE);
         if (Store.closeShade(this)) {
             shadeBlock(true);
@@ -116,7 +119,7 @@ public final class ClimaActivity extends Activity {
             return;
         }
         if (testRunning) {
-            toast(t("Test automatico in corso…", "Automatic test running…"));
+            toast(L.s(R.string.a_test_running));
             return;
         }
         if ("impostazioni".equals(id)) {
@@ -141,11 +144,11 @@ public final class ClimaActivity extends Activity {
     private void command(String id) {
         HvacClient.State s = last;
         if (!s.connected) {
-            toast(t("Servizio clima non ancora collegato", "Climate service not connected yet"));
+            toast(L.s(R.string.a_not_connected));
             return;
         }
         if (!s.usable()) {
-            toast(t("Accendi l'auto per usare il clima", "Switch the car on to use the climate"));
+            toast(L.s(R.string.a_switch_on));
             return;
         }
         long now = android.os.SystemClock.elapsedRealtime();
@@ -180,7 +183,16 @@ public final class ClimaActivity extends Activity {
                 send("ventola", HvacClient.SET_AIR_VOLUME, f);
                 break;
             }
-            case "auto": press("AUTO", HvacClient.SET_AUTO_PRESS); break;
+            case "auto":
+                // 1.2.0: con AUTO già acceso il tasto cambia l'intensità, come nell'originale dalle impostazioni:
+                // bassa → media → alta → bassa (si esce da AUTO toccando la ventola, come nell'app originale)
+                if (s.on() && s.auto == 1 && s.autoLevel >= 0) {
+                    int next = s.autoLevel == HvacClient.AUTO_LOW ? HvacClient.AUTO_MEDIUM
+                            : s.autoLevel == HvacClient.AUTO_MEDIUM ? HvacClient.AUTO_HIGH : HvacClient.AUTO_LOW;
+                    send("intensità AUTO", HvacClient.SET_AUTO_LEVEL, next);
+                    toast("AUTO · " + ClimaView.autoLevelName(next));
+                } else press("AUTO", HvacClient.SET_AUTO_PRESS);
+                break;
             case "ac": press("A/C", HvacClient.SET_AC_PRESS); break;
             case "eco": press("ECO", HvacClient.SET_ECON_PRESS); break;
             case "ricircolo": press("ricircolo", HvacClient.SET_LOOP_PRESS); break;
@@ -231,7 +243,7 @@ public final class ClimaActivity extends Activity {
 
     private void send(String what, int code, Integer arg) {
         client.command(what, code, arg, err -> {
-            if (err != null) toast(t("Comando non riuscito: ", "Command failed: ") + what);
+            if (err != null) toast(L.f(R.string.a_cmd_failed, what));
         });
     }
 
@@ -241,7 +253,7 @@ public final class ClimaActivity extends Activity {
         h.postDelayed(() -> {
             if (f.applyAsInt(last) == before) {
                 Store.event(this, what + ": nessun cambio dopo il comando");
-                toast(t(what + ": usa il tasto fisico", what + ": use the physical button"));
+                toast(L.f(R.string.a_use_button, L.s("parabrezza".equals(what) ? R.string.t_front : R.string.t_rear)));
             }
         }, 3000);
     }
@@ -254,9 +266,6 @@ public final class ClimaActivity extends Activity {
         Toast.makeText(this, s, Toast.LENGTH_LONG).show();
     }
 
-    private static String t(String it, String en) {
-        return BuildInfo.t(it, en);
-    }
 
     private long lastOriginalAt;
 
@@ -277,7 +286,7 @@ public final class ClimaActivity extends Activity {
                 moveTaskToBack(true);
             }
         } catch (Throwable e) {
-            toast(t("Clima originale non disponibile", "Original climate not available"));
+            toast(L.s(R.string.a_original_missing));
         }
     }
 
@@ -297,38 +306,84 @@ public final class ClimaActivity extends Activity {
         if (sheet == null) sheet = new Sheet(this, root, view);
         String model = Model.get(this);
         boolean panelModel = Model.sysUiPanel(this), app = ClimaGuard.hasOriginalApp(this);
-        Sheet s = sheet.open(t("Impostazioni", "Settings"), "MG4 Clima " + BuildInfo.version(this) + " · " + Model.label(model));
+        Sheet s = sheet.open(L.s(R.string.s_title), "MG4 Clima " + BuildInfo.version(this) + " · " + Model.label(model));
         currentSheet = SETTINGS;
 
         // ---- schermata
-        s.label(t("Schermata", "Screen"));
+        s.label(L.s(R.string.s_screen));
         LinearLayout c0 = s.card();
         boolean rh = Store.rightHand(this);
-        s.row(c0, t("Lato di guida", "Driving side"),
-                t("Comandi e cruscotto dal lato del guidatore", "Controls and dashboard on the driver's side"),
-                s.choices(new String[]{t("Sinistra", "Left"), t("Destra", "Right")}, rh ? 1 : 0, i -> {
+        s.row(c0, L.s(R.string.s_side), L.s(R.string.s_side_sub),
+                s.choices(new String[]{L.s(R.string.s_left), L.s(R.string.s_right)}, rh ? 1 : 0, i -> {
                     Store.setRightHand(this, i == 1);
                     view.setRightHand(i == 1);
                     settings();
-                }), true);
+                }), false);
+        int ds = Store.dashStyle(this);
+        s.row(c0, L.s(R.string.s_dash), L.s(R.string.s_dash_sub),
+                s.choices(new String[]{L.s(R.string.s_dash_drawn), L.s(R.string.s_dash_photo)}, ds == Store.STYLE_PHOTO ? 1 : 0, i -> {
+                    int st = i == 1 ? Store.STYLE_PHOTO : Store.STYLE_DRAWN;
+                    Store.setDashStyle(this, st);
+                    view.setDashStyle(st);
+                    Store.event(this, "cruscotto " + (i == 1 ? "realistico" : "disegnato"));
+                    settings();
+                }), false);
+        s.row(c0, L.s(R.string.s_anim), L.s(R.string.s_anim_sub),
+                s.toggle(Store.animatedAir(this), v -> {
+                    Store.setAnimatedAir(this, v);
+                    view.setAnimated(v);
+                    Store.event(this, "aria animata " + (v ? "accesa" : "spenta"));
+                }), false);
+        s.row(c0, L.s(R.string.s_defrost_tiles), L.s(R.string.s_defrost_tiles_sub),
+                s.toggle(Store.defrostTiles(this), v -> {
+                    Store.setDefrostTiles(this, v);
+                    view.setDefrostTiles(v);
+                    Store.event(this, "tasti parabrezza/lunotto " + (v ? "mostrati" : "nascosti"));
+                }), false);
+        String lp = Store.language(this);
+        s.row(c0, L.s(R.string.s_language), L.AUTO.equals(lp) ? L.f(R.string.s_language_auto, L.nameOf(L.resolve(L.AUTO))) : L.nameOf(lp),
+                s.button(L.s(R.string.b_change), v -> languages()), true);
+
+        // ---- clima automatico: le impostazioni dell'app clima originale, lette e scritte nell'auto
+        s.label(L.s(R.string.s_auto_section));
+        LinearLayout ca = s.card();
+        HvacClient.State st = last;
+        boolean any = st.autoLevel >= 0 || st.econLink >= 0 || st.defrostLink >= 0;
+        if (!any) {
+            s.row(ca, L.s(R.string.s_auto_none),
+                    Model.SWI132.equals(model) ? L.s(R.string.s_auto_none_model) : L.s(R.string.s_auto_none_sub), null, true);
+        } else {
+            if (st.autoLevel >= 0) {
+                int sel = st.autoLevel == HvacClient.AUTO_LOW ? 0 : st.autoLevel == HvacClient.AUTO_MEDIUM ? 1 : 2;
+                s.row(ca, L.s(R.string.s_auto_level), L.s(R.string.s_auto_level_sub),
+                        s.choices(new String[]{L.s(R.string.v_level_low), L.s(R.string.v_level_medium), L.s(R.string.v_level_high)}, sel, i -> {
+                            int v = i == 0 ? HvacClient.AUTO_LOW : i == 1 ? HvacClient.AUTO_MEDIUM : HvacClient.AUTO_HIGH;
+                            setting("intensità AUTO", HvacClient.SET_AUTO_LEVEL, v);
+                        }), st.econLink < 0 && st.defrostLink < 0);
+            }
+            if (st.econLink >= 0) {
+                s.row(ca, L.s(R.string.s_econ_link), L.s(R.string.s_econ_link_sub),
+                        s.toggle(st.econLink == 1, v -> setting("segui ECO", HvacClient.SET_ECON_LINK, v ? 1 : 2)), st.defrostLink < 0);
+            }
+            if (st.defrostLink >= 0) {
+                s.row(ca, L.s(R.string.s_defrost_link), L.s(R.string.s_defrost_link_sub),
+                        s.toggle(st.defrostLink == 0, v -> setting("lunotto automatico", HvacClient.SET_DEFROST_LINK, v ? 0 : 1)), true);
+            }
+        }
 
         // ---- apertura del clima
-        s.label(t("Apertura del clima", "Opening the climate"));
+        s.label(L.s(R.string.s_opening));
         LinearLayout c1 = s.card();
         if (app) {
             boolean known = ClimaGuard.originalKnown(this);
-            s.row(c1, t("MG4 Clima al posto dell'app originale", "MG4 Climate instead of the original app"),
-                    known ? t("Quando si apre il clima dell'auto compare MG4 Clima (anche dal launcher)",
-                            "When the car's climate opens, MG4 Climate appears (also from the launcher)")
-                            : t("App clima originale " + ClimaGuard.originalVersion(this) + " non ancora verificata: resta l'originale",
-                            "Original climate app " + ClimaGuard.originalVersion(this) + " not verified yet: the original stays"),
+            s.row(c1, L.s(R.string.s_replace),
+                    known ? L.s(R.string.s_replace_sub) : L.f(R.string.s_replace_unverified, ClimaGuard.originalVersion(this)),
                     s.toggle(Store.replace(this), v -> {
                         Store.setReplace(this, v);
                         Store.event(this, "sostituzione " + (v ? "attivata" : "spenta"));
                     }), false);
         } else {
-            s.row(c1, t("Il tasto clima del launcher apre MG4 Clima", "The launcher climate button opens MG4 Climate"),
-                    t("Spento: apre il pannello clima originale", "Off: it opens the original climate panel"),
+            s.row(c1, L.s(R.string.s_launcher_button), L.s(R.string.s_launcher_button_sub),
                     s.toggle(Store.replace(this), v -> {
                         Store.setReplace(this, v);
                         Store.event(this, "apertura dal launcher " + (v ? "attivata" : "spenta"));
@@ -336,10 +391,8 @@ public final class ClimaActivity extends Activity {
         }
         if (panelModel) {
             int pm = Store.panelMode(this);
-            s.row(c1, t("Pannello clima di sistema", "System climate panel"),
-                    t("Quando il clima si accende il sistema apre il suo pannello: chiuderlo sempre, solo sopra MG4 Clima o lasciarlo",
-                            "When the climate turns on the system opens its panel: always close it, only over MG4 Climate, or leave it"),
-                    s.choices(new String[]{t("Sempre", "Always"), t("Con MG4 Clima", "With MG4 Climate"), t("Lascia", "Leave")},
+            s.row(c1, L.s(R.string.s_panel), L.s(R.string.s_panel_sub),
+                    s.choices(new String[]{L.s(R.string.s_panel_always), L.s(R.string.s_panel_with), L.s(R.string.s_panel_leave)},
                             pm == Store.PANEL_ALWAYS ? 0 : pm == Store.PANEL_WITH_APP ? 1 : 2, i -> {
                                 int m = i == 0 ? Store.PANEL_ALWAYS : i == 1 ? Store.PANEL_WITH_APP : Store.PANEL_LEAVE;
                                 Store.setPanelMode(this, m);
@@ -347,41 +400,24 @@ public final class ClimaActivity extends Activity {
                                 shadeBlock(m != Store.PANEL_LEAVE);
                                 settings();
                             }), true);
-        } else s.row(c1, panelModel ? t("Chiudi il pannello clima di sistema", "Close the system climate panel")
-                        : t("Niente menù a tendina col clima", "No pull-down menu with the climate"),
-                panelModel ? t("Se il sistema lo apre quando il clima si accende, MG4 Clima lo richiude subito",
-                        "If the system opens it when the climate turns on, MG4 Climate closes it at once")
-                        : t("Il sistema lo apre quando il clima si accende o si spegne: MG4 Clima lo richiude subito",
-                        "The system opens it when the climate turns on or off: MG4 Climate closes it at once"),
+        } else s.row(c1, L.s(R.string.s_shade), L.s(R.string.s_shade_sub),
                 s.toggle(Store.closeShade(this), v -> {
                     Store.setCloseShade(this, v);
                     Store.event(this, "chiusura pannello/tendina " + (v ? "attivata" : "spenta"));
                     shadeBlock(v);
                 }), true);
 
-        // ---- schermata (1.1.0: aria animata)
-        s.label(t("Schermata", "Screen"));
-        LinearLayout cAir = s.card();
-        s.row(cAir, t("Aria animata", "Animated air"),
-                t("L'aria scorre dalle bocchette: più veloce con la ventola alta, colore dalla temperatura",
-                        "The air flows out of the vents: faster with a higher fan speed, colour from the temperature"),
-                s.toggle(Store.animatedAir(this), v -> {
-                    Store.setAnimatedAir(this, v);
-                    view.setAnimated(v);
-                    Store.event(this, "aria animata " + (v ? "accesa" : "spenta"));
-                }), true);
-
-        // ---- aggiornamenti
-        s.label(t("Aggiornamenti", "Updates"));
+        // ---- versione e aggiornamenti
+        s.label(L.s(R.string.s_updates));
         LinearLayout c3 = s.card();
         Updater up = Updater.get(this);
         Updater.Release rel = up.last();
-        String ut = up.lastText().isEmpty() ? t("Versione installata: ", "Installed version: ") + BuildInfo.version(this) : up.lastText();
+        String ut = up.lastText().isEmpty() ? L.f(R.string.s_installed, BuildInfo.version(this)) : up.lastText();
         if (rel != null && rel.newer && !rel.notes.isEmpty() && !up.busy()) ut += "\n" + rel.notes;
         View ub = up.busy() ? s.busyButton("…")
-                : rel != null && rel.newer ? s.primary(t("Aggiorna", "Update"), v -> confirmUpdate(rel))
-                : s.button(t("Controlla", "Check"), v -> up.check());
-        updText = s.row(c3, "MG4 Clima " + BuildInfo.version(this), ut, ub, true);
+                : rel != null && rel.newer ? s.primary(L.s(R.string.b_update), v -> confirmUpdate(rel))
+                : s.button(L.s(R.string.b_check), v -> up.check());
+        updText = s.row(c3, L.f(R.string.s_version, BuildInfo.version(this)), ut, ub, true);
         up.setListener((text, r, busy) -> {
             if (!settingsShowing()) return;
             if (busy && updText != null) updText.setText(text);
@@ -393,50 +429,72 @@ public final class ClimaActivity extends Activity {
         }
 
         // ---- auto
-        s.label(t("Auto", "Car"));
+        s.label(L.s(R.string.s_car));
         LinearLayout c4 = s.card();
         String sw = Model.software();
-        String how = Model.manual(this) ? t("Scelto a mano · riconosciuto: ", "Chosen by hand · detected: ") + Model.detected(this)
-                : t("Riconosciuto in automatico", "Detected automatically") + (sw.isEmpty() ? "" : " · " + sw);
+        String how = Model.manual(this) ? L.f(R.string.s_model_manual, Model.detected(this))
+                : L.s(R.string.s_model_auto) + (sw.isEmpty() ? "" : " · " + sw);
         String[] names = {"Auto", "68", "69", "132", "133"};
         int sel = 0;
         if (Model.manual(this)) for (int i = 0; i < Model.ALL.length; i++) if (Model.ALL[i].equals(model)) sel = i + 1;
         s.row(c4, Model.label(model), how, s.choices(names, sel, i -> confirmModel(i == 0 ? "" : Model.ALL[i - 1])), true);
 
         // ---- strumenti
-        s.label(t("Strumenti", "Tools"));
+        s.label(L.s(R.string.s_tools));
         LinearLayout c5 = s.card();
-        s.row(c5, app ? t("App clima originale", "Original climate app") : t("Pannello clima originale", "Original climate panel"),
-                app ? t("Si apre e per 2 minuti non viene sostituita", "Opens and is not replaced for 2 minutes")
-                        : t("Il pannello clima di sistema dell'auto", "The car's system climate panel"),
-                s.button(t("Apri", "Open"), v -> openOriginal()), false);
-        s.row(c5, t("Test automatico dei comandi", "Automatic command test"),
-                t("Solo ad auto ferma: prova tutti i comandi, rimette tutto com'era e invia il log",
-                        "Car stopped only: tries every command, restores everything and sends the log"),
-                s.button(t("Avvia", "Start"), v -> confirmTest()), false);
-        s.row(c5, t("Diagnostica", "Diagnostics"), t("Stato letto dall'auto ed eventi", "State read from the car and events"),
-                s.button(t("Mostra", "Show"), v -> diagnostics()), false);
-        s.row(c5, t("Invia la diagnostica", "Send diagnostics"), t("Nel repository privato dei log", "To the private log repository"),
-                s.button(t("Invia", "Send"), v -> LogSend.send(this, "manuale", r -> h.post(() -> toast(
-                        "ok".equals(r) ? t("Diagnostica inviata", "Diagnostics sent") : r)))), true);
+        s.row(c5, L.s(app ? R.string.s_orig_app : R.string.s_orig_panel), L.s(app ? R.string.s_orig_app_sub : R.string.s_orig_panel_sub),
+                s.button(L.s(R.string.b_open), v -> openOriginal()), false);
+        s.row(c5, L.s(R.string.s_test), L.s(R.string.s_test_sub), s.button(L.s(R.string.b_start), v -> confirmTest()), false);
+        s.row(c5, L.s(R.string.s_diag), L.s(R.string.s_diag_sub), s.button(L.s(R.string.b_show), v -> diagnostics()), false);
+        s.row(c5, L.s(R.string.s_send_diag), L.s(R.string.s_send_diag_sub),
+                s.button(L.s(R.string.b_send), v -> LogSend.send(this, "manuale", r -> h.post(() -> toast(
+                        "ok".equals(r) ? L.s(R.string.a_diag_sent) : r)))), true);
+    }
+
+    /** Impostazione dell'app clima originale: si manda all'auto e la pagina si ridisegna appena l'auto risponde. */
+    private void setting(String what, int code, int value) {
+        if (!last.connected) {
+            toast(L.s(R.string.a_not_connected));
+            return;
+        }
+        send(what, code, value);
+        h.postDelayed(() -> {
+            if (settingsShowing()) settings();
+        }, 1200);
+    }
+
+    /** Pagina delle lingue: automatica (quella dell'auto) o una delle 8 tradotte. */
+    private void languages() {
+        Sheet s = sheet.open(L.s(R.string.s_language), null);
+        currentSheet = "lingua";
+        LinearLayout c = s.card();
+        String cur = Store.language(this);
+        String[] codes = new String[L.CODES.length + 1];
+        codes[0] = L.AUTO;
+        System.arraycopy(L.CODES, 0, codes, 1, L.CODES.length);
+        for (int i = 0; i < codes.length; i++) {
+            final String code = codes[i];
+            String name = L.AUTO.equals(code) ? L.f(R.string.s_language_auto, L.nameOf(L.resolve(L.AUTO))) : L.nameOf(code);
+            boolean on = code.equals(cur);
+            s.row(c, name, null, on ? s.primary("✓", null) : s.button(L.s(R.string.b_use), v -> {
+                Store.setLanguage(this, code);
+                L.init(this, code);
+                Store.event(this, "lingua: " + code);
+                view.invalidate();
+                settings();
+            }), i == codes.length - 1);
+        }
     }
 
     private void confirmUpdate(Updater.Release r) {
-        sheet.confirm(t("Aggiornamento", "Update"),
-                t("Installo MG4 Clima " + r.version + "? La schermata si chiude per qualche secondo.",
-                        "Install MG4 Climate " + r.version + "? The screen closes for a few seconds.")
-                        + (r.notes.isEmpty() ? "" : "\n\n" + r.notes),
-                t("Annulla", "Cancel"), t("Aggiorna", "Update"), () -> Updater.get(this).install(r));
+        sheet.confirm(L.s(R.string.c_update), L.f(R.string.c_update_msg, r.version) + (r.notes.isEmpty() ? "" : "\n\n" + r.notes),
+                L.s(R.string.b_cancel), L.s(R.string.b_update), () -> Updater.get(this).install(r));
     }
 
     private void confirmModel(String m) {
-        String name = m.isEmpty() ? t("il riconoscimento automatico (", "automatic detection (") + Model.detected(this) + ")" : Model.label(m);
-        sheet.confirm(t("Modello", "Model"),
-                t("Uso " + name + "? Scegli a mano solo se il modello riconosciuto è sbagliato: con un modello sbagliato "
-                                + "i comandi non funzionano. MG4 Clima si riavvia.",
-                        "Use " + name + "? Only choose by hand if the detected model is wrong: with the wrong model the "
-                                + "commands don't work. MG4 Climate restarts."),
-                t("Annulla", "Cancel"), t("Cambia", "Change"), () -> {
+        String name = m.isEmpty() ? L.f(R.string.c_model_auto, Model.detected(this)) : Model.label(m);
+        sheet.confirm(L.s(R.string.c_model), L.f(R.string.c_model_msg, name),
+                L.s(R.string.b_cancel), L.s(R.string.b_change), () -> {
                     Store.setModel(this, m);
                     Store.event(this, "modello " + (m.isEmpty() ? "automatico" : "scelto a mano: " + m));
                     restart();
@@ -458,17 +516,8 @@ public final class ClimaActivity extends Activity {
     }
 
     private void confirmTest() {
-        sheet.confirm(t("Test automatico", "Automatic test"),
-                t("Con l'auto FERMA e accesa, MG4 Clima prova da solo i comandi uno alla volta, come se "
-                                + "premessi i tasti dell'app originale: accensione, temperatura, ventola, direzione dell'aria, A/C, ECO, "
-                                + "ricircolo, AUTO, sedili e volante (dove ci sono). Dura circa 2 minuti, poi rimette tutto com'era e "
-                                + "invia il log.\n\nSi ferma da solo se l'auto si muove o se esci da questa schermata. Non toccare il "
-                                + "clima durante il test.",
-                        "With the car STOPPED and on, MG4 Climate tries the commands one at a time like the original app's "
-                                + "buttons: power, temperature, fan, air direction, A/C, ECO, recirculation, AUTO, seats and wheel "
-                                + "(where fitted). It takes about 2 minutes, then restores everything and sends the log.\n\n"
-                                + "It stops by itself if the car moves or you leave this screen. Don't touch the climate during the test."),
-                t("Annulla", "Cancel"), t("Avvia", "Start"), () -> {
+        sheet.confirm(L.s(R.string.s_test), L.s(R.string.c_test_msg),
+                L.s(R.string.b_cancel), L.s(R.string.b_start), () -> {
                     sheet.close();
                     runTest();
                 });
@@ -476,17 +525,16 @@ public final class ClimaActivity extends Activity {
 
     private void runTest() {
         testRunning = true;
-        banner.setText(t("Test automatico: avvio…", "Automatic test: starting…"));
+        banner.setText(L.s(R.string.a_test_start));
         banner.setVisibility(View.VISIBLE);
         Store.event(this, "test automatico avviato");
         AutoTest.start(this, client,
-                x -> h.post(() -> banner.setText(t("Test automatico · ", "Automatic test · ") + x)),
+                x -> h.post(() -> banner.setText(L.s(R.string.s_test) + " · " + x)),
                 r -> h.post(() -> {
-                    banner.setText(t("Test finito: ", "Test finished: ") + r + t(" · invio log…", " · sending log…"));
+                    banner.setText(L.f(R.string.a_test_done, r) + " · " + L.s(R.string.a_sending_log));
                     LogSend.send(this, "test", res -> h.post(() -> {
                         testRunning = false;
-                        banner.setText(t("Test finito: ", "Test finished: ") + r + " · log "
-                                + ("ok".equals(res) ? t("inviato ✓", "sent ✓") : res));
+                        banner.setText(L.f(R.string.a_test_done, r) + " · log " + ("ok".equals(res) ? "✓" : res));
                         banner.setOnClickListener(v -> banner.setVisibility(View.GONE));
                         h.postDelayed(() -> banner.setVisibility(View.GONE), 60_000);
                     }));
@@ -494,7 +542,7 @@ public final class ClimaActivity extends Activity {
     }
 
     private void diagnostics() {
-        Sheet s = sheet.open(t("Diagnostica", "Diagnostics"), "MG4 Clima " + BuildInfo.version(this));
+        Sheet s = sheet.open(L.s(R.string.s_diag), "MG4 Clima " + BuildInfo.version(this));
         currentSheet = DIAG;
         s.body(s.card(), Store.text(this));
     }

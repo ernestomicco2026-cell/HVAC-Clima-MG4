@@ -1,5 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- generato da i18n.py: non modificare a mano -->
 <resources>
-    <string name="app_name">MG4 Climate</string>
-    <string name="a11y_desc">Opens the MG4 Climate screen when the original climate app is opened. It reads which app is in the foreground and closes the pull-down menu the system opens when the climate turns on.</string>
+    <string name="app_name" formatted="false">MG4 Climate</string>
+    <string name="a11y_desc" formatted="false">Opens the MG4 Climate screen when the original climate app is opened. It reads which app is in the foreground and closes the panel the system opens when the climate turns on.</string>
+    <string name="v_unavailable" formatted="false">Climate unavailable</string>
+    <string name="v_on" formatted="false">Climate on</string>
+    <string name="v_off" formatted="false">Climate off</string>
+    <string name="v_waiting" formatted="false">Waiting for the vehicle service…</string>
+    <string name="v_switch_on" formatted="false">Switch the car on</string>
+    <string name="v_outside">%1$d° outside</string>
+    <string name="v_out_short">%1$d° out</string>
+    <string name="v_temperature" formatted="false">Temperature</string>
+    <string name="v_fan" formatted="false">Fan</string>
+    <string name="v_fan_auto" formatted="false">Automatic</string>
+    <string name="v_level_low" formatted="false">Low</string>
+    <string name="v_level_medium" formatted="false">Medium</string>
+    <string name="v_level_high" formatted="false">High</string>
+    <string name="v_mode_heat" formatted="false">Heating</string>
+    <string name="v_mode_cool" formatted="false">Cooling</string>
+    <string name="v_mode_keep" formatted="false">Holding</string>
+    <string name="v_dir_auto" formatted="false">Automatic air direction</string>
+    <string name="t_auto" formatted="false">Automatic</string>
+    <string name="t_ac" formatted="false">Air cond.</string>
+    <string name="t_eco" formatted="false">Economy</string>
+    <string name="t_glass" formatted="false">Windscreen air</string>
+    <string name="t_face" formatted="false">Face</string>
+    <string name="t_feet" formatted="false">Feet</string>
+    <string name="t_recirc" formatted="false">Recirculation</string>
+    <string name="t_recirc_auto" formatted="false">Auto recirc.</string>
+    <string name="t_fresh" formatted="false">Fresh air</string>
+    <string name="t_front" formatted="false">Windscreen</string>
+    <string name="t_rear" formatted="false">Rear window</string>
+    <string name="t_wheel" formatted="false">Wheel</string>
+    <string name="t_driver" formatted="false">Driver</string>
+    <string name="t_passenger" formatted="false">Passenger</string>
+    <string name="a_original_unverified">Original climate app %1$s not verified: MG4 Climate won\'t replace it.</string>
+    <string name="a_test_running" formatted="false">Automatic test running…</string>
+    <string name="a_not_connected" formatted="false">Climate service not connected yet</string>
+    <string name="a_switch_on" formatted="false">Switch the car on to use the climate</string>
+    <string name="a_cmd_failed">Command failed: %1$s</string>
+    <string name="a_use_button">%1$s: use the physical button</string>
+    <string name="a_original_missing" formatted="false">Original climate not available</string>
+    <string name="a_diag_sent" formatted="false">Diagnostics sent</string>
+    <string name="a_test_start" formatted="false">Automatic test: starting…</string>
+    <string name="a_test_done">Test finished: %1$s</string>
+    <string name="a_sending_log" formatted="false">sending log…</string>
+    <string name="s_title" formatted="false">Settings</string>
+    <string name="s_screen" formatted="false">Screen</string>
+    <string name="s_side" formatted="false">Driving side</string>
+    <string name="s_side_sub" formatted="false">Controls and dashboard on the driver\'s side</string>
+    <string name="s_left" formatted="false">Left</string>
+    <string name="s_right" formatted="false">Right</string>
+    <string name="s_dash" formatted="false">Dashboard</string>
+    <string name="s_dash_sub" formatted="false">Drawn or realistic (photo): the air comes out of the real vents</string>
+    <string name="s_dash_drawn" formatted="false">Drawn</string>
+    <string name="s_dash_photo" formatted="false">Realistic</string>
+    <string name="s_anim" formatted="false">Animated air</string>
+    <string name="s_anim_sub" formatted="false">The air flows faster with a higher fan; orange when heating, blue when cooling, white when holding (more than 3° from the outside temperature)</string>
+    <string name="s_defrost_tiles" formatted="false">Windscreen and Rear window buttons</string>
+    <string name="s_defrost_tiles_sub" formatted="false">In the bottom row (the car already has physical buttons)</string>
+    <string name="s_language" formatted="false">Language</string>
+    <string name="s_language_auto">Same as the car (%1$s)</string>
+    <string name="s_auto_section" formatted="false">Automatic climate</string>
+    <string name="s_auto_level" formatted="false">AUTO intensity</string>
+    <string name="s_auto_level_sub" formatted="false">How much air in automatic mode; also changes by tapping AUTO when it is on</string>
+    <string name="s_econ_link" formatted="false">Follow ECO drive mode</string>
+    <string name="s_econ_link_sub" formatted="false">With ECO driving the climate switches to economy</string>
+    <string name="s_defrost_link" formatted="false">Automatic rear window heating</string>
+    <string name="s_defrost_link_sub" formatted="false">As in the original climate app</string>
+    <string name="s_auto_none" formatted="false">Automatic climate settings</string>
+    <string name="s_auto_none_sub" formatted="false">They appear with the car on, once the car sends them</string>
+    <string name="s_auto_none_model" formatted="false">Not available on this model yet</string>
+    <string name="s_opening" formatted="false">Opening the climate</string>
+    <string name="s_replace" formatted="false">MG4 Climate instead of the original app</string>
+    <string name="s_replace_sub" formatted="false">When the car\'s climate opens, MG4 Climate appears (also from the launcher)</string>
+    <string name="s_replace_unverified">Original climate app %1$s not verified yet: the original stays</string>
+    <string name="s_launcher_button" formatted="false">The launcher climate button opens MG4 Climate</string>
+    <string name="s_launcher_button_sub" formatted="false">Off: it opens the original climate panel</string>
+    <string name="s_panel" formatted="false">System climate panel</string>
+    <string name="s_panel_sub" formatted="false">When the climate turns on the system opens its panel: always close it, only over MG4 Climate, or leave it</string>
+    <string name="s_panel_always" formatted="false">Always</string>
+    <string name="s_panel_with" formatted="false">With MG4 Climate</string>
+    <string name="s_panel_leave" formatted="false">Leave</string>
+    <string name="s_shade" formatted="false">No pull-down menu with the climate</string>
+    <string name="s_shade_sub" formatted="false">The system opens it when the climate turns on or off: MG4 Climate closes it at once</string>
+    <string name="s_updates" formatted="false">Version and updates</string>
+    <string name="s_version">Version %1$s</string>
+    <string name="s_installed">Installed version: %1$s</string>
+    <string name="s_car" formatted="false">Car</string>
+    <string name="s_model_manual">Chosen by hand · detected: %1$s</string>
+    <string name="s_model_auto" formatted="false">Detected automatically</string>
+    <string name="s_tools" formatted="false">Tools</string>
+    <string name="s_orig_app" formatted="false">Original climate app</string>
+    <string name="s_orig_app_sub" formatted="false">Opens and is not replaced for 2 minutes</string>
+    <string name="s_orig_panel" formatted="false">Original climate panel</string>
+    <string name="s_orig_panel_sub" formatted="false">The car\'s system climate panel</string>
+    <string name="s_test" formatted="false">Automatic command test</string>
+    <string name="s_test_sub" formatted="false">Car stopped only: tries every command, restores everything and sends the log</string>
+    <string name="s_diag" formatted="false">Diagnostics</string>
+    <string name="s_diag_sub" formatted="false">State read from the car and events</string>
+    <string name="s_send_diag" formatted="false">Send diagnostics</string>
+    <string name="s_send_diag_sub" formatted="false">To the private log repository</string>
+    <string name="b_change" formatted="false">Change</string>
+    <string name="b_use" formatted="false">Use</string>
+    <string name="b_update" formatted="false">Update</string>
+    <string name="b_check" formatted="false">Check</string>
+    <string name="b_open" formatted="false">Open</string>
+    <string name="b_start" formatted="false">Start</string>
+    <string name="b_show" formatted="false">Show</string>
+    <string name="b_send" formatted="false">Send</string>
+    <string name="b_cancel" formatted="false">Cancel</string>
+    <string name="c_update" formatted="false">Update</string>
+    <string name="c_update_msg">Install MG4 Climate %1$s? The screen closes for a few seconds.</string>
+    <string name="c_model" formatted="false">Model</string>
+    <string name="c_model_auto">automatic detection (%1$s)</string>
+    <string name="c_model_msg">Use %1$s? Only choose by hand if the detected model is wrong: with the wrong model the commands don\'t work. MG4 Climate restarts.</string>
+    <string name="c_test_msg" formatted="false">With the car STOPPED and on, MG4 Climate tries the commands one at a time like the original app\'s buttons: power, temperature, fan, air direction, A/C, ECO, recirculation, AUTO, seats and wheel (where fitted). It takes about 2 minutes, then restores everything and sends the log.\n\nIt stops by itself if the car moves or you leave this screen. Don\'t touch the climate during the test.</string>
+    <string name="u_checking" formatted="false">Checking…</string>
+    <string name="u_none" formatted="false">No version published</string>
+    <string name="u_available">Available: %1$s</string>
+    <string name="u_latest">You have the latest version (%1$s)</string>
+    <string name="u_check_failed">Check failed: %1$s</string>
+    <string name="u_downloading" formatted="false">Downloading…</string>
+    <string name="u_download_pct">Downloading %1$d%%</string>
+    <string name="u_bad_file" formatted="false">the downloaded file is not the right one</string>
+    <string name="u_not_app" formatted="false">not MG4 Climate</string>
+    <string name="u_installing">Installing %1$s…</string>
+    <string name="u_failed">Failed: %1$s</string>
+    <string name="u_apk_missing" formatted="false">APK not found on GitHub</string>
+    <string name="u_updated" formatted="false">Updated</string>
+    <string name="u_install_failed">Install failed: %1$s</string>
 </resources>

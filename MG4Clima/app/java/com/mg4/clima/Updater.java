@@ -92,17 +92,17 @@ final class Updater {
     /** Controlla se c'è una versione nuova. */
     void check() {
         if (busy) return;
-        status(BuildInfo.t("Controllo…", "Checking…"), null, true);
+        status(L.s(R.string.u_checking), null, true);
         bg.post(() -> {
             try {
                 Release r = latest();
                 last = r;
-                if (r.apk.isEmpty()) status(BuildInfo.t("Nessuna versione pubblicata", "No version published"), r, false);
-                else if (r.newer) status(BuildInfo.t("Disponibile la ", "Available: ") + r.version, r, false);
-                else status(BuildInfo.t("Hai l'ultima versione (", "You have the latest version (") + BuildInfo.version(ctx) + ")", r, false);
+                if (r.apk.isEmpty()) status(L.s(R.string.u_none), r, false);
+                else if (r.newer) status(L.f(R.string.u_available, r.version), r, false);
+                else status(L.f(R.string.u_latest, BuildInfo.version(ctx)), r, false);
                 Store.event(ctx, "aggiornamenti: ultima " + (r.version.isEmpty() ? "nessuna" : r.version) + (r.newer ? " (nuova)" : ""));
             } catch (Exception e) {
-                status(BuildInfo.t("Controllo non riuscito: ", "Check failed: ") + msg(e), null, false);
+                status(L.f(R.string.u_check_failed, msg(e)), null, false);
                 Store.event(ctx, "aggiornamenti: controllo non riuscito " + e);
             }
         });
@@ -111,7 +111,7 @@ final class Updater {
     /** Scarica e installa la versione trovata. */
     void install(Release r) {
         if (busy || r == null || r.apk.isEmpty()) return;
-        status(BuildInfo.t("Download…", "Downloading…"), r, true);
+        status(L.s(R.string.u_downloading), r, true);
         bg.post(() -> {
             File f = new File(ctx.getCacheDir(), "aggiornamento.apk");
             try {
@@ -122,14 +122,14 @@ final class Updater {
                     Store.event(ctx, "aggiornamenti: download diretto non riuscito (" + first.getMessage() + "), provo l'API");
                     download(API + r.apk, "application/vnd.github.raw", f, r);
                 }
-                if (!good(f, r)) throw new Exception(BuildInfo.t("il file scaricato non è quello giusto", "the downloaded file is not the right one"));
+                if (!good(f, r)) throw new Exception(L.s(R.string.u_bad_file));
                 PackageInfo pi = ctx.getPackageManager().getPackageArchiveInfo(f.getPath(), 0);
-                if (pi == null || !ctx.getPackageName().equals(pi.packageName)) throw new Exception(BuildInfo.t("non è MG4 Clima", "not MG4 Climate"));
-                status(BuildInfo.t("Installazione della ", "Installing ") + pi.versionName + "…", r, true);
+                if (pi == null || !ctx.getPackageName().equals(pi.packageName)) throw new Exception(L.s(R.string.u_not_app));
+                status(L.f(R.string.u_installing, pi.versionName), r, true);
                 Store.event(ctx, "aggiornamenti: installo " + pi.versionName);
                 installApk(f);
             } catch (Exception e) {
-                status(BuildInfo.t("Non riuscito: ", "Failed: ") + msg(e), r, false);
+                status(L.f(R.string.u_failed, msg(e)), r, false);
                 Store.event(ctx, "aggiornamenti: non riuscito " + e);
                 //noinspection ResultOfMethodCallIgnored
                 f.delete();
@@ -213,7 +213,7 @@ final class Updater {
         int code = c.getResponseCode();
         if (code != 200) {
             c.disconnect();
-            throw new Exception(code == 404 ? BuildInfo.t("APK non trovato su GitHub", "APK not found on GitHub") : "HTTP " + code);
+            throw new Exception(code == 404 ? L.s(R.string.u_apk_missing) : "HTTP " + code);
         }
         long total = r.size > 0 ? r.size : c.getContentLengthLong();
         try (InputStream in = c.getInputStream(); OutputStream os = new FileOutputStream(out)) {
@@ -227,7 +227,7 @@ final class Updater {
                     int pct = (int) Math.min(100, done * 100 / total);
                     if (pct / 10 != last / 10) {
                         last = pct;
-                        status(BuildInfo.t("Download ", "Downloading ") + pct + "%", r, true);
+                        status(L.f(R.string.u_download_pct, pct), r, true);
                     }
                 }
             }
@@ -270,8 +270,8 @@ final class Updater {
                     } catch (Throwable ignored) {
                     }
                     String m = i.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
-                    if (st == PackageInstaller.STATUS_SUCCESS) status(BuildInfo.t("Aggiornata", "Updated"), null, false);
-                    else status(BuildInfo.t("Installazione non riuscita: ", "Install failed: ") + (m == null ? "stato " + st : m), null, false);
+                    if (st == PackageInstaller.STATUS_SUCCESS) status(L.s(R.string.u_updated), null, false);
+                    else status(L.f(R.string.u_install_failed, m == null ? "status " + st : m), null, false);
                     Store.event(ctx, "aggiornamenti: installazione " + (st == PackageInstaller.STATUS_SUCCESS ? "ok" : "stato " + st + " " + m));
                 }
             }, new IntentFilter(ACTION_RESULT));

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- generato da i18n.py: non modificare a mano -->
+<resources>
+    <string name="app_name" formatted="false">MG4 Klimatyzacja</string>
+    <string name="a11y_desc" formatted="false">Otwiera ekran MG4 Klimatyzacja, gdy otwierana jest oryginalna aplikacja klimatyzacji. Sprawdza, która aplikacja jest na pierwszym planie, i zamyka panel, który system otwiera po włączeniu klimatyzacji.</string>
+    <string name="v_unavailable" formatted="false">Klimatyzacja niedostępna</string>
+    <string name="v_on" formatted="false">Klimatyzacja włączona</string>
+    <string name="v_off" formatted="false">Klimatyzacja wyłączona</string>
+    <string name="v_waiting" formatted="false">Oczekiwanie na usługę pojazdu…</string>
+    <string name="v_switch_on" formatted="false">Włącz samochód</string>
+    <string name="v_outside">%1$d° na zewnątrz</string>
+    <string name="v_out_short">%1$d° zewn.</string>
+    <string name="v_temperature" formatted="false">Temperatura</string>
+    <string name="v_fan" formatted="false">Nawiew</string>
+    <string name="v_fan_auto" formatted="false">Automatyczny</string>
+    <string name="v_level_low" formatted="false">Niska</string>
+    <string name="v_level_medium" formatted="false">Średnia</string>
+    <string name="v_level_high" formatted="false">Wysoka</string>
+    <string name="v_mode_heat" formatted="false">Grzeje</string>
+    <string name="v_mode_cool" formatted="false">Chłodzi</string>
+    <string name="v_mode_keep" formatted="false">Utrzymuje</string>
+    <string name="v_dir_auto" formatted="false">Automatyczny kierunek nawiewu</string>
+    <string name="t_auto" formatted="false">Automatyka</string>
+    <string name="t_ac" formatted="false">Klimatyzacja</string>
+    <string name="t_eco" formatted="false">Oszczędność</string>
+    <string name="t_glass" formatted="false">Na szybę</string>
+    <string name="t_face" formatted="false">Na twarz</string>
+    <string name="t_feet" formatted="false">Na nogi</string>
+    <string name="t_recirc" formatted="false">Recyrkulacja</string>
+    <string name="t_recirc_auto" formatted="false">Recyrk. auto</string>
+    <string name="t_fresh" formatted="false">Powietrze zewn.</string>
+    <string name="t_front" formatted="false">Szyba przednia</string>
+    <string name="t_rear" formatted="false">Szyba tylna</string>
+    <string name="t_wheel" formatted="false">Kierownica</string>
+    <string name="t_driver" formatted="false">Kierowca</string>
+    <string name="t_passenger" formatted="false">Pasażer</string>
+    <string name="a_original_unverified">Oryginalna aplikacja klimatyzacji %1$s niezweryfikowana: MG4 Klimatyzacja jej nie zastępuje.</string>
+    <string name="a_test_running" formatted="false">Trwa test automatyczny…</string>
+    <string name="a_not_connected" formatted="false">Usługa klimatyzacji jeszcze niepołączona</string>
+    <string name="a_switch_on" formatted="false">Włącz samochód, aby używać klimatyzacji</string>
+    <string name="a_cmd_failed">Polecenie nie powiodło się: %1$s</string>
+    <string name="a_use_button">%1$s: użyj fizycznego przycisku</string>
+    <string name="a_original_missing" formatted="false">Oryginalna klimatyzacja niedostępna</string>
+    <string name="a_diag_sent" formatted="false">Diagnostyka wysłana</string>
+    <string name="a_test_start" formatted="false">Test automatyczny: start…</string>
+    <string name="a_test_done">Test zakończony: %1$s</string>
+    <string name="a_sending_log" formatted="false">wysyłanie logu…</string>
+    <string name="s_title" formatted="false">Ustawienia</string>
+    <string name="s_screen" formatted="false">Ekran</string>
+    <string name="s_side" formatted="false">Strona kierownicy</string>
+    <string name="s_side_sub" formatted="false">Sterowanie i deska rozdzielcza po stronie kierowcy</string>
+    <string name="s_left" formatted="false">Lewa</string>
+    <string name="s_right" formatted="false">Prawa</string>
+    <string name="s_dash" formatted="false">Deska rozdzielcza</string>
+    <string name="s_dash_sub" formatted="false">Rysunek lub realistyczny (zdjęcie): powietrze wylatuje z prawdziwych nawiewów</string>
+    <string name="s_dash_drawn" formatted="false">Rysunek</string>
+    <string name="s_dash_photo" formatted="false">Realistyczny</string>
+    <string name="s_anim" formatted="false">Animowany nawiew</string>
+    <string name="s_anim_sub" formatted="false">Powietrze płynie szybciej przy mocniejszym nawiewie; pomarańczowe gdy grzeje, niebieskie gdy chłodzi, białe gdy utrzymuje (ponad 3° różnicy z zewnętrzną)</string>
+    <string name="s_defrost_tiles" formatted="false">Przyciski szyby przedniej i tylnej</string>
+    <string name="s_defrost_tiles_sub" formatted="false">W dolnym rzędzie (samochód ma już fizyczne przyciski)</string>
+    <string name="s_language" formatted="false">Język</string>
+    <string name="s_language_auto">Jak w samochodzie (%1$s)</string>
+    <string name="s_auto_section" formatted="false">Klimatyzacja automatyczna</string>
+    <string name="s_auto_level" formatted="false">Intensywność AUTO</string>
+    <string name="s_auto_level_sub" formatted="false">Ile powietrza w trybie automatycznym; zmienia się też dotknięciem AUTO, gdy jest włączone</string>
+    <string name="s_econ_link" formatted="false">Podążaj za trybem jazdy ECO</string>
+    <string name="s_econ_link_sub" formatted="false">W trybie jazdy ECO klimatyzacja przechodzi w oszczędzanie</string>
+    <string name="s_defrost_link" formatted="false">Automatyczne ogrzewanie tylnej szyby</string>
+    <string name="s_defrost_link_sub" formatted="false">Jak w oryginalnej aplikacji klimatyzacji</string>
+    <string name="s_auto_none" formatted="false">Ustawienia klimatyzacji automatycznej</string>
+    <string name="s_auto_none_sub" formatted="false">Pojawiają się przy włączonym samochodzie, gdy samochód je przekaże</string>
+    <string name="s_auto_none_model" formatted="false">Jeszcze niedostępne w tym modelu</string>
+    <string name="s_opening" formatted="false">Otwieranie klimatyzacji</string>
+    <string name="s_replace" formatted="false">MG4 Klimatyzacja zamiast oryginalnej aplikacji</string>
+    <string name="s_replace_sub" formatted="false">Po otwarciu klimatyzacji samochodu pojawia się MG4 Klimatyzacja (także z launchera)</string>
+    <string name="s_replace_unverified">Oryginalna aplikacja klimatyzacji %1$s jeszcze niezweryfikowana: zostaje oryginał</string>
+    <string name="s_launcher_button" formatted="false">Przycisk klimatyzacji w launcherze otwiera MG4 Klimatyzacja</string>
+    <string name="s_launcher_button_sub" formatted="false">Wyłączone: otwiera oryginalny panel klimatyzacji</string>
+    <string name="s_panel" formatted="false">Systemowy panel klimatyzacji</string>
+    <string name="s_panel_sub" formatted="false">Po włączeniu klimatyzacji system otwiera swój panel: zawsze zamykaj, tylko nad MG4 Klimatyzacja lub zostaw</string>
+    <string name="s_panel_always" formatted="false">Zawsze</string>
+    <string name="s_panel_with" formatted="false">Z MG4 Klimatyzacja</string>
+    <string name="s_panel_leave" formatted="false">Zostaw</string>
+    <string name="s_shade" formatted="false">Bez rozwijanego menu przy klimatyzacji</string>
+    <string name="s_shade_sub" formatted="false">System otwiera je przy włączaniu lub wyłączaniu klimatyzacji: MG4 Klimatyzacja od razu je zamyka</string>
+    <string name="s_updates" formatted="false">Wersja i aktualizacje</string>
+    <string name="s_version">Wersja %1$s</string>
+    <string name="s_installed">Zainstalowana wersja: %1$s</string>
+    <string name="s_car" formatted="false">Samochód</string>
+    <string name="s_model_manual">Wybrany ręcznie · wykryty: %1$s</string>
+    <string name="s_model_auto" formatted="false">Wykryty automatycznie</string>
+    <string name="s_tools" formatted="false">Narzędzia</string>
+    <string name="s_orig_app" formatted="false">Oryginalna aplikacja klimatyzacji</string>
+    <string name="s_orig_app_sub" formatted="false">Otwiera się i przez 2 minuty nie jest zastępowana</string>
+    <string name="s_orig_panel" formatted="false">Oryginalny panel klimatyzacji</string>
+    <string name="s_orig_panel_sub" formatted="false">Systemowy panel klimatyzacji samochodu</string>
+    <string name="s_test" formatted="false">Automatyczny test poleceń</string>
+    <string name="s_test_sub" formatted="false">Tylko na postoju: sprawdza wszystkie polecenia, przywraca wszystko i wysyła log</string>
+    <string name="s_diag" formatted="false">Diagnostyka</string>
+    <string name="s_diag_sub" formatted="false">Stan odczytany z samochodu i zdarzenia</string>
+    <string name="s_send_diag" formatted="false">Wyślij diagnostykę</string>
+    <string name="s_send_diag_sub" formatted="false">Do prywatnego repozytorium logów</string>
+    <string name="b_change" formatted="false">Zmień</string>
+    <string name="b_use" formatted="false">Użyj</string>
+    <string name="b_update" formatted="false">Aktualizuj</string>
+    <string name="b_check" formatted="false">Sprawdź</string>
+    <string name="b_open" formatted="false">Otwórz</string>
+    <string name="b_start" formatted="false">Uruchom</string>
+    <string name="b_show" formatted="false">Pokaż</string>
+    <string name="b_send" formatted="false">Wyślij</string>
+    <string name="b_cancel" formatted="false">Anuluj</string>
+    <string name="c_update" formatted="false">Aktualizacja</string>
+    <string name="c_update_msg">Zainstalować MG4 Klimatyzacja %1$s? Ekran zamknie się na kilka sekund.</string>
+    <string name="c_model" formatted="false">Model</string>
+    <string name="c_model_auto">automatyczne wykrywanie (%1$s)</string>
+    <string name="c_model_msg">Użyć %1$s? Wybieraj ręcznie tylko, gdy wykryty model jest błędny: przy złym modelu polecenia nie działają. MG4 Klimatyzacja uruchomi się ponownie.</string>
+    <string name="c_test_msg" formatted="false">Przy ZATRZYMANYM i włączonym samochodzie MG4 Klimatyzacja sprawdza polecenia po kolei jak przyciski oryginalnej aplikacji: włączanie, temperatura, nawiew, kierunek powietrza, A/C, ECO, recyrkulacja, AUTO, fotele i kierownica (jeśli są). Trwa około 2 minut, potem przywraca wszystko i wysyła log.\n\nZatrzymuje się sam, gdy samochód ruszy lub opuścisz ten ekran. Nie dotykaj klimatyzacji podczas testu.</string>
+    <string name="u_checking" formatted="false">Sprawdzanie…</string>
+    <string name="u_none" formatted="false">Brak opublikowanej wersji</string>
+    <string name="u_available">Dostępna: %1$s</string>
+    <string name="u_latest">Masz najnowszą wersję (%1$s)</string>
+    <string name="u_check_failed">Sprawdzanie nie powiodło się: %1$s</string>
+    <string name="u_downloading" formatted="false">Pobieranie…</string>
+    <string name="u_download_pct">Pobieranie %1$d%%</string>
+    <string name="u_bad_file" formatted="false">pobrany plik nie jest właściwy</string>
+    <string name="u_not_app" formatted="false">to nie MG4 Klimatyzacja</string>
+    <string name="u_installing">Instalowanie %1$s…</string>
+    <string name="u_failed">Niepowodzenie: %1$s</string>
+    <string name="u_apk_missing" formatted="false">Nie znaleziono APK na GitHubie</string>
+    <string name="u_updated" formatted="false">Zaktualizowano</string>
+    <string name="u_install_failed">Instalacja nie powiodła się: %1$s</string>
+</resources>

@@ -24,6 +24,8 @@ final class CarAdapterBackend implements HvacClient.Backend {
     private static final int GET_POWER = 6, GET_AC = 8, GET_AUTO = 10, GET_ECO = 14, GET_LOOP = 16, GET_DIRECTION = 18,
             GET_FAN = 20, GET_DRV_TEMP = 22, GET_OUT_TEMP = 25, GET_FRONT_DEFROST = 28, GET_REAR_DEFROST = 30;
     private static final int SET_DRV_TEMP = 21, SET_DIRECTION = 17, SET_FAN = 19;
+    /** Impostazioni dell'app clima originale SWI69 (ICarHvacService, verificati su più build SWI69). */
+    private static final int SET_AUTO_LEVEL = 39, GET_AUTO_LEVEL = 40, SET_ECON_LINK = 68, GET_ECON_LINK = 69;
 
     private static int code(int cmd) {
         switch (cmd) {
@@ -66,7 +68,13 @@ final class CarAdapterBackend implements HvacClient.Backend {
     private boolean bound;
     private Runnable onConnected;
 
-    CarAdapterBackend(Context c) {
+    /** Solo SWI69: sulla SWI132 i codici delle impostazioni non sono verificati, quindi non si usano. */
+    private final boolean settings;
+    private int settingsFails;
+    private boolean settingsBroken;
+
+    CarAdapterBackend(Context c, boolean swi69) {
+        settings = swi69;
         ctx = c;
         speed = new Speed(c);
     }
@@ -150,6 +158,14 @@ final class CarAdapterBackend implements HvacClient.Backend {
 
     @Override
     public void send(int cmd, Integer arg) throws Exception {
+        if (cmd == HvacClient.SET_AUTO_LEVEL || cmd == HvacClient.SET_ECON_LINK) {
+            if (!settings) throw new IllegalStateException("impostazione non presente su questa auto");
+            IBinder a = ac();
+            if (a == null) throw new IllegalStateException("servizio clima non collegato");
+            int val = arg == null ? 0 : arg;
+            Rpc.call(a, AC, cmd == HvacClient.SET_AUTO_LEVEL ? SET_AUTO_LEVEL : SET_ECON_LINK, p -> p.writeInt(val));
+            return;
+        }
         int code = code(cmd);
         if (code < 0) throw new IllegalStateException("comando non presente su questa auto");
         IBinder a = ac();
@@ -189,6 +205,16 @@ final class CarAdapterBackend implements HvacClient.Backend {
                 s.rearDefrost = Rpc.callBool(a, AC, GET_REAR_DEFROST) ? 1 : 0;
                 float out = Rpc.callFloat(a, AC, GET_OUT_TEMP);
                 s.outTemp = out < -100 || out > 100 ? Float.NaN : out;
+                if (settings && !settingsBroken) {
+                    try {
+                        int lv = Rpc.callInt(a, AC, GET_AUTO_LEVEL), ec = Rpc.callInt(a, AC, GET_ECON_LINK);
+                        s.autoLevel = lv >= 0 && lv <= 2 ? lv : -1;
+                        s.econLink = ec == 1 || ec == 2 ? ec : -1;
+                    } catch (Throwable t) {
+                        if (++settingsFails >= 5) settingsBroken = true;
+                        Store.event(ctx, "impostazioni del clima originale non leggibili: " + t);
+                    }
+                }
             }
         } catch (Exception e) {
             hvac = null;

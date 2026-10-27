@@ -19,7 +19,12 @@ public final class HvacClient {
     public static final int SET_POWER_PRESS = 1, SET_AUTO_PRESS = 2, SET_AC_PRESS = 3, SET_LOOP_PRESS = 4,
             SET_ECON_PRESS = 5, SET_BLOWER_MODE = 6, SET_AIR_VOLUME = 7, SET_DRV_SEAT_PRESS = 8,
             SET_PSG_SEAT_PRESS = 9, SET_DRV_TEMP = 10, SET_WHEEL_PRESS = 11,
-            FRONT_DEFROST_OPEN = 12, FRONT_DEFROST_CLOSE = 13, REAR_DEFROST_OPEN = 14, REAR_DEFROST_CLOSE = 15;
+            FRONT_DEFROST_OPEN = 12, FRONT_DEFROST_CLOSE = 13, REAR_DEFROST_OPEN = 14, REAR_DEFROST_CLOSE = 15,
+            // impostazioni dell'app clima originale (1.2.0): valore come l'originale
+            SET_AUTO_LEVEL = 16, SET_ECON_LINK = 17, SET_DEFROST_LINK = 18;
+
+    /** Intensità di AUTO nei valori dell'auto: 2 bassa, 1 media, 0 alta (come l'app originale). */
+    public static final int AUTO_LOW = 2, AUTO_MEDIUM = 1, AUTO_HIGH = 0;
 
     /** Ventola in automatico (come le app clima originali). */
     public static final int FAN_AUTO = 15;
@@ -56,6 +61,8 @@ public final class HvacClient {
         public int power = -1, temp = -1, fan = -1, fanMin = 1, fanMax = 12;
         public int auto = -1, ac = -1, econ = -1, blowerMode = -1, loop = -1;
         public int frontDefrost = -1, rearDefrost = -1, wheel = -1, seatDrv = -1, seatPsg = -1;
+        /** Impostazioni dell'app originale (1.2.0): intensità AUTO 0..2, segui ECO 1 sì / 2 no, lunotto automatico 0 sì / 1 no. */
+        public int autoLevel = -1, econLink = -1, defrostLink = -1;
         public float outTemp = Float.NaN, speed = Float.NaN;
         /** Temperatura: valore minimo = "LO", massimo = "HI". */
         public int tempMin = 17, tempMax = 33;
@@ -97,6 +104,7 @@ public final class HvacClient {
                     + "\nacceso " + power + " · temperatura " + temp + " (" + tempMin + "=LO, " + tempMax + "=HI)"
                     + " · ventola " + fan + " (" + fanMin + "–" + fanMax + ")"
                     + "\nAUTO " + auto + " · A/C " + ac + " · ECO " + econ + " · direzione " + blowerMode + " · ricircolo " + loop
+                    + "\nintensità AUTO " + autoLevel + " · segui ECO " + econLink + " · lunotto automatico " + defrostLink
                     + "\nparabrezza " + frontDefrost + " · lunotto " + rearDefrost
                     + (hasWheel ? " · volante " + wheel : "")
                     + (hasSeats ? "\nsedili " + seatDrv + " / " + seatPsg + " (configurazione " + seatConfig + ")" : "")
@@ -123,6 +131,9 @@ public final class HvacClient {
         d(sb, "volante", a.wheel, b.wheel);
         d(sb, "sedile guida", a.seatDrv, b.seatDrv);
         d(sb, "sedile passeggero", a.seatPsg, b.seatPsg);
+        d(sb, "intensità AUTO", a.autoLevel, b.autoLevel);
+        d(sb, "segui ECO", a.econLink, b.econLink);
+        d(sb, "lunotto automatico", a.defrostLink, b.defrostLink);
         return sb.toString();
     }
 
@@ -154,7 +165,7 @@ public final class HvacClient {
     public HvacClient(Context c) {
         ctx = c.getApplicationContext();
         model = Model.get(ctx);
-        backend = Model.saic(ctx) ? new SaicBackend(ctx, Model.SWI133.equals(model)) : new CarAdapterBackend(ctx);
+        backend = Model.saic(ctx) ? new SaicBackend(ctx, Model.SWI133.equals(model)) : new CarAdapterBackend(ctx, Model.SWI69.equals(model));
     }
 
     private void begin(String threadName, boolean poll) {

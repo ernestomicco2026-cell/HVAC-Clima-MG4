@@ -49,6 +49,35 @@ public final class Store {
         sp(c).edit().putInt("pannelloModo", m).putBoolean("chiudiTendina", m != PANEL_LEAVE).apply();
     }
 
+    /** Lingua (1.2.0): "auto" = quella dell'auto, altrimenti il codice scelto (it, en, …). */
+    public static String language(Context c) {
+        return sp(c).getString("lingua", L.AUTO);
+    }
+
+    public static void setLanguage(Context c, String code) {
+        sp(c).edit().putString("lingua", code).apply();
+    }
+
+    /** Stile del cruscotto (1.2.0): 0 disegnato, 1 realistico (foto). */
+    public static final int STYLE_DRAWN = 0, STYLE_PHOTO = 1;
+
+    public static int dashStyle(Context c) {
+        return sp(c).getInt("stileCruscotto", STYLE_DRAWN);
+    }
+
+    public static void setDashStyle(Context c, int s) {
+        sp(c).edit().putInt("stileCruscotto", s).apply();
+    }
+
+    /** Tasti Parabrezza e Lunotto nella fila in basso (1.2.0, spenti di default: ci sono i tasti fisici). */
+    public static boolean defrostTiles(Context c) {
+        return sp(c).getBoolean("tastiSbrinamento", false);
+    }
+
+    public static void setDefrostTiles(Context c, boolean on) {
+        sp(c).edit().putBoolean("tastiSbrinamento", on).apply();
+    }
+
     /** Aria animata nella schermata del clima (1.1.0, accesa di default). */
     public static boolean animatedAir(Context c) {
         return sp(c).getBoolean("ariaAnimata", true);
@@ -143,6 +172,8 @@ public final class Store {
         sb.append("modello: ").append(Model.get(c)).append(Model.manual(c) ? " (scelto a mano)" : " (riconosciuto: " + Model.how(c) + ")")
                 .append(" · software ").append(Model.software().isEmpty() ? "?" : Model.software()).append('\n');
         int pm = panelMode(c);
+        sb.append("lingua: ").append(language(c)).append(" · cruscotto: ").append(dashStyle(c) == STYLE_PHOTO ? "realistico" : "disegnato")
+                .append(" · tasti parabrezza/lunotto: ").append(defrostTiles(c) ? "sì" : "no").append('\n');
         sb.append("chiusura pannello/tendina: ").append(pm == PANEL_ALWAYS ? "sempre" : pm == PANEL_WITH_APP ? "solo con MG4 Clima aperto" : "spenta").append('\n');
         sb.append("app clima originale: ").append(ClimaGuard.originalVersion(c))
                 .append(ClimaGuard.originalKnown(c) ? " (verificata)" : " (non verificata: niente sostituzione)").append('\n');

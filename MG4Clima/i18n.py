@@ -1,0 +1,206 @@
+#!/usr/bin/env python3
+"""Genera app/res/values*/strings.xml di MG4 Clima in 8 lingue (come il launcher MG4).
+
+Ogni voce: chiave -> (it, en, es, de, pt, fr, tr, pl). L'inglese è la lingua di riserva (cartella values/).
+Uso: python3 i18n.py   (poi ./build.sh per compilare)
+"""
+import os
+import re
+import sys
+
+LANGS = ["it", "en", "es", "de", "pt", "fr", "tr", "pl"]
+
+S = {
+    "app_name": ("MG4 Clima", "MG4 Climate", "MG4 Clima", "MG4 Klima", "MG4 Clima", "MG4 Climat", "MG4 Klima", "MG4 Klimatyzacja"),
+    "a11y_desc": (
+        "Apre la schermata MG4 Clima quando si apre l'app clima originale. Legge quale app è in primo piano e chiude il pannello che il sistema apre quando il clima si accende.",
+        "Opens the MG4 Climate screen when the original climate app is opened. It reads which app is in the foreground and closes the panel the system opens when the climate turns on.",
+        "Abre la pantalla MG4 Clima cuando se abre la app de clima original. Lee qué app está en primer plano y cierra el panel que el sistema abre al encender el clima.",
+        "Öffnet den MG4-Klima-Bildschirm, wenn die Original-Klima-App geöffnet wird. Erkennt die App im Vordergrund und schließt das Feld, das das System beim Einschalten der Klimaanlage öffnet.",
+        "Abre o ecrã MG4 Clima quando se abre a app de climatização original. Lê qual app está em primeiro plano e fecha o painel que o sistema abre quando a climatização liga.",
+        "Ouvre l'écran MG4 Climat quand l'appli climat d'origine s'ouvre. Détecte l'appli au premier plan et ferme le panneau que le système ouvre quand la climatisation s'allume.",
+        "Orijinal klima uygulaması açıldığında MG4 Klima ekranını açar. Ön plandaki uygulamayı okur ve klima açıldığında sistemin açtığı paneli kapatır.",
+        "Otwiera ekran MG4 Klimatyzacja, gdy otwierana jest oryginalna aplikacja klimatyzacji. Sprawdza, która aplikacja jest na pierwszym planie, i zamyka panel, który system otwiera po włączeniu klimatyzacji."),
+
+    # ---- schermata: colonna del guidatore
+    "v_unavailable": ("Clima non disponibile", "Climate unavailable", "Clima no disponible", "Klima nicht verfügbar", "Climatização indisponível", "Climatisation indisponible", "Klima kullanılamıyor", "Klimatyzacja niedostępna"),
+    "v_on": ("Clima acceso", "Climate on", "Clima encendido", "Klima an", "Climatização ligada", "Climatisation allumée", "Klima açık", "Klimatyzacja włączona"),
+    "v_off": ("Clima spento", "Climate off", "Clima apagado", "Klima aus", "Climatização desligada", "Climatisation éteinte", "Klima kapalı", "Klimatyzacja wyłączona"),
+    "v_waiting": ("In attesa del servizio veicolo…", "Waiting for the vehicle service…", "Esperando el servicio del vehículo…", "Warte auf den Fahrzeugdienst…", "À espera do serviço do veículo…", "En attente du service du véhicule…", "Araç hizmeti bekleniyor…", "Oczekiwanie na usługę pojazdu…"),
+    "v_switch_on": ("Accendi l'auto", "Switch the car on", "Enciende el coche", "Schalte das Auto ein", "Liga o carro", "Allume la voiture", "Aracı çalıştır", "Włącz samochód"),
+    "v_outside": ("%1$d° esterni", "%1$d° outside", "%1$d° exterior", "%1$d° außen", "%1$d° exterior", "%1$d° extérieur", "Dış %1$d°", "%1$d° na zewnątrz"),
+    "v_out_short": ("%1$d° est.", "%1$d° out", "%1$d° ext.", "%1$d° außen", "%1$d° ext.", "%1$d° ext.", "Dış %1$d°", "%1$d° zewn."),
+    "v_temperature": ("Temperatura", "Temperature", "Temperatura", "Temperatur", "Temperatura", "Température", "Sıcaklık", "Temperatura"),
+    "v_fan": ("Ventola", "Fan", "Ventilador", "Gebläse", "Ventilador", "Ventilation", "Fan", "Nawiew"),
+    "v_fan_auto": ("Automatica", "Automatic", "Automático", "Automatisch", "Automático", "Automatique", "Otomatik", "Automatyczny"),
+    "v_level_low": ("Bassa", "Low", "Baja", "Niedrig", "Baixa", "Faible", "Düşük", "Niska"),
+    "v_level_medium": ("Media", "Medium", "Media", "Mittel", "Média", "Moyenne", "Orta", "Średnia"),
+    "v_level_high": ("Alta", "High", "Alta", "Hoch", "Alta", "Élevée", "Yüksek", "Wysoka"),
+    "v_mode_heat": ("Riscalda", "Heating", "Calienta", "Heizt", "Aquece", "Chauffe", "Isıtıyor", "Grzeje"),
+    "v_mode_cool": ("Raffresca", "Cooling", "Enfría", "Kühlt", "Arrefece", "Refroidit", "Soğutuyor", "Chłodzi"),
+    "v_mode_keep": ("Mantiene", "Holding", "Mantiene", "Hält", "Mantém", "Maintient", "Koruyor", "Utrzymuje"),
+    "v_dir_auto": ("Direzione dell'aria automatica", "Automatic air direction", "Dirección del aire automática", "Automatische Luftverteilung", "Direção do ar automática", "Répartition de l'air automatique", "Otomatik hava yönü", "Automatyczny kierunek nawiewu"),
+
+    # ---- tasti in basso
+    "t_auto": ("Automatico", "Automatic", "Automático", "Automatik", "Automático", "Automatique", "Otomatik", "Automatyka"),
+    "t_ac": ("Aria condiz.", "Air cond.", "Aire acond.", "Klimaanlage", "Ar condic.", "Clim", "Klima", "Klimatyzacja"),
+    "t_eco": ("Risparmio", "Economy", "Ahorro", "Sparen", "Poupança", "Économie", "Tasarruf", "Oszczędność"),
+    "t_glass": ("Aria al vetro", "Windscreen air", "Aire al parabrisas", "Scheibe", "Ar ao para-brisas", "Air pare-brise", "Cama hava", "Na szybę"),
+    "t_face": ("Aria al viso", "Face", "Aire a la cara", "Gesicht", "Ar à cara", "Visage", "Yüz", "Na twarz"),
+    "t_feet": ("Aria ai piedi", "Feet", "Aire a los pies", "Füße", "Ar aos pés", "Pieds", "Ayak", "Na nogi"),
+    "t_recirc": ("Ricircolo", "Recirculation", "Recirculación", "Umluft", "Recirculação", "Recyclage", "İç hava", "Recyrkulacja"),
+    "t_recirc_auto": ("Ricircolo auto", "Auto recirc.", "Recirc. auto", "Umluft Auto", "Recirc. auto", "Recyclage auto", "Otomatik iç hava", "Recyrk. auto"),
+    "t_fresh": ("Aria esterna", "Fresh air", "Aire exterior", "Frischluft", "Ar exterior", "Air extérieur", "Dış hava", "Powietrze zewn."),
+    "t_front": ("Parabrezza", "Windscreen", "Parabrisas", "Frontscheibe", "Para-brisas", "Pare-brise", "Ön cam", "Szyba przednia"),
+    "t_rear": ("Lunotto", "Rear window", "Luneta", "Heckscheibe", "Óculo traseiro", "Lunette", "Arka cam", "Szyba tylna"),
+    "t_wheel": ("Volante", "Wheel", "Volante", "Lenkrad", "Volante", "Volant", "Direksiyon", "Kierownica"),
+    "t_driver": ("Guidatore", "Driver", "Conductor", "Fahrer", "Condutor", "Conducteur", "Sürücü", "Kierowca"),
+    "t_passenger": ("Passeggero", "Passenger", "Pasajero", "Beifahrer", "Passageiro", "Passager", "Yolcu", "Pasażer"),
+
+    # ---- avvisi
+    "a_original_unverified": ("App clima originale %1$s non verificata: MG4 Clima non la sostituisce.", "Original climate app %1$s not verified: MG4 Climate won't replace it.", "App de clima original %1$s no verificada: MG4 Clima no la sustituye.", "Original-Klima-App %1$s nicht geprüft: MG4 Klima ersetzt sie nicht.", "App de climatização original %1$s não verificada: o MG4 Clima não a substitui.", "Appli climat d'origine %1$s non vérifiée : MG4 Climat ne la remplace pas.", "Orijinal klima uygulaması %1$s doğrulanmadı: MG4 Klima onun yerini almıyor.", "Oryginalna aplikacja klimatyzacji %1$s niezweryfikowana: MG4 Klimatyzacja jej nie zastępuje."),
+    "a_test_running": ("Test automatico in corso…", "Automatic test running…", "Prueba automática en curso…", "Automatischer Test läuft…", "Teste automático em curso…", "Test automatique en cours…", "Otomatik test sürüyor…", "Trwa test automatyczny…"),
+    "a_not_connected": ("Servizio clima non ancora collegato", "Climate service not connected yet", "Servicio de clima aún no conectado", "Klimadienst noch nicht verbunden", "Serviço de climatização ainda não ligado", "Service climat pas encore connecté", "Klima hizmeti henüz bağlı değil", "Usługa klimatyzacji jeszcze niepołączona"),
+    "a_switch_on": ("Accendi l'auto per usare il clima", "Switch the car on to use the climate", "Enciende el coche para usar el clima", "Schalte das Auto ein, um die Klimaanlage zu nutzen", "Liga o carro para usar a climatização", "Allume la voiture pour utiliser la climatisation", "Klimayı kullanmak için aracı çalıştır", "Włącz samochód, aby używać klimatyzacji"),
+    "a_cmd_failed": ("Comando non riuscito: %1$s", "Command failed: %1$s", "Orden fallida: %1$s", "Befehl fehlgeschlagen: %1$s", "Comando falhou: %1$s", "Commande échouée : %1$s", "Komut başarısız: %1$s", "Polecenie nie powiodło się: %1$s"),
+    "a_use_button": ("%1$s: usa il tasto fisico", "%1$s: use the physical button", "%1$s: usa el botón físico", "%1$s: nutze die Taste im Auto", "%1$s: usa o botão físico", "%1$s : utilise le bouton physique", "%1$s: fiziksel düğmeyi kullan", "%1$s: użyj fizycznego przycisku"),
+    "a_original_missing": ("Clima originale non disponibile", "Original climate not available", "Clima original no disponible", "Original-Klima nicht verfügbar", "Climatização original indisponível", "Climat d'origine indisponible", "Orijinal klima kullanılamıyor", "Oryginalna klimatyzacja niedostępna"),
+    "a_diag_sent": ("Diagnostica inviata", "Diagnostics sent", "Diagnóstico enviado", "Diagnose gesendet", "Diagnóstico enviado", "Diagnostic envoyé", "Tanılama gönderildi", "Diagnostyka wysłana"),
+    "a_test_start": ("Test automatico: avvio…", "Automatic test: starting…", "Prueba automática: iniciando…", "Automatischer Test: Start…", "Teste automático: a iniciar…", "Test automatique : démarrage…", "Otomatik test: başlıyor…", "Test automatyczny: start…"),
+    "a_test_done": ("Test finito: %1$s", "Test finished: %1$s", "Prueba terminada: %1$s", "Test beendet: %1$s", "Teste terminado: %1$s", "Test terminé : %1$s", "Test bitti: %1$s", "Test zakończony: %1$s"),
+    "a_sending_log": ("invio log…", "sending log…", "enviando registro…", "sende Log…", "a enviar registo…", "envoi du journal…", "günlük gönderiliyor…", "wysyłanie logu…"),
+
+    # ---- impostazioni
+    "s_title": ("Impostazioni", "Settings", "Ajustes", "Einstellungen", "Definições", "Réglages", "Ayarlar", "Ustawienia"),
+    "s_screen": ("Schermata", "Screen", "Pantalla", "Bildschirm", "Ecrã", "Écran", "Ekran", "Ekran"),
+    "s_side": ("Lato di guida", "Driving side", "Lado de conducción", "Lenkradseite", "Lado de condução", "Côté conduite", "Direksiyon tarafı", "Strona kierownicy"),
+    "s_side_sub": ("Comandi e cruscotto dal lato del guidatore", "Controls and dashboard on the driver's side", "Mandos y salpicadero del lado del conductor", "Bedienung und Armaturenbrett auf der Fahrerseite", "Comandos e tablier do lado do condutor", "Commandes et tableau de bord côté conducteur", "Kontroller ve gösterge paneli sürücü tarafında", "Sterowanie i deska rozdzielcza po stronie kierowcy"),
+    "s_left": ("Sinistra", "Left", "Izquierda", "Links", "Esquerda", "Gauche", "Sol", "Lewa"),
+    "s_right": ("Destra", "Right", "Derecha", "Rechts", "Direita", "Droite", "Sağ", "Prawa"),
+    "s_dash": ("Cruscotto", "Dashboard", "Salpicadero", "Armaturenbrett", "Tablier", "Tableau de bord", "Gösterge paneli", "Deska rozdzielcza"),
+    "s_dash_sub": ("Disegnato o realistico (foto): l'aria esce dalle bocchette vere", "Drawn or realistic (photo): the air comes out of the real vents", "Dibujado o realista (foto): el aire sale de las rejillas reales", "Gezeichnet oder realistisch (Foto): Die Luft kommt aus den echten Düsen", "Desenhado ou realista (foto): o ar sai das saídas reais", "Dessiné ou réaliste (photo) : l'air sort des vraies bouches", "Çizim veya gerçekçi (fotoğraf): hava gerçek menfezlerden çıkar", "Rysunek lub realistyczny (zdjęcie): powietrze wylatuje z prawdziwych nawiewów"),
+    "s_dash_drawn": ("Disegnato", "Drawn", "Dibujado", "Gezeichnet", "Desenhado", "Dessiné", "Çizim", "Rysunek"),
+    "s_dash_photo": ("Realistico", "Realistic", "Realista", "Realistisch", "Realista", "Réaliste", "Gerçekçi", "Realistyczny"),
+    "s_anim": ("Aria animata", "Animated air", "Aire animado", "Animierte Luft", "Ar animado", "Air animé", "Hareketli hava", "Animowany nawiew"),
+    "s_anim_sub": ("L'aria scorre più veloce con la ventola alta; arancione se riscalda, azzurra se raffresca, bianca se mantiene (oltre 3° di differenza con l'esterno)", "The air flows faster with a higher fan; orange when heating, blue when cooling, white when holding (more than 3° from the outside temperature)", "El aire fluye más rápido con el ventilador alto; naranja si calienta, azul si enfría, blanco si mantiene (más de 3° respecto al exterior)", "Die Luft strömt bei höherem Gebläse schneller; orange beim Heizen, blau beim Kühlen, weiß beim Halten (mehr als 3° Unterschied zur Außentemperatur)", "O ar flui mais depressa com o ventilador alto; laranja se aquece, azul se arrefece, branco se mantém (mais de 3° de diferença do exterior)", "L'air circule plus vite avec une ventilation élevée ; orange s'il chauffe, bleu s'il refroidit, blanc s'il maintient (plus de 3° d'écart avec l'extérieur)", "Fan yüksekken hava daha hızlı akar; ısıtırken turuncu, soğuturken mavi, korurken beyaz (dış sıcaklıkla 3°'den fazla fark)", "Powietrze płynie szybciej przy mocniejszym nawiewie; pomarańczowe gdy grzeje, niebieskie gdy chłodzi, białe gdy utrzymuje (ponad 3° różnicy z zewnętrzną)"),
+    "s_defrost_tiles": ("Tasti Parabrezza e Lunotto", "Windscreen and Rear window buttons", "Botones Parabrisas y Luneta", "Tasten Frontscheibe und Heckscheibe", "Botões Para-brisas e Óculo", "Boutons Pare-brise et Lunette", "Ön cam ve Arka cam düğmeleri", "Przyciski szyby przedniej i tylnej"),
+    "s_defrost_tiles_sub": ("Nella fila in basso (l'auto ha già i tasti fisici)", "In the bottom row (the car already has physical buttons)", "En la fila inferior (el coche ya tiene botones físicos)", "In der unteren Reihe (das Auto hat schon Tasten)", "Na fila de baixo (o carro já tem botões físicos)", "Dans la rangée du bas (la voiture a déjà des boutons physiques)", "Alt sırada (araçta zaten fiziksel düğmeler var)", "W dolnym rzędzie (samochód ma już fizyczne przyciski)"),
+    "s_language": ("Lingua", "Language", "Idioma", "Sprache", "Idioma", "Langue", "Dil", "Język"),
+    "s_language_auto": ("Come l'auto (%1$s)", "Same as the car (%1$s)", "Como el coche (%1$s)", "Wie im Auto (%1$s)", "Como o carro (%1$s)", "Comme la voiture (%1$s)", "Araçla aynı (%1$s)", "Jak w samochodzie (%1$s)"),
+    "s_auto_section": ("Clima automatico", "Automatic climate", "Clima automático", "Klimaautomatik", "Climatização automática", "Climatisation automatique", "Otomatik klima", "Klimatyzacja automatyczna"),
+    "s_auto_level": ("Intensità di AUTO", "AUTO intensity", "Intensidad de AUTO", "AUTO-Stärke", "Intensidade do AUTO", "Intensité AUTO", "AUTO yoğunluğu", "Intensywność AUTO"),
+    "s_auto_level_sub": ("Quanta aria in automatico; si cambia anche toccando AUTO quando è acceso", "How much air in automatic mode; also changes by tapping AUTO when it is on", "Cuánto aire en automático; también cambia tocando AUTO cuando está encendido", "Wie viel Luft im Automatikbetrieb; ändert sich auch durch Tippen auf AUTO, wenn es an ist", "Quanto ar em automático; também muda tocando em AUTO quando está ligado", "Quantité d'air en automatique ; change aussi en touchant AUTO quand il est actif", "Otomatikte ne kadar hava; AUTO açıkken AUTO'ya dokunarak da değişir", "Ile powietrza w trybie automatycznym; zmienia się też dotknięciem AUTO, gdy jest włączone"),
+    "s_econ_link": ("Segui la modalità di guida ECO", "Follow ECO drive mode", "Seguir el modo de conducción ECO", "ECO-Fahrmodus folgen", "Seguir o modo de condução ECO", "Suivre le mode de conduite ECO", "ECO sürüş modunu takip et", "Podążaj za trybem jazdy ECO"),
+    "s_econ_link_sub": ("Con la guida ECO il clima passa in risparmio", "With ECO driving the climate switches to economy", "Con la conducción ECO el clima pasa a ahorro", "Im ECO-Fahrmodus wechselt die Klimaanlage in den Sparmodus", "Com a condução ECO a climatização passa a poupança", "En conduite ECO la climatisation passe en économie", "ECO sürüşte klima tasarrufa geçer", "W trybie jazdy ECO klimatyzacja przechodzi w oszczędzanie"),
+    "s_defrost_link": ("Lunotto riscaldato automatico", "Automatic rear window heating", "Luneta térmica automática", "Automatische Heckscheibenheizung", "Desembaciamento traseiro automático", "Dégivrage automatique de la lunette", "Otomatik arka cam ısıtma", "Automatyczne ogrzewanie tylnej szyby"),
+    "s_defrost_link_sub": ("Come nell'app clima originale", "As in the original climate app", "Como en la app de clima original", "Wie in der Original-Klima-App", "Como na app de climatização original", "Comme dans l'appli climat d'origine", "Orijinal klima uygulamasındaki gibi", "Jak w oryginalnej aplikacji klimatyzacji"),
+    "s_auto_none": ("Impostazioni del clima automatico", "Automatic climate settings", "Ajustes del clima automático", "Einstellungen der Klimaautomatik", "Definições da climatização automática", "Réglages de la climatisation automatique", "Otomatik klima ayarları", "Ustawienia klimatyzacji automatycznej"),
+    "s_auto_none_sub": ("Compaiono ad auto accesa, quando l'auto le comunica", "They appear with the car on, once the car sends them", "Aparecen con el coche encendido, cuando el coche las envía", "Erscheinen bei eingeschaltetem Auto, sobald das Auto sie sendet", "Aparecem com o carro ligado, quando o carro as envia", "Elles apparaissent voiture allumée, quand la voiture les envoie", "Araç açıkken, araç gönderdiğinde görünür", "Pojawiają się przy włączonym samochodzie, gdy samochód je przekaże"),
+    "s_auto_none_model": ("Non ancora disponibili su questo modello", "Not available on this model yet", "Aún no disponibles en este modelo", "Auf diesem Modell noch nicht verfügbar", "Ainda indisponíveis neste modelo", "Pas encore disponibles sur ce modèle", "Bu modelde henüz yok", "Jeszcze niedostępne w tym modelu"),
+    "s_opening": ("Apertura del clima", "Opening the climate", "Apertura del clima", "Öffnen der Klimaanlage", "Abertura da climatização", "Ouverture du climat", "Klimanın açılması", "Otwieranie klimatyzacji"),
+    "s_replace": ("MG4 Clima al posto dell'app originale", "MG4 Climate instead of the original app", "MG4 Clima en lugar de la app original", "MG4 Klima statt der Original-App", "MG4 Clima em vez da app original", "MG4 Climat à la place de l'appli d'origine", "Orijinal uygulama yerine MG4 Klima", "MG4 Klimatyzacja zamiast oryginalnej aplikacji"),
+    "s_replace_sub": ("Quando si apre il clima dell'auto compare MG4 Clima (anche dal launcher)", "When the car's climate opens, MG4 Climate appears (also from the launcher)", "Al abrir el clima del coche aparece MG4 Clima (también desde el launcher)", "Beim Öffnen der Fahrzeug-Klimaanlage erscheint MG4 Klima (auch aus dem Launcher)", "Quando se abre a climatização do carro aparece o MG4 Clima (também a partir do launcher)", "Quand le climat de la voiture s'ouvre, MG4 Climat apparaît (aussi depuis le launcher)", "Aracın kliması açıldığında MG4 Klima görünür (launcher'dan da)", "Po otwarciu klimatyzacji samochodu pojawia się MG4 Klimatyzacja (także z launchera)"),
+    "s_replace_unverified": ("App clima originale %1$s non ancora verificata: resta l'originale", "Original climate app %1$s not verified yet: the original stays", "App de clima original %1$s aún no verificada: se queda la original", "Original-Klima-App %1$s noch nicht geprüft: Das Original bleibt", "App de climatização original %1$s ainda não verificada: fica a original", "Appli climat d'origine %1$s pas encore vérifiée : l'originale reste", "Orijinal klima uygulaması %1$s henüz doğrulanmadı: orijinal kalıyor", "Oryginalna aplikacja klimatyzacji %1$s jeszcze niezweryfikowana: zostaje oryginał"),
+    "s_launcher_button": ("Il tasto clima del launcher apre MG4 Clima", "The launcher climate button opens MG4 Climate", "El botón de clima del launcher abre MG4 Clima", "Die Klimataste des Launchers öffnet MG4 Klima", "O botão de climatização do launcher abre o MG4 Clima", "Le bouton climat du launcher ouvre MG4 Climat", "Launcher'ın klima düğmesi MG4 Klima'yı açar", "Przycisk klimatyzacji w launcherze otwiera MG4 Klimatyzacja"),
+    "s_launcher_button_sub": ("Spento: apre il pannello clima originale", "Off: it opens the original climate panel", "Apagado: abre el panel de clima original", "Aus: öffnet das Original-Klimafeld", "Desligado: abre o painel de climatização original", "Désactivé : ouvre le panneau climat d'origine", "Kapalı: orijinal klima panelini açar", "Wyłączone: otwiera oryginalny panel klimatyzacji"),
+    "s_panel": ("Pannello clima di sistema", "System climate panel", "Panel de clima del sistema", "System-Klimafeld", "Painel de climatização do sistema", "Panneau climat du système", "Sistem klima paneli", "Systemowy panel klimatyzacji"),
+    "s_panel_sub": ("Quando il clima si accende il sistema apre il suo pannello: chiuderlo sempre, solo sopra MG4 Clima o lasciarlo", "When the climate turns on the system opens its panel: always close it, only over MG4 Climate, or leave it", "Al encender el clima el sistema abre su panel: cerrarlo siempre, solo sobre MG4 Clima o dejarlo", "Beim Einschalten der Klimaanlage öffnet das System sein Feld: immer schließen, nur über MG4 Klima oder lassen", "Quando a climatização liga o sistema abre o seu painel: fechá-lo sempre, só sobre o MG4 Clima ou deixá-lo", "Quand la climatisation s'allume, le système ouvre son panneau : toujours le fermer, seulement sur MG4 Climat ou le laisser", "Klima açılınca sistem kendi panelini açar: her zaman kapat, yalnızca MG4 Klima üstündeyken kapat veya bırak", "Po włączeniu klimatyzacji system otwiera swój panel: zawsze zamykaj, tylko nad MG4 Klimatyzacja lub zostaw"),
+    "s_panel_always": ("Sempre", "Always", "Siempre", "Immer", "Sempre", "Toujours", "Her zaman", "Zawsze"),
+    "s_panel_with": ("Con MG4 Clima", "With MG4 Climate", "Con MG4 Clima", "Mit MG4 Klima", "Com MG4 Clima", "Avec MG4 Climat", "MG4 Klima ile", "Z MG4 Klimatyzacja"),
+    "s_panel_leave": ("Lascia", "Leave", "Dejar", "Lassen", "Deixar", "Laisser", "Bırak", "Zostaw"),
+    "s_shade": ("Niente menù a tendina col clima", "No pull-down menu with the climate", "Sin menú desplegable con el clima", "Kein Pull-down-Menü mit der Klimaanlage", "Sem menu deslizante com a climatização", "Pas de menu déroulant avec le climat", "Klimayla açılır menü olmasın", "Bez rozwijanego menu przy klimatyzacji"),
+    "s_shade_sub": ("Il sistema lo apre quando il clima si accende o si spegne: MG4 Clima lo richiude subito", "The system opens it when the climate turns on or off: MG4 Climate closes it at once", "El sistema lo abre al encender o apagar el clima: MG4 Clima lo cierra enseguida", "Das System öffnet es beim Ein- oder Ausschalten der Klimaanlage: MG4 Klima schließt es sofort", "O sistema abre-o quando a climatização liga ou desliga: o MG4 Clima fecha-o logo", "Le système l'ouvre quand la climatisation s'allume ou s'éteint : MG4 Climat le referme aussitôt", "Sistem, klima açılıp kapandığında onu açar: MG4 Klima hemen kapatır", "System otwiera je przy włączaniu lub wyłączaniu klimatyzacji: MG4 Klimatyzacja od razu je zamyka"),
+    "s_updates": ("Versione e aggiornamenti", "Version and updates", "Versión y actualizaciones", "Version und Updates", "Versão e atualizações", "Version et mises à jour", "Sürüm ve güncellemeler", "Wersja i aktualizacje"),
+    "s_version": ("Versione %1$s", "Version %1$s", "Versión %1$s", "Version %1$s", "Versão %1$s", "Version %1$s", "Sürüm %1$s", "Wersja %1$s"),
+    "s_installed": ("Versione installata: %1$s", "Installed version: %1$s", "Versión instalada: %1$s", "Installierte Version: %1$s", "Versão instalada: %1$s", "Version installée : %1$s", "Yüklü sürüm: %1$s", "Zainstalowana wersja: %1$s"),
+    "s_car": ("Auto", "Car", "Coche", "Fahrzeug", "Carro", "Voiture", "Araç", "Samochód"),
+    "s_model_manual": ("Scelto a mano · riconosciuto: %1$s", "Chosen by hand · detected: %1$s", "Elegido a mano · detectado: %1$s", "Manuell gewählt · erkannt: %1$s", "Escolhido à mão · detetado: %1$s", "Choisi à la main · détecté : %1$s", "Elle seçildi · algılanan: %1$s", "Wybrany ręcznie · wykryty: %1$s"),
+    "s_model_auto": ("Riconosciuto in automatico", "Detected automatically", "Detectado automáticamente", "Automatisch erkannt", "Detetado automaticamente", "Détecté automatiquement", "Otomatik algılandı", "Wykryty automatycznie"),
+    "s_tools": ("Strumenti", "Tools", "Herramientas", "Werkzeuge", "Ferramentas", "Outils", "Araçlar", "Narzędzia"),
+    "s_orig_app": ("App clima originale", "Original climate app", "App de clima original", "Original-Klima-App", "App de climatização original", "Appli climat d'origine", "Orijinal klima uygulaması", "Oryginalna aplikacja klimatyzacji"),
+    "s_orig_app_sub": ("Si apre e per 2 minuti non viene sostituita", "Opens and is not replaced for 2 minutes", "Se abre y no se sustituye durante 2 minutos", "Öffnet sich und wird 2 Minuten lang nicht ersetzt", "Abre e não é substituída durante 2 minutos", "S'ouvre et n'est pas remplacée pendant 2 minutes", "Açılır ve 2 dakika boyunca değiştirilmez", "Otwiera się i przez 2 minuty nie jest zastępowana"),
+    "s_orig_panel": ("Pannello clima originale", "Original climate panel", "Panel de clima original", "Original-Klimafeld", "Painel de climatização original", "Panneau climat d'origine", "Orijinal klima paneli", "Oryginalny panel klimatyzacji"),
+    "s_orig_panel_sub": ("Il pannello clima di sistema dell'auto", "The car's system climate panel", "El panel de clima del sistema del coche", "Das System-Klimafeld des Autos", "O painel de climatização do sistema do carro", "Le panneau climat du système de la voiture", "Aracın sistem klima paneli", "Systemowy panel klimatyzacji samochodu"),
+    "s_test": ("Test automatico dei comandi", "Automatic command test", "Prueba automática de los mandos", "Automatischer Befehlstest", "Teste automático dos comandos", "Test automatique des commandes", "Otomatik komut testi", "Automatyczny test poleceń"),
+    "s_test_sub": ("Solo ad auto ferma: prova tutti i comandi, rimette tutto com'era e invia il log", "Car stopped only: tries every command, restores everything and sends the log", "Solo con el coche parado: prueba todos los mandos, deja todo como estaba y envía el registro", "Nur bei stehendem Auto: probiert alle Befehle, stellt alles wieder her und sendet das Log", "Só com o carro parado: experimenta todos os comandos, repõe tudo e envia o registo", "Voiture à l'arrêt uniquement : essaie toutes les commandes, remet tout en place et envoie le journal", "Yalnızca araç dururken: tüm komutları dener, her şeyi eski haline getirir ve günlüğü gönderir", "Tylko na postoju: sprawdza wszystkie polecenia, przywraca wszystko i wysyła log"),
+    "s_diag": ("Diagnostica", "Diagnostics", "Diagnóstico", "Diagnose", "Diagnóstico", "Diagnostic", "Tanılama", "Diagnostyka"),
+    "s_diag_sub": ("Stato letto dall'auto ed eventi", "State read from the car and events", "Estado leído del coche y eventos", "Vom Auto gelesener Zustand und Ereignisse", "Estado lido do carro e eventos", "État lu depuis la voiture et événements", "Araçtan okunan durum ve olaylar", "Stan odczytany z samochodu i zdarzenia"),
+    "s_send_diag": ("Invia la diagnostica", "Send diagnostics", "Enviar diagnóstico", "Diagnose senden", "Enviar diagnóstico", "Envoyer le diagnostic", "Tanılamayı gönder", "Wyślij diagnostykę"),
+    "s_send_diag_sub": ("Nel repository privato dei log", "To the private log repository", "Al repositorio privado de registros", "In das private Log-Repository", "Para o repositório privado de registos", "Vers le dépôt privé des journaux", "Özel günlük deposuna", "Do prywatnego repozytorium logów"),
+
+    # ---- pulsanti
+    "b_change": ("Cambia", "Change", "Cambiar", "Ändern", "Mudar", "Changer", "Değiştir", "Zmień"),
+    "b_use": ("Usa", "Use", "Usar", "Verwenden", "Usar", "Utiliser", "Kullan", "Użyj"),
+    "b_update": ("Aggiorna", "Update", "Actualizar", "Aktualisieren", "Atualizar", "Mettre à jour", "Güncelle", "Aktualizuj"),
+    "b_check": ("Controlla", "Check", "Buscar", "Prüfen", "Verificar", "Vérifier", "Denetle", "Sprawdź"),
+    "b_open": ("Apri", "Open", "Abrir", "Öffnen", "Abrir", "Ouvrir", "Aç", "Otwórz"),
+    "b_start": ("Avvia", "Start", "Iniciar", "Starten", "Iniciar", "Lancer", "Başlat", "Uruchom"),
+    "b_show": ("Mostra", "Show", "Mostrar", "Anzeigen", "Mostrar", "Afficher", "Göster", "Pokaż"),
+    "b_send": ("Invia", "Send", "Enviar", "Senden", "Enviar", "Envoyer", "Gönder", "Wyślij"),
+    "b_cancel": ("Annulla", "Cancel", "Cancelar", "Abbrechen", "Cancelar", "Annuler", "İptal", "Anuluj"),
+
+    # ---- conferme
+    "c_update": ("Aggiornamento", "Update", "Actualización", "Update", "Atualização", "Mise à jour", "Güncelleme", "Aktualizacja"),
+    "c_update_msg": ("Installo MG4 Clima %1$s? La schermata si chiude per qualche secondo.", "Install MG4 Climate %1$s? The screen closes for a few seconds.", "¿Instalar MG4 Clima %1$s? La pantalla se cierra unos segundos.", "MG4 Klima %1$s installieren? Der Bildschirm schließt sich für einige Sekunden.", "Instalar o MG4 Clima %1$s? O ecrã fecha durante alguns segundos.", "Installer MG4 Climat %1$s ? L'écran se ferme quelques secondes.", "MG4 Klima %1$s yüklensin mi? Ekran birkaç saniye kapanır.", "Zainstalować MG4 Klimatyzacja %1$s? Ekran zamknie się na kilka sekund."),
+    "c_model": ("Modello", "Model", "Modelo", "Modell", "Modelo", "Modèle", "Model", "Model"),
+    "c_model_auto": ("il riconoscimento automatico (%1$s)", "automatic detection (%1$s)", "la detección automática (%1$s)", "die automatische Erkennung (%1$s)", "a deteção automática (%1$s)", "la détection automatique (%1$s)", "otomatik algılama (%1$s)", "automatyczne wykrywanie (%1$s)"),
+    "c_model_msg": ("Uso %1$s? Scegli a mano solo se il modello riconosciuto è sbagliato: con un modello sbagliato i comandi non funzionano. MG4 Clima si riavvia.", "Use %1$s? Only choose by hand if the detected model is wrong: with the wrong model the commands don't work. MG4 Climate restarts.", "¿Usar %1$s? Elige a mano solo si el modelo detectado es incorrecto: con un modelo equivocado los mandos no funcionan. MG4 Clima se reinicia.", "%1$s verwenden? Nur manuell wählen, wenn das erkannte Modell falsch ist: Mit falschem Modell funktionieren die Befehle nicht. MG4 Klima startet neu.", "Usar %1$s? Escolhe à mão só se o modelo detetado estiver errado: com o modelo errado os comandos não funcionam. O MG4 Clima reinicia.", "Utiliser %1$s ? Choisis à la main seulement si le modèle détecté est faux : avec un mauvais modèle les commandes ne marchent pas. MG4 Climat redémarre.", "%1$s kullanılsın mı? Yalnızca algılanan model yanlışsa elle seç: yanlış modelle komutlar çalışmaz. MG4 Klima yeniden başlar.", "Użyć %1$s? Wybieraj ręcznie tylko, gdy wykryty model jest błędny: przy złym modelu polecenia nie działają. MG4 Klimatyzacja uruchomi się ponownie."),
+    "c_test_msg": (
+        "Con l'auto FERMA e accesa, MG4 Clima prova da solo i comandi uno alla volta, come se premessi i tasti dell'app originale: accensione, temperatura, ventola, direzione dell'aria, A/C, ECO, ricircolo, AUTO, sedili e volante (dove ci sono). Dura circa 2 minuti, poi rimette tutto com'era e invia il log.\n\nSi ferma da solo se l'auto si muove o se esci da questa schermata. Non toccare il clima durante il test.",
+        "With the car STOPPED and on, MG4 Climate tries the commands one at a time like the original app's buttons: power, temperature, fan, air direction, A/C, ECO, recirculation, AUTO, seats and wheel (where fitted). It takes about 2 minutes, then restores everything and sends the log.\n\nIt stops by itself if the car moves or you leave this screen. Don't touch the climate during the test.",
+        "Con el coche PARADO y encendido, MG4 Clima prueba los mandos uno a uno como los botones de la app original: encendido, temperatura, ventilador, dirección del aire, A/C, ECO, recirculación, AUTO, asientos y volante (si los hay). Dura unos 2 minutos, luego deja todo como estaba y envía el registro.\n\nSe detiene solo si el coche se mueve o si sales de esta pantalla. No toques el clima durante la prueba.",
+        "Bei STEHENDEM, eingeschaltetem Auto probiert MG4 Klima die Befehle einzeln wie die Tasten der Original-App: Ein/Aus, Temperatur, Gebläse, Luftverteilung, A/C, ECO, Umluft, AUTO, Sitze und Lenkrad (falls vorhanden). Dauert etwa 2 Minuten, dann wird alles wiederhergestellt und das Log gesendet.\n\nStoppt von selbst, wenn das Auto fährt oder du diesen Bildschirm verlässt. Während des Tests die Klimaanlage nicht bedienen.",
+        "Com o carro PARADO e ligado, o MG4 Clima experimenta os comandos um a um como os botões da app original: ligar, temperatura, ventilador, direção do ar, A/C, ECO, recirculação, AUTO, bancos e volante (se existirem). Demora cerca de 2 minutos, depois repõe tudo e envia o registo.\n\nPara sozinho se o carro andar ou se saíres deste ecrã. Não mexas na climatização durante o teste.",
+        "Voiture À L'ARRÊT et allumée, MG4 Climat essaie les commandes une à une comme les boutons de l'appli d'origine : marche, température, ventilation, répartition de l'air, A/C, ECO, recyclage, AUTO, sièges et volant (si présents). Cela dure environ 2 minutes, puis tout est remis en place et le journal est envoyé.\n\nS'arrête tout seul si la voiture roule ou si tu quittes cet écran. Ne touche pas au climat pendant le test.",
+        "Araç DURURKEN ve açıkken MG4 Klima, orijinal uygulamanın düğmeleri gibi komutları tek tek dener: açma, sıcaklık, fan, hava yönü, A/C, ECO, iç hava, AUTO, koltuklar ve direksiyon (varsa). Yaklaşık 2 dakika sürer, sonra her şeyi eski haline getirir ve günlüğü gönderir.\n\nAraç hareket ederse veya bu ekrandan çıkarsan kendiliğinden durur. Test sırasında klimaya dokunma.",
+        "Przy ZATRZYMANYM i włączonym samochodzie MG4 Klimatyzacja sprawdza polecenia po kolei jak przyciski oryginalnej aplikacji: włączanie, temperatura, nawiew, kierunek powietrza, A/C, ECO, recyrkulacja, AUTO, fotele i kierownica (jeśli są). Trwa około 2 minut, potem przywraca wszystko i wysyła log.\n\nZatrzymuje się sam, gdy samochód ruszy lub opuścisz ten ekran. Nie dotykaj klimatyzacji podczas testu."),
+
+    # ---- aggiornamenti
+    "u_checking": ("Controllo…", "Checking…", "Buscando…", "Prüfe…", "A verificar…", "Vérification…", "Denetleniyor…", "Sprawdzanie…"),
+    "u_none": ("Nessuna versione pubblicata", "No version published", "Ninguna versión publicada", "Keine Version veröffentlicht", "Nenhuma versão publicada", "Aucune version publiée", "Yayımlanmış sürüm yok", "Brak opublikowanej wersji"),
+    "u_available": ("Disponibile la %1$s", "Available: %1$s", "Disponible: %1$s", "Verfügbar: %1$s", "Disponível: %1$s", "Disponible : %1$s", "Mevcut: %1$s", "Dostępna: %1$s"),
+    "u_latest": ("Hai l'ultima versione (%1$s)", "You have the latest version (%1$s)", "Tienes la última versión (%1$s)", "Du hast die neueste Version (%1$s)", "Tens a versão mais recente (%1$s)", "Tu as la dernière version (%1$s)", "En son sürüm sende (%1$s)", "Masz najnowszą wersję (%1$s)"),
+    "u_check_failed": ("Controllo non riuscito: %1$s", "Check failed: %1$s", "Búsqueda fallida: %1$s", "Prüfung fehlgeschlagen: %1$s", "Verificação falhou: %1$s", "Vérification échouée : %1$s", "Denetim başarısız: %1$s", "Sprawdzanie nie powiodło się: %1$s"),
+    "u_downloading": ("Download…", "Downloading…", "Descargando…", "Lade herunter…", "A transferir…", "Téléchargement…", "İndiriliyor…", "Pobieranie…"),
+    "u_download_pct": ("Download %1$d%%", "Downloading %1$d%%", "Descargando %1$d%%", "Lade herunter %1$d%%", "A transferir %1$d%%", "Téléchargement %1$d%%", "İndiriliyor %%%1$d", "Pobieranie %1$d%%"),
+    "u_bad_file": ("il file scaricato non è quello giusto", "the downloaded file is not the right one", "el archivo descargado no es el correcto", "die heruntergeladene Datei ist nicht die richtige", "o ficheiro transferido não é o correto", "le fichier téléchargé n'est pas le bon", "indirilen dosya doğru değil", "pobrany plik nie jest właściwy"),
+    "u_not_app": ("non è MG4 Clima", "not MG4 Climate", "no es MG4 Clima", "nicht MG4 Klima", "não é o MG4 Clima", "ce n'est pas MG4 Climat", "MG4 Klima değil", "to nie MG4 Klimatyzacja"),
+    "u_installing": ("Installazione della %1$s…", "Installing %1$s…", "Instalando %1$s…", "Installiere %1$s…", "A instalar %1$s…", "Installation de la %1$s…", "%1$s yükleniyor…", "Instalowanie %1$s…"),
+    "u_failed": ("Non riuscito: %1$s", "Failed: %1$s", "Fallido: %1$s", "Fehlgeschlagen: %1$s", "Falhou: %1$s", "Échec : %1$s", "Başarısız: %1$s", "Niepowodzenie: %1$s"),
+    "u_apk_missing": ("APK non trovato su GitHub", "APK not found on GitHub", "APK no encontrado en GitHub", "APK auf GitHub nicht gefunden", "APK não encontrado no GitHub", "APK introuvable sur GitHub", "APK GitHub'da bulunamadı", "Nie znaleziono APK na GitHubie"),
+    "u_updated": ("Aggiornata", "Updated", "Actualizada", "Aktualisiert", "Atualizada", "Mise à jour faite", "Güncellendi", "Zaktualizowano"),
+    "u_install_failed": ("Installazione non riuscita: %1$s", "Install failed: %1$s", "Instalación fallida: %1$s", "Installation fehlgeschlagen: %1$s", "Instalação falhou: %1$s", "Installation échouée : %1$s", "Yükleme başarısız: %1$s", "Instalacja nie powiodła się: %1$s"),
+}
+
+
+def esc(t):
+    t = t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    t = t.replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"').replace("\n", "\\n")
+    if t.startswith("?") or t.startswith("@"):
+        t = "\\" + t
+    return t
+
+
+def main():
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app", "res")
+    bad = [k for k, v in S.items() if len(v) != len(LANGS)]
+    if bad:
+        sys.exit("voci senza %d traduzioni: %s" % (len(LANGS), bad))
+    for i, lang in enumerate(LANGS):
+        folder = "values" if lang == "en" else "values-" + lang
+        os.makedirs(os.path.join(root, folder), exist_ok=True)
+        lines = ['<?xml version="1.0" encoding="utf-8"?>',
+                 '<!-- generato da i18n.py: non modificare a mano -->', '<resources>']
+        for k, v in S.items():
+            t = v[i]
+            fmt = re.search(r"%(\d+\$)?[sd]", t)
+            attr = "" if fmt else ' formatted="false"'
+            lines.append('    <string name="%s"%s>%s</string>' % (k, attr, esc(t)))
+        lines.append("</resources>")
+        with open(os.path.join(root, folder, "strings.xml"), "w", encoding="utf-8") as f:
+            f.write("\n".join(lines) + "\n")
+    print("%d testi × %d lingue" % (len(S), len(LANGS)))
+
+
+if __name__ == "__main__":
+    main()

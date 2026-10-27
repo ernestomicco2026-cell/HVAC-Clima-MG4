@@ -2,6 +2,8 @@ package com.mg4.clima;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.LinearGradient;
@@ -77,6 +79,209 @@ public final class ClimaView extends View {
         return 0xFF000000 | Math.round(ar + (br - ar) * t) << 16 | Math.round(ag + (bg - ag) * t) << 8 | Math.round(ab + (bb - ab) * t);
     }
 
+    // ---- cruscotto a immagini (1.2.0): "Disegnato" (vettoriale) o "Realistico" (foto), a strati: fondo, aria, volante
+    private int style = Store.STYLE_DRAWN;
+    private boolean defrostTiles;
+    private Bitmap imgBase, imgWheel, imgWheelHot;
+    private int loadedStyle = -1;
+    private String loadedPre = "";
+    private boolean imgFailed;
+    private int flowColor;   // colore attuale dell'aria (passa gradualmente a quello nuovo)
+    private final Paint bp = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
+    /** Posizione del cruscotto (1420×520) nella tela 1920×720 (coordinate del pannello). */
+    private static final float IX = 450, IY = 2, IW = 1420, IH = 520;
+
+    public void setDashStyle(int s) {
+        style = s;
+        invalidate();
+    }
+
+    public void setDefrostTiles(boolean on) {
+        defrostTiles = on;
+        invalidate();
+    }
+
+    private Bitmap asset(String name) {
+        try (java.io.InputStream in = getContext().getAssets().open("cruscotto/" + name + ".webp")) {
+            return BitmapFactory.decodeStream(in);
+        } catch (Throwable e) {
+            return null;
+        }
+    }
+
+    /** Carica gli strati dello stile scelto (solo quello: l'altro si libera). */
+    private boolean ensureImages() {
+        String pre = style == Store.STYLE_PHOTO ? "realistico" : "disegnato";
+        if (loadedStyle == style && loadedPre.equals(pre) && imgBase != null) return true;
+        if (imgFailed && loadedStyle == style && loadedPre.equals(pre)) return false;
+        Bitmap b = asset(pre + "_base"), w = asset(pre + "_volante"), h = asset(pre + "_volante_caldo");
+        loadedStyle = style;
+        loadedPre = pre;
+        if (b == null || w == null || h == null) {
+            imgFailed = true;
+            Store.event(getContext(), "cruscotto " + pre + ": immagini non caricate, uso il disegno classico");
+            return false;
+        }
+        imgFailed = false;
+        imgBase = b;
+        imgWheel = w;
+        imgWheelHot = h;
+        return true;
+    }
+
+    /** Geometria di ogni stile, in pixel dell'immagine 1420×520. */
+    private static final class Geo {
+        float[][] face;     // {x0, x1, y, verso}
+        float[][] feet;     // {x, y}
+        float glassY0, glassY1, glassMid, glassSpread, glassSkip0, glassSkip1;
+        float barX, barY, barW, clockX, clockY, clockSize;
+        float tempX, tempY, tempSize, outX, outY, outSize;
+        float dotX, dotY, dotR, l1X, l1Y, l1W, l2Y, l2W;
+    }
+
+    private static final Geo DRAWN = new Geo(), PHOTO = new Geo();
+
+    static {
+        Geo g = DRAWN;
+        g.face = new float[][]{{20, 180, 312, -1}, {520, 900, 312, 0}, {1240, 1400, 312, 1}};
+        g.feet = new float[][]{{300, 400}, {1180, 392}};
+        g.glassY0 = 146; g.glassY1 = 18; g.glassMid = 700; g.glassSpread = 560; g.glassSkip0 = 500; g.glassSkip1 = 920;
+        g.barX = 252; g.barY = 146; g.barW = 56; g.clockX = 330; g.clockY = 180; g.clockSize = 30;
+        g.tempX = 548; g.tempY = 112; g.tempSize = 44; g.outX = 550; g.outY = 150; g.outSize = 18;
+        g.dotX = 760; g.dotY = 96; g.dotR = 20; g.l1X = 794; g.l1Y = 86; g.l1W = 84; g.l2Y = 102; g.l2W = 56;
+        g = PHOTO;
+        g.face = new float[][]{{20, 120, 250, -1}, {565, 830, 262, 0}, {1205, 1370, 262, 1}};
+        g.feet = new float[][]{{270, 330}, {1120, 300}};
+        g.glassY0 = 96; g.glassY1 = 8; g.glassMid = 700; g.glassSpread = 600; g.glassSkip0 = 540; g.glassSkip1 = 860;
+        g.barX = 290; g.barY = 132; g.barW = 50; g.clockX = 352; g.clockY = 196; g.clockSize = 26;
+        g.tempX = 592; g.tempY = 132; g.tempSize = 40; g.outX = 594; g.outY = 164; g.outSize = 16;
+        g.dotX = 735; g.dotY = 118; g.dotR = 17; g.l1X = 760; g.l1Y = 110; g.l1W = 48; g.l2Y = 124; g.l2W = 34;
+    }
+
+    /** Aria: riscalda (impostata oltre 3° sopra l'esterna), raffresca (oltre 3° sotto) o mantiene. */
+    static final int MODE_KEEP = 0, MODE_HEAT = 1, MODE_COOL = 2;
+    static final int C_HEAT = 0xFFFF8A4D, C_COOL = 0xFF7CC4FF, C_KEEP = 0xFFE8EDF3;
+
+    /** Temperatura impostata → intensità del colore: -1 blu pieno (16 °), 0 neutro (21 °), +1 arancio pieno (26 °). Graduale. */
+    static float heatFactor(HvacClient.State s) {
+        if (s.temp < 0) return 0f;
+        float f = (s.temp - 21f) / 5f;
+        return f < -1f ? -1f : f > 1f ? 1f : f;
+    }
+
+    /** Colore della temperatura e dell'aria: scorre gradualmente da blu a neutro ad arancio. */
+    static int tempColor(HvacClient.State s) {
+        float f = heatFactor(s);
+        return f < 0 ? mix(C_KEEP, C_COOL, -f) : mix(C_KEEP, C_HEAT, f);
+    }
+
+    /** Parola (riscalda / mantiene / raffresca), coerente col colore. */
+    static int thermalMode(HvacClient.State s) {
+        float f = heatFactor(s);
+        return f > .25f ? MODE_HEAT : f < -.25f ? MODE_COOL : MODE_KEEP;
+    }
+
+    private static int modeColor(int m) {
+        return m == MODE_HEAT ? C_HEAT : m == MODE_COOL ? C_COOL : C_KEEP;
+    }
+
+    /** Un soffio: traccia tenue fissa + tratti che scorrono. */
+    private void stream(Canvas c, Path pa, float w, int color, float[] dash, float offset) {
+        stroke(color, w);
+        p.setAlpha(56);
+        c.drawPath(pa, p);
+        stroke(color, w);
+        p.setAlpha(animated ? 242 : 200);
+        p.setPathEffect(new DashPathEffect(dash, animated ? offset : 0));
+        c.drawPath(pa, p);
+        p.setPathEffect(null);
+    }
+
+    /** Cruscotto a immagini: tutto in pixel dell'immagine, specchiato con la guida a destra. */
+    private void drawImageDash(Canvas c, boolean on, boolean[] dir, int fan, int col, boolean frontDef, boolean wheelHot) {
+        Geo g = style == Store.STYLE_PHOTO ? PHOTO : DRAWN;
+        c.save();
+        if (rhd) {
+            c.translate(W, 0);
+            c.scale(-1, 1);
+        }
+        c.translate(IX, IY);
+        r.set(0, 0, IW, IH);
+        path.reset();
+        path.addRoundRect(r, 26, 26, Path.Direction.CW);
+        c.clipPath(path);
+        r.set(0, 0, IW, IH);
+        c.drawBitmap(imgBase, null, r, bp);
+        float sp = 70 + fan * 22;
+        // parabrezza: aria che sale dal cruscotto (dietro agli schermi) e righe calde se lo sbrinamento è acceso
+        if (on && dir[0]) for (int k = 0; k < 10; k++) {
+            float t = (k - 4.5f) / 4.5f, x0 = g.glassMid + t * g.glassSpread;
+            if (x0 > g.glassSkip0 && x0 < g.glassSkip1) continue;
+            float x2 = x0 + t * 70;
+            path.reset();
+            path.moveTo(x0, g.glassY0);
+            path.cubicTo(x0, g.glassY0 - (g.glassY0 - g.glassY1) * .28f, x2 - t * 30, g.glassY1 + (g.glassY0 - g.glassY1) * .3f, x2, g.glassY1);
+            stream(c, path, 4, col, new float[]{22, 30}, -(phase * sp * .8f) + k * 17);
+        }
+        if (frontDef) for (int k = 0; k < 9; k++) {
+            float x = 160 + k * 135;
+            if (x > g.glassSkip0 - 20 && x < g.glassSkip1 + 20) continue;
+            path.reset();
+            path.moveTo(x, g.glassY0 - 6);
+            path.rQuadTo(8, -10, 0, -20); path.rQuadTo(-8, -10, 0, -20); path.rQuadTo(8, -10, 0, -20);
+            stroke(HEAT, 3);
+            p.setAlpha(217);
+            c.drawPath(path, p);
+        }
+        // schermi: solo le nostre indicazioni
+        rr(c, g.barX, g.barY, g.barW, 7, 3.5f, 0xFF34C77B, 0, 0);
+        String time = new SimpleDateFormat("HH:mm", Locale.ITALY).format(new Date());
+        int scr = 0xFFF2F5FA;
+        flatText(c, time, g.clockX, g.clockY, g.clockSize, scr, Paint.Align.CENTER);
+        flatText(c, tempText(), g.tempX, g.tempY, g.tempSize, scr, Paint.Align.LEFT);
+        if (!Float.isNaN(st.outTemp)) flatText(c, L.f(R.string.v_out_short, Math.round(st.outTemp)), g.outX, g.outY, g.outSize, 0xFF9BA1A9, Paint.Align.LEFT);
+        fill(0xFF262A30);
+        c.drawCircle(g.dotX, g.dotY, g.dotR, p);
+        rr(c, g.l1X, g.l1Y, g.l1W, 7, 3.5f, 0xFF3A3F47, 0, 0);
+        rr(c, g.l1X, g.l2Y, g.l2W, 6, 3, 0xFF262A30, 0, 0);
+        // viso: dalle bocchette vere, dietro al volante
+        if (on && dir[1]) {
+            int n = 3 + Math.round(fan / 3f);
+            for (float[] v : g.face) for (int k = 0; k < n; k++) {
+                float t = (k - (n - 1) / 2f) / Math.max(1, (n - 1) / 2f);
+                float x = (v[0] + v[1]) / 2 + t * (v[1] - v[0]) / 2 * .85f, y = v[2], len = 90 + fan * 9;
+                float x2 = x + t * 70 + v[3] * 90, y2 = y + len;
+                path.reset();
+                path.moveTo(x, y);
+                path.cubicTo(x, y + len * .35f, x2 - t * 25, y2 - len * .45f, x2, y2);
+                stream(c, path, 3.5f + (1 - Math.abs(t)) * 3, col, new float[]{30, 38}, -(phase * sp) + k * 23 + v[0] * .37f);
+            }
+        }
+        if (on && dir[2]) for (float[] f : g.feet) for (int k = 0; k < 5; k++) {
+            float off = (k - 2) * 28, y0 = f[1];
+            path.reset();
+            path.moveTo(f[0] + off, y0);
+            path.cubicTo(f[0] + off, y0 + 40, f[0] + off * 1.4f, y0 + (IH - y0) * .6f, f[0] + off * 1.9f, IH);
+            stream(c, path, 4.5f, col, new float[]{3, 12}, -(phase * sp * .45f) + k * 5);
+        }
+        // volante (normale o riscaldato) sopra l'aria
+        r.set(0, 0, IW, IH);
+        c.drawBitmap(wheelHot ? imgWheelHot : imgWheel, null, r, bp);
+        c.restore();
+    }
+
+    /** Testo dentro il cruscotto specchiato: resta leggibile (con la guida a destra l'allineamento si inverte). */
+    private void flatText(Canvas c, String s, float x, float y, float size, int color, Paint.Align a) {
+        if (rhd) {
+            c.save();
+            c.scale(-1, 1, x, 0);
+            if (a == Paint.Align.LEFT) a = Paint.Align.RIGHT;
+            else if (a == Paint.Align.RIGHT) a = Paint.Align.LEFT;
+        }
+        text(c, s, x, y, size, color, a, regular);
+        if (rhd) c.restore();
+    }
+
     public void setRightHand(boolean on) {
         rhd = on;
         invalidate();
@@ -87,20 +292,13 @@ public final class ClimaView extends View {
         invalidate();
     }
 
+    /** Solo tema notte, con le tinte blu del launcher (niente tema chiaro). */
     public void theme() {
-        int night = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        day = night == Configuration.UI_MODE_NIGHT_NO;
-        if (day) {
-            BG = 0xFFE6E8EB; PANEL = 0xFFFFFFFF; CHIP = 0xFFF1F3F5; TRACK = 0xFFE1E4E8; TEXT = 0xFF111318; SUB = 0xFF555C66;
-            ONTEXT = 0xFFFFFFFF; HEAT = 0xFFE1621F; HEATBG = 0xFFFFF1EA; FLOW = 0xFF7D8793; FLOW2 = 0xFFB9C0C8;
-            GLASS1 = 0xFFE9EEF4; GLASS2 = 0xFFD5DCE5; TOP1 = 0xFFD9DDE2; TOP2 = 0xFFC9CED4; FACE1 = 0xFFCDD2D8; FACE2 = 0xFFBFC5CC;
-            PILLAR = 0xFFB8BEC6; LINE = 0xFFB0B6BE; DARK = 0xFF2A2E35; BEZEL = 0xFF8C939C;
-        } else {
-            BG = 0xFF0A0B0D; PANEL = 0xFF15171B; CHIP = 0xFF1E2126; TRACK = 0xFF262A30; TEXT = 0xFFF2F3F5; SUB = 0xFF9BA1A9;
-            ONTEXT = 0xFF111318; HEAT = 0xFFFF7A3D; HEATBG = 0xFF2E241F; FLOW = 0xFFDDE4EC; FLOW2 = 0xFF9BA1A9;
-            GLASS1 = 0xFF181C22; GLASS2 = 0xFF252A32; TOP1 = 0xFF2E3239; TOP2 = 0xFF202328; FACE1 = 0xFF1E2126; FACE2 = 0xFF15171B;
-            PILLAR = 0xFF2A2E35; LINE = 0xFF30343B; DARK = 0xFF0B0C0E; BEZEL = 0xFF3A3F47;
-        }
+        day = false;
+        BG = 0xFF080A10; PANEL = 0xFF11151D; CHIP = 0xFF1A202B; TRACK = 0xFF232B38; TEXT = 0xFFF2F5FA; SUB = 0xFF9AA5B5;
+        ONTEXT = 0xFF0E1218; HEAT = 0xFFFF7A3D; HEATBG = 0xFF2E241F; FLOW = 0xFFD6E2F0; FLOW2 = 0xFF8E9BAE;
+        GLASS1 = 0xFF121823; GLASS2 = 0xFF1E2634; TOP1 = 0xFF2A3443; TOP2 = 0xFF1D2431; FACE1 = 0xFF1A212C; FACE2 = 0xFF121821;
+        PILLAR = 0xFF243040; LINE = 0xFF2C3746; DARK = 0xFF090C12; BEZEL = 0xFF334055;
         invalidate();
     }
 
@@ -139,20 +337,32 @@ public final class ClimaView extends View {
         else if (Math.abs(warmth - target) > .02f) warmth += (target - warmth) * .12f;
         else warmth = target;
         int fl = mix(FLOW, 0xFFFFB27A, warmth), fl2 = mix(FLOW2, HEAT, warmth);
+        // 1.2.0: colore dall'impostata rispetto all'esterna, con passaggio graduale
+        int want = tempColor(st);
+        boolean colorMoving = flowColor != want;
+        if (flowColor == 0 || !animated) flowColor = want;
+        else if (colorMoving) {
+            int nc = mix(flowColor, want, .15f);
+            flowColor = nc == flowColor ? want : nc;
+        }
         long nowMs = android.os.SystemClock.uptimeMillis();
         if (animStart == 0) animStart = nowMs;
         phase = (nowMs - animStart) / 1000f;
         float cx = rhd ? 750 : 1130;
 
-        // ---- cruscotto (disegnato come guida a sinistra, specchiato se a destra)
-        c.save();
-        if (rhd) {
-            c.translate(2 * cx, 0);
-            c.scale(-1, 1);
+        // ---- cruscotto: a immagini (1.2.0); se le immagini non si caricano, il disegno classico di prima
+        if (ensureImages()) {
+            drawImageDash(c, on, dir, fan, flowColor, st.frontDefrost == 1, st.wheel == 3);
+        } else {
+            c.save();
+            if (rhd) {
+                c.translate(2 * cx, 0);
+                c.scale(-1, 1);
+            }
+            drawDash(c, cx, on, dir, fan, fl, fl2, st.frontDefrost == 1, st.wheel == 3);
+            c.restore();
+            drawDashTexts(c, cx);
         }
-        drawDash(c, cx, on, dir, fan, fl, fl2, st.frontDefrost == 1, st.wheel == 3);
-        c.restore();
-        drawDashTexts(c, cx);
 
         // ---- colonna lato guida
         drawDriverColumn(c, usable, on);
@@ -166,15 +376,14 @@ public final class ClimaView extends View {
         tile(c, gx, 40, 72, 72, 22, CHIP);
         icon(c, R.drawable.ic_gear, gx + 9, 40 + 16, 54, 40, SUB);
         hit("impostazioni", gx, 40, 72, 72);
-        // sotto la colonna dei comandi (in alto finirebbe sul montante del parabrezza)
-        text(c, "MG4 Clima " + BuildInfo.version(getContext()) + (on && st.blowerMode == 7 ? BuildInfo.t(" · direzione aria automatica", " · automatic air direction") : ""),
-                rhd ? W - 40 : 40, 500, 17, SUB, rhd ? Paint.Align.RIGHT : Paint.Align.LEFT, regular);
+        // sotto la colonna dei comandi: solo la direzione automatica (la versione è nelle impostazioni, 1.2.0)
+        if (on && st.blowerMode == 7) text(c, L.s(R.string.v_dir_auto), rhd ? W - 40 : 40, 500, 17, SUB, rhd ? Paint.Align.RIGHT : Paint.Align.LEFT, regular);
 
         // ---- tasti in basso
         drawTiles(c, usable, on, dir);
         c.restore();
         // aria animata: prossimo fotogramma tra 40 ms se c'è aria che esce o se il colore sta ancora cambiando
-        if (animated && (on && (dir[0] || dir[1] || dir[2]) || Math.abs(warmth - (warm ? 1f : 0f)) > .001f)) postInvalidateDelayed(40);
+        if (animated && (on && (dir[0] || dir[1] || dir[2]) || Math.abs(warmth - (warm ? 1f : 0f)) > .001f || colorMoving)) postInvalidateDelayed(40);
     }
 
     private void drawDash(Canvas c, float cx, boolean on, boolean[] dir, int fan, int fl, int fl2, boolean frontDef, boolean wheelHot) {
@@ -328,7 +537,7 @@ public final class ClimaView extends View {
             }
         }
         // piantone e volante
-        rr(c, wx - 34, wy + 70, 68, 90, 12, day ? 0xFF8C939C : 0xFF1A1C20, 0, 0);
+        rr(c, wx - 34, wy + 70, 68, 90, 12, 0xFF1A1F29, 0, 0);
         drawWheel(c, wx, wy, wheelHot);
     }
 
@@ -390,9 +599,9 @@ public final class ClimaView extends View {
         p.setShader(null);
         path.reset();
         path.moveTo(mid - tw - 6, yP + 8); path.lineTo(mid + tw + 6, yP + 8); path.lineTo(mid + bw, yB); path.lineTo(mid - bw, yB); path.close();
-        fill(day ? 0xFFB4BAC1 : 0xFF111316);
+        fill(0xFF111620);
         c.drawPath(path, p);
-        stroke(day ? 0xFF9AA1A9 : 0xFF2A2E35, 3);
+        stroke(0xFF2A3342, 3);
         c.drawLine(mid - tw + 4, yP + 44, mid + tw - 4, yP + 44, p);
         stroke(0xFF2C3036, 3);
         c.drawLine(mid - tw - 4, yP + 8, mid - bw + 2, yB, p);
@@ -469,9 +678,13 @@ public final class ClimaView extends View {
         text(c, time, x(cx, wx), 192, 24, 0xFFE6E9ED, Paint.Align.CENTER, regular);
         text(c, tempText(), x(cx, sx + 24), 136, 30, 0xFFF2F3F5, rhd ? Paint.Align.RIGHT : Paint.Align.LEFT, regular);
         if (!Float.isNaN(st.outTemp)) {
-            text(c, Math.round(st.outTemp) + "° " + BuildInfo.t("est.", "out"), x(cx, sx + 24), 176, 14, 0xFF9BA1A9,
+            text(c, L.f(R.string.v_out_short, Math.round(st.outTemp)), x(cx, sx + 24), 176, 14, 0xFF9BA1A9,
                     rhd ? Paint.Align.RIGHT : Paint.Align.LEFT, regular);
         }
+    }
+
+    static String autoLevelName(int lv) {
+        return L.s(lv == HvacClient.AUTO_LOW ? R.string.v_level_low : lv == HvacClient.AUTO_HIGH ? R.string.v_level_high : R.string.v_level_medium);
     }
 
     private float x(float cx, float v) {
@@ -497,16 +710,17 @@ public final class ClimaView extends View {
         c.drawCircle(pcx, pcy, 52, p);
         icon(c, R.drawable.ic_power, pcx - 22, pcy - 22, 44, 44, on ? ONTEXT : SUB);
         hit("accensione", cx0, top, 104, 104);
-        String title = !usable ? BuildInfo.t("Clima non disponibile", "Climate unavailable")
-                : on ? BuildInfo.t("Clima acceso", "Climate on") : BuildInfo.t("Clima spento", "Climate off");
-        String sub = !st.connected ? BuildInfo.t("In attesa del servizio veicolo…", "Waiting for the vehicle service…")
-                : !usable ? BuildInfo.t("Accendi l'auto", "Switch the car on")
-                : Float.isNaN(st.outTemp) ? "" : Math.round(st.outTemp) + "° " + BuildInfo.t("esterni", "outside");
-        text(c, title, cx0 + 122, top + 48, 30, TEXT, Paint.Align.LEFT, bold);
-        text(c, sub, cx0 + 122, top + 78, 18, SUB, Paint.Align.LEFT, regular);
+        String title = !usable ? L.s(R.string.v_unavailable) : on ? L.s(R.string.v_on) : L.s(R.string.v_off);
+        String sub = !st.connected ? L.s(R.string.v_waiting)
+                : !usable ? L.s(R.string.v_switch_on)
+                : Float.isNaN(st.outTemp) ? "" : L.f(R.string.v_outside, Math.round(st.outTemp));
+        // 1.2.0: il cruscotto inizia a 450, i testi lunghi (altre lingue) si rimpiccioliscono per starci
+        text(c, title, cx0 + 122, top + 48, fit(title, 30, 255, bold), TEXT, Paint.Align.LEFT, bold);
+        text(c, sub, cx0 + 122, top + 78, fit(sub, 18, 255, regular), SUB, Paint.Align.LEFT, regular);
         // temperatura
         float y = top + 104 + 26;
-        text(c, BuildInfo.t("TEMPERATURA", "TEMPERATURE"), cx0, y + 14, 17, SUB, Paint.Align.LEFT, regular);
+        String tl = L.s(R.string.v_temperature).toUpperCase(L.locale());
+        text(c, tl, cx0, y + 14, 17, SUB, Paint.Align.LEFT, regular);
         y += 22;
         tile(c, cx0, y, 380, 118, 24, CHIP);
         icon(c, R.drawable.ic_left, cx0 + 26, y + 39, 40, 40, usable ? TEXT : SUB);
@@ -523,8 +737,10 @@ public final class ClimaView extends View {
         // ventola
         y += 118 + 20;
         boolean fanAuto = st.fan == HvacClient.FAN_AUTO || st.auto == 1;
-        text(c, BuildInfo.t("VENTOLA", "FAN") + (fanAuto && on ? BuildInfo.t(" · AUTOMATICA", " · AUTOMATIC") : ""), cx0, y + 14, 17, SUB,
-                Paint.Align.LEFT, regular);
+        String fanLabel = L.s(R.string.v_fan);
+        if (fanAuto && on) fanLabel += st.autoLevel >= 0 ? " · AUTO · " + autoLevelName(st.autoLevel) : " · " + L.s(R.string.v_fan_auto);
+        fanLabel = fanLabel.toUpperCase(L.locale());
+        text(c, fanLabel, cx0, y + 14, fit(fanLabel, 17, 380, regular), SUB, Paint.Align.LEFT, regular);
         y += 22;
         tile(c, cx0, y, 380, 100, 24, CHIP);
         hit("fan-", cx0, y, 190, 100);
@@ -550,6 +766,7 @@ public final class ClimaView extends View {
         for (String id : ids) {
             if (id.startsWith("sedile") && !st.hasSeatHeat()) continue;
             if (id.equals("volante") && !st.hasWheel) continue;
+            if ((id.equals("parabrezza") || id.equals("lunotto")) && !defrostTiles) continue;
             order.add(id);
         }
         if (rhd) {
@@ -569,27 +786,26 @@ public final class ClimaView extends View {
             int ic = 0, level = -1;
             String big = null, label;
             switch (id) {
-                case "auto": active = on && st.auto == 1; big = "AUTO"; label = BuildInfo.t("Automatico", "Automatic"); break;
-                case "ac": active = on && st.ac == 1; big = "A/C"; label = BuildInfo.t("Aria condiz.", "Air cond."); break;
-                case "eco": active = on && st.econ == 1; big = "ECO"; label = BuildInfo.t("Risparmio", "Economy"); break;
-                case "vetro": active = on && dir[0]; ic = R.drawable.ic_screen; label = BuildInfo.t("Aria al vetro", "Windscreen"); break;
-                case "viso": active = on && dir[1]; ic = R.drawable.ic_face; label = BuildInfo.t("Aria al viso", "Face"); break;
-                case "piedi": active = on && dir[2]; ic = R.drawable.ic_feet; label = BuildInfo.t("Aria ai piedi", "Feet"); break;
+                case "auto": active = on && st.auto == 1; big = "AUTO"; label = L.s(R.string.t_auto); break;
+                case "ac": active = on && st.ac == 1; big = "A/C"; label = L.s(R.string.t_ac); break;
+                case "eco": active = on && st.econ == 1; big = "ECO"; label = L.s(R.string.t_eco); break;
+                case "vetro": active = on && dir[0]; ic = R.drawable.ic_screen; label = L.s(R.string.t_glass); break;
+                case "viso": active = on && dir[1]; ic = R.drawable.ic_face; label = L.s(R.string.t_face); break;
+                case "piedi": active = on && dir[2]; ic = R.drawable.ic_feet; label = L.s(R.string.t_feet); break;
                 case "ricircolo":
                     active = on && (st.loop == 0 || st.loop == 2); ic = R.drawable.ic_loop;
-                    label = st.loop == 0 ? BuildInfo.t("Ricircolo", "Recirculation") : st.loop == 2 ? BuildInfo.t("Ricircolo auto", "Auto recirc.")
-                            : BuildInfo.t("Aria esterna", "Fresh air");
+                    label = L.s(st.loop == 0 ? R.string.t_recirc : st.loop == 2 ? R.string.t_recirc_auto : R.string.t_fresh);
                     break;
-                case "parabrezza": hot = st.frontDefrost == 1; active = hot; ic = R.drawable.ic_front_def; label = BuildInfo.t("Parabrezza", "Windscreen"); break;
-                case "lunotto": hot = st.rearDefrost == 1; active = hot; ic = R.drawable.ic_rear_def; label = BuildInfo.t("Lunotto", "Rear window"); break;
-                case "volante": hot = st.wheel == 3; active = hot; ic = R.drawable.ic_wheel; label = BuildInfo.t("Volante", "Wheel"); break;
+                case "parabrezza": hot = st.frontDefrost == 1; active = hot; ic = R.drawable.ic_front_def; label = L.s(R.string.t_front); break;
+                case "lunotto": hot = st.rearDefrost == 1; active = hot; ic = R.drawable.ic_rear_def; label = L.s(R.string.t_rear); break;
+                case "volante": hot = st.wheel == 3; active = hot; ic = R.drawable.ic_wheel; label = L.s(R.string.t_wheel); break;
                 case "sedileGuida":
                     level = st.seatDrv >= 0 && st.seatDrv <= 3 ? st.seatDrv : 0; hot = level > 0; active = hot; ic = R.drawable.ic_seat;
-                    label = BuildInfo.t("Guidatore", "Driver");
+                    label = L.s(R.string.t_driver);
                     break;
                 default:
                     level = st.seatPsg >= 0 && st.seatPsg <= 3 ? st.seatPsg : 0; hot = level > 0; active = hot; ic = R.drawable.ic_seat;
-                    label = BuildInfo.t("Passeggero", "Passenger");
+                    label = L.s(R.string.t_passenger);
                     break;
             }
             int bg = hot ? HEATBG : active ? TEXT : CHIP;
@@ -599,8 +815,14 @@ public final class ClimaView extends View {
             hit(id, x, top, tw, h);
             float mx = x + tw / 2;
             if (big != null) {
-                text(c, big, mx, top + 62, 34, fg, Paint.Align.CENTER, bold);
-                text(c, label, mx, top + 98, 16, lab, Paint.Align.CENTER, regular);
+                boolean dashes = id.equals("auto") && st.autoLevel >= 0;
+                text(c, big, mx, dashes ? top + 56 : top + 62, 34, fg, Paint.Align.CENTER, bold);
+                text(c, label, mx, dashes ? top + 88 : top + 98, fit(label, 16, tw - 14, regular), lab, Paint.Align.CENTER, regular);
+                if (dashes) {   // 1.2.0: intensità di AUTO (bassa / media / alta), si cambia toccando AUTO
+                    int lit = 3 - st.autoLevel;
+                    for (int i = 0; i < 3; i++)
+                        rr(c, mx - 41 + i * 30, top + 104, 22, 5, 2.5f, i < lit ? fg : (fg & 0xFFFFFF) | 0x40000000, 0, 0);
+                }
             } else {
                 boolean seat = level >= 0;
                 float iy = seat ? top + 16 : top + 26;
@@ -612,7 +834,7 @@ public final class ClimaView extends View {
                 icon(c, ic, mx - 27, iy, 54, 40, fg);
                 if (flip) c.restore();
                 if (seat) for (int i = 0; i < 3; i++) rr(c, mx - 33 + i * 26, top + 66, 20, 6, 3, i < level ? HEAT : TRACK, 0, 0);
-                text(c, label, mx, seat ? top + 104 : top + 98, 16, lab, Paint.Align.CENTER, regular);
+                text(c, label, mx, seat ? top + 104 : top + 98, fit(label, 16, tw - 14, regular), lab, Paint.Align.CENTER, regular);
             }
             x += tw + gap;
         }
@@ -684,6 +906,15 @@ public final class ClimaView extends View {
         p.setTypeface(tf);
         p.setTextAlign(align);
         c.drawText(s, x, y, p);
+    }
+
+    /** Dimensione del testo perché stia in maxW (al minimo il 60%). */
+    private float fit(String s, float size, float maxW, Typeface tf) {
+        if (s == null || s.isEmpty()) return size;
+        p.setTypeface(tf);
+        p.setTextSize(size);
+        float w = p.measureText(s);
+        return w <= maxW ? size : Math.max(size * .6f, size * maxW / w);
     }
 
     private void icon(Canvas c, int res, float x, float y, float w, float h, int color) {

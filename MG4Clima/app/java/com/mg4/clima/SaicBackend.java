@@ -29,6 +29,11 @@ final class SaicBackend implements HvacClient.Backend {
             GET_DRV_SEAT = 77, GET_PSG_SEAT = 79, GET_DRV_TEMP = 81, GET_OUT_TEMP = 88,
             GET_FRONT_DEFROST = 92, GET_REAR_DEFROST = 93, GET_WHEEL_HEAT = 94;
 
+    /** Impostazioni dell'app clima originale (finestra impostazioni): stessi codici su SWI68 e SWI133. */
+    private static final String SET = "com.saicmotor.sdk.vehiclesettings.IVehicleSettingService";
+    private static final int GET_AUTO_LEVEL = 3, SET_AUTO_LEVEL = 4, GET_ECON_LINK = 5, SET_ECON_LINK = 6,
+            GET_DEFROST_LINK = 7, SET_DEFROST_LINK = 8;
+
     private static final String COND = "com.saicmotor.sdk.vehiclesettings.IVehicleConditionService";
     private static final int COND_SPEED = 3, COND_IGNITION = 4, COND_SEAT_HEAT_CONFIG = 17;
     private final int condAcAvailable;
@@ -205,11 +210,38 @@ final class SaicBackend implements HvacClient.Backend {
 
     @Override
     public void send(int cmd, Integer arg) throws Exception {
+        if (cmd == HvacClient.SET_AUTO_LEVEL || cmd == HvacClient.SET_ECON_LINK || cmd == HvacClient.SET_DEFROST_LINK) {
+            IBinder v = sub("vehiclesetting");
+            if (v == null) throw new IllegalStateException("servizio impostazioni non collegato");
+            int sc = cmd == HvacClient.SET_AUTO_LEVEL ? SET_AUTO_LEVEL : cmd == HvacClient.SET_ECON_LINK ? SET_ECON_LINK : SET_DEFROST_LINK;
+            int val = arg == null ? 0 : arg;
+            Rpc.call(v, SET, sc, p -> p.writeInt(val));
+            return;
+        }
         int code = code(cmd);
         if (code < 0) throw new IllegalStateException("comando non presente su questa auto");
         IBinder a = sub("aircondition");
         if (a == null) throw new IllegalStateException("servizio clima non collegato");
         Rpc.call(a, AC, code, arg == null ? Rpc.NONE : p -> p.writeInt(arg));
+    }
+
+    private int settingsFails;
+    private boolean settingsBroken;
+
+    /** Impostazioni dell'app originale: se il servizio non le ha si nascondono (valori -1), senza fermare il resto. */
+    private void readSettings(HvacClient.State s) {
+        if (settingsBroken) return;
+        try {
+            IBinder v = sub("vehiclesetting");
+            if (v == null) return;
+            int a = Rpc.callInt(v, SET, GET_AUTO_LEVEL), e = Rpc.callInt(v, SET, GET_ECON_LINK), d = Rpc.callInt(v, SET, GET_DEFROST_LINK);
+            s.autoLevel = a >= 0 && a <= 2 ? a : -1;
+            s.econLink = e == 1 || e == 2 ? e : -1;
+            s.defrostLink = d == 0 || d == 1 ? d : -1;
+        } catch (Throwable t) {
+            if (++settingsFails >= 5) settingsBroken = true;
+            Store.event(ctx, "impostazioni del clima originale non leggibili: " + t);
+        }
     }
 
     @Override
@@ -252,6 +284,7 @@ final class SaicBackend implements HvacClient.Backend {
             s.seatPsg = Rpc.callInt(a, AC, GET_PSG_SEAT);
             float out = Rpc.callFloat(a, AC, GET_OUT_TEMP);
             s.outTemp = out < -100 || out > 100 ? Float.NaN : out;   // -10000 = non disponibile
+            readSettings(s);
         } catch (Exception e) {
             reset();
             throw e;
