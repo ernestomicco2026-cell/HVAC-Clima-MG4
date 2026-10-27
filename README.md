@@ -119,9 +119,9 @@ model) are still in the [`releases/`](releases/) folder.
 
 clima originale senza modificarla:
 
-- al centro c'è il **cruscotto della MG4 2022 stilizzato**: volante, quadro strumenti, schermo centrale, console con la
+- al centro c'è il **cruscotto della MG4 stilizzato**: volante, quadro strumenti, schermo centrale, console con la
 
-  manopola e le **quattro bocchette** (laterale guidatore, due centrali, laterale passeggero). Si vede **dove va l'aria**:
+  manopola e le **quattro bocchette**. Si vede **dove è indirizzata l'aria**:
 
   viso, piedi, parabrezza, con flussi più lunghi quando la ventola gira più forte e colore caldo quando la temperatura è alta;
 
@@ -131,7 +131,7 @@ clima originale senza modificarla:
 
   e volante solo dove ci sono);
 
-- i colori sono quelli del **MG4 Launcher**, nel tema notte con le sue tinte blu.
+- i colori sono quelli del **MG4 Launcher**.
 
 MG4 Clima legge e comanda il clima con **gli stessi servizi dell'auto usati dall'app originale**, con gli stessi comandi
 
@@ -140,18 +140,6 @@ MG4 Clima legge e comanda il clima con **gli stessi servizi dell'auto usati dall
 compare al suo posto. L'app originale non viene toccata: si può sempre riaprire dalle impostazioni, e se MG4 Clima viene
 
 disinstallata tutto torna come prima.
-
-Lo sviluppo procede **un modello alla volta**: prima la sola lettura dello stato, poi un
-
-**test automatico** che prova ogni comando e invia il log, poi i comandi veri. La SWI68 ha superato il test (22 comandi su
-
-24 al primo colpo, i due rimanenti erano errori del test, corretti). SWI69, SWI132 e SWI133 sono alla prima beta, da provare.
-
-Sulla **SWI133** il clima originale non è un'app ma un pannello del sistema: MG4 Clima non lo sostituisce, si apre dal
-
-tasto del clima di MG4 Launcher (dalla prossima versione del launcher) o dall'elenco delle app; dalle impostazioni si
-
-apre il pannello originale.
 
 ### Funzioni
 
@@ -196,7 +184,7 @@ apre il pannello originale.
 
 ### Installazione
 
-Scarica l'APK dalla tabella in alto (è uno solo per tutti i modelli). Poi scegli uno dei due metodi.
+Scarica l'APK dalla tabella in alto. Poi scegli uno dei due metodi.
 
 #### Metodo 1 — Da chiavetta USB (senza computer)
 
