@@ -177,6 +177,19 @@ disinstallata tutto torna come prima.
 
 - Nessun dato personale: le impostazioni restano nell'auto, i log diagnostici sono anonimi.
 
+### Verifica dell'app clima originale
+
+Ogni auto ha una sua versione dell'app clima originale (ad esempio **HVAC.41131**). MG4 Clima la sostituisce solo quando la versione è stata verificata. Se non lo è, compare il messaggio *"App clima originale … non verificata: MG4 Clima non la sostituisce."* L'app originale resta al suo posto e il clima funziona come prima.
+
+**Come verificarla**
+
+1. Ferma l'auto e spegni il clima.
+2. Apri MG4 Clima: al primo avvio compare la richiesta di verifica. In alternativa vai in **Impostazioni → Strumenti → Verifica app clima**.
+3. Conferma. La prova dura circa due minuti: accende e regola il clima, poi rimette tutto com'era.
+4. Se riesce, la versione viene salvata come verificata e da quel momento MG4 Clima la sostituisce. Se fallisce, resta l'app originale e non si perde nulla.
+
+**Modalità officina**: in Impostazioni → Strumenti puoi sospendere la sostituzione per 1, 3 o 7 giorni, così in officina si vede l'app originale. Allo scadere torna tutto da solo, oppure puoi annullarla prima.
+
 ### Installazione
 
 Scarica l'APK dalla tabella in alto. Poi scegli uno dei due metodi.
@@ -412,6 +425,19 @@ Clima is uninstalled everything goes back to how it was.
 - Anti-loop: if the original app reopens more than 3 times in 10 seconds, MG4 Clima pauses for 2 minutes.
 
 - No personal data: settings stay in the car, diagnostic logs are anonymous.
+
+### Verifying the original climate app
+
+Every car has its own version of the original climate app (for example **HVAC.41131**). MG4 Clima replaces it only once that version has been verified. If it has not, the message *"Original climate app … not verified: MG4 Climate won't replace it."* appears. The original app stays in place and the climate works as before.
+
+**How to verify it**
+
+1. Stop the car and turn the climate off.
+2. Open MG4 Climate: on first launch it asks to verify. Alternatively go to **Settings → Tools → Verify climate app**.
+3. Confirm. The test takes about two minutes: it switches the climate on and adjusts it, then puts everything back as it was.
+4. If it passes, that version is saved as verified and MG4 Climate replaces it from then on. If it fails, the original app stays and nothing is lost.
+
+**Workshop mode**: under Settings → Tools you can pause the replacement for 1, 3 or 7 days, so the workshop sees the original app. When it expires everything returns automatically, or you can cancel it earlier.
 
 ### Installation
 
