@@ -112,6 +112,29 @@
     <string name="b_cancel" formatted="false">Annuler</string>
     <string name="c_update" formatted="false">Mise à jour</string>
     <string name="c_update_msg">Installer MG4 Climat %1$s ? L\'écran se ferme quelques secondes.</string>
+    <string name="b_activate" formatted="false">Activer</string>
+    <string name="s_verify" formatted="false">Vérifier l\'appli climat</string>
+    <string name="s_verify_sub" formatted="false">Une nouvelle version de l\'appli climat d\'origine n\'est pas encore reconnue : je teste les commandes et, si elles marchent, je la remplace. Voiture à l\'arrêt, climatisation éteinte.</string>
+    <string name="c_verify_msg" formatted="false">Je teste les commandes du climat sur l\'appli d\'origine et, si elles marchent, je la remplace par MG4 Climat. Environ deux minutes. Le test remet tout comme avant.</string>
+    <string name="a_verify_ok">Vérification réussie : appli climat %1$s reconnue</string>
+    <string name="a_verify_fail">Vérification échouée pour %1$s : l\'appli d\'origine reste</string>
+    <string name="s_officina" formatted="false">Mode atelier</string>
+    <string name="s_officina_sub" formatted="false">Suspend le remplacement par MG4 Climat quelques jours, pour que l\'atelier voie l\'appli climat d\'origine. Ensuite tout revient seul.</string>
+    <string name="s_officina_1" formatted="false">1 jour</string>
+    <string name="s_officina_3" formatted="false">3 jours</string>
+    <string name="s_officina_7" formatted="false">7 jours</string>
+    <string name="s_officina_on">Active jusqu\'au %1$s</string>
+    <string name="c_officina_msg">Pendant %1$d jours, MG4 Climat ne remplace pas l\'appli climat d\'origine. Tu peux annuler à tout moment depuis cet écran.</string>
+    <string name="s_swipe" formatted="false">Fermer par glissement</string>
+    <string name="s_swipe_sub" formatted="false">Glisse depuis le bord choisi pour revenir à l\'accueil</string>
+    <string name="s_swipe_off" formatted="false">Désactivé</string>
+    <string name="s_swipe_bottom" formatted="false">Du bas</string>
+    <string name="s_swipe_top" formatted="false">Du haut</string>
+    <string name="s_uninstall" formatted="false">Désinstaller MG4 Climat</string>
+    <string name="s_uninstall_sub" formatted="false">Retire MG4 Climat de la voiture. L\'appli climat d\'origine reste telle quelle.</string>
+    <string name="b_uninstall" formatted="false">Désinstaller</string>
+    <string name="c_uninstall_msg" formatted="false">Désinstaller MG4 Climat ? L\'appli climat d\'origine de la voiture reste telle quelle.</string>
+    <string name="a_uninstall_failed">Désinstallation échouée : %1$s</string>
     <string name="c_model" formatted="false">Modèle</string>
     <string name="c_model_auto">la détection automatique (%1$s)</string>
     <string name="c_model_msg">Utiliser %1$s ? Choisis à la main seulement si le modèle détecté est faux : avec un mauvais modèle les commandes ne marchent pas. MG4 Climat redémarre.</string>

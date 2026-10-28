@@ -112,6 +112,29 @@
     <string name="b_cancel" formatted="false">Annulla</string>
     <string name="c_update" formatted="false">Aggiornamento</string>
     <string name="c_update_msg">Installo MG4 Clima %1$s? La schermata si chiude per qualche secondo.</string>
+    <string name="b_activate" formatted="false">Attiva</string>
+    <string name="s_verify" formatted="false">Verifica app clima</string>
+    <string name="s_verify_sub" formatted="false">Una versione nuova dell\'app clima originale non è ancora riconosciuta: provo i comandi e, se vanno, la sostituisco. Auto ferma e clima spento.</string>
+    <string name="c_verify_msg" formatted="false">Provo i comandi del clima sull\'app originale e, se vanno, la sostituisco con MG4 Clima. Ci vogliono circa due minuti. Il test rimette tutto com\'era.</string>
+    <string name="a_verify_ok">Verifica riuscita: app clima %1$s riconosciuta</string>
+    <string name="a_verify_fail">Verifica non riuscita per %1$s: resto con l\'app originale</string>
+    <string name="s_officina" formatted="false">Modalità officina</string>
+    <string name="s_officina_sub" formatted="false">Sospende la sostituzione con MG4 Clima per alcuni giorni, così l\'officina vede l\'app clima originale. Poi torna tutto da solo.</string>
+    <string name="s_officina_1" formatted="false">1 giorno</string>
+    <string name="s_officina_3" formatted="false">3 giorni</string>
+    <string name="s_officina_7" formatted="false">7 giorni</string>
+    <string name="s_officina_on">Attiva fino al %1$s</string>
+    <string name="c_officina_msg">Per %1$d giorni MG4 Clima non sostituisce l\'app clima originale. Puoi annullare quando vuoi da questa schermata.</string>
+    <string name="s_swipe" formatted="false">Chiudi con lo swipe</string>
+    <string name="s_swipe_sub" formatted="false">Scorri dal bordo scelto per tornare alla home</string>
+    <string name="s_swipe_off" formatted="false">Spento</string>
+    <string name="s_swipe_bottom" formatted="false">Dal basso</string>
+    <string name="s_swipe_top" formatted="false">Dall\'alto</string>
+    <string name="s_uninstall" formatted="false">Disinstalla MG4 Clima</string>
+    <string name="s_uninstall_sub" formatted="false">Rimuove MG4 Clima dall\'auto. L\'app clima originale resta com\'era.</string>
+    <string name="b_uninstall" formatted="false">Disinstalla</string>
+    <string name="c_uninstall_msg" formatted="false">Disinstallo MG4 Clima? L\'app clima originale dell\'auto resta com\'era.</string>
+    <string name="a_uninstall_failed">Disinstallazione non riuscita: %1$s</string>
     <string name="c_model" formatted="false">Modello</string>
     <string name="c_model_auto">il riconoscimento automatico (%1$s)</string>
     <string name="c_model_msg">Uso %1$s? Scegli a mano solo se il modello riconosciuto è sbagliato: con un modello sbagliato i comandi non funzionano. MG4 Clima si riavvia.</string>

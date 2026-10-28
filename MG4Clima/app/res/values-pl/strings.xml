@@ -112,6 +112,29 @@
     <string name="b_cancel" formatted="false">Anuluj</string>
     <string name="c_update" formatted="false">Aktualizacja</string>
     <string name="c_update_msg">Zainstalować MG4 Klimatyzacja %1$s? Ekran zamknie się na kilka sekund.</string>
+    <string name="b_activate" formatted="false">Włącz</string>
+    <string name="s_verify" formatted="false">Sprawdź aplikację klimatyzacji</string>
+    <string name="s_verify_sub" formatted="false">Nowa wersja oryginalnej aplikacji klimatyzacji nie jest jeszcze rozpoznawana: sprawdzę polecenia i, jeśli działają, zastąpię ją. Samochód stoi, klimatyzacja wyłączona.</string>
+    <string name="c_verify_msg" formatted="false">Sprawdzę polecenia klimatyzacji w oryginalnej aplikacji i, jeśli działają, zastąpię ją przez MG4 Klimatyzacja. Trwa około dwóch minut. Test przywraca wszystko do stanu wyjściowego.</string>
+    <string name="a_verify_ok">Weryfikacja udana: aplikacja klimatyzacji %1$s rozpoznana</string>
+    <string name="a_verify_fail">Weryfikacja nieudana dla %1$s: zostaje oryginalna aplikacja</string>
+    <string name="s_officina" formatted="false">Tryb warsztatowy</string>
+    <string name="s_officina_sub" formatted="false">Wstrzymuje zastępowanie przez MG4 Klimatyzacja na kilka dni, aby warsztat zobaczył oryginalną aplikację klimatyzacji. Potem wszystko wraca samo.</string>
+    <string name="s_officina_1" formatted="false">1 dzień</string>
+    <string name="s_officina_3" formatted="false">3 dni</string>
+    <string name="s_officina_7" formatted="false">7 dni</string>
+    <string name="s_officina_on">Aktywny do %1$s</string>
+    <string name="c_officina_msg">Przez %1$d dni MG4 Klimatyzacja nie zastąpi oryginalnej aplikacji klimatyzacji. Anulować możesz w każdej chwili z tego ekranu.</string>
+    <string name="s_swipe" formatted="false">Zamknij przesunięciem</string>
+    <string name="s_swipe_sub" formatted="false">Przesuń od wybranej krawędzi, aby wrócić do ekranu głównego</string>
+    <string name="s_swipe_off" formatted="false">Wyłączone</string>
+    <string name="s_swipe_bottom" formatted="false">Od dołu</string>
+    <string name="s_swipe_top" formatted="false">Od góry</string>
+    <string name="s_uninstall" formatted="false">Odinstaluj MG4 Klimatyzacja</string>
+    <string name="s_uninstall_sub" formatted="false">Usuwa MG4 Klimatyzacja z samochodu. Oryginalna aplikacja klimatyzacji zostaje bez zmian.</string>
+    <string name="b_uninstall" formatted="false">Odinstaluj</string>
+    <string name="c_uninstall_msg" formatted="false">Odinstalować MG4 Klimatyzacja? Oryginalna aplikacja klimatyzacji w samochodzie zostaje bez zmian.</string>
+    <string name="a_uninstall_failed">Odinstalowanie nieudane: %1$s</string>
     <string name="c_model" formatted="false">Model</string>
     <string name="c_model_auto">automatyczne wykrywanie (%1$s)</string>
     <string name="c_model_msg">Użyć %1$s? Wybieraj ręcznie tylko, gdy wykryty model jest błędny: przy złym modelu polecenia nie działają. MG4 Klimatyzacja uruchomi się ponownie.</string>

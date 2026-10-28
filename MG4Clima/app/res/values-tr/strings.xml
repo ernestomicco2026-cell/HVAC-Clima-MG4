@@ -112,6 +112,29 @@
     <string name="b_cancel" formatted="false">İptal</string>
     <string name="c_update" formatted="false">Güncelleme</string>
     <string name="c_update_msg">MG4 Klima %1$s yüklensin mi? Ekran birkaç saniye kapanır.</string>
+    <string name="b_activate" formatted="false">Etkinleştir</string>
+    <string name="s_verify" formatted="false">Klima uygulamasını doğrula</string>
+    <string name="s_verify_sub" formatted="false">Orijinal klima uygulamasının yeni sürümü henüz tanınmıyor: komutları deniyorum, çalışırsa uygulamayı değiştiriyorum. Araç durmuş, klima kapalı olmalı.</string>
+    <string name="c_verify_msg" formatted="false">Klima komutlarını orijinal uygulamada deniyorum, çalışırsa MG4 Klima ile değiştiriyorum. Yaklaşık iki dakika sürer. Test her şeyi eski haline getirir.</string>
+    <string name="a_verify_ok">Doğrulama başarılı: klima uygulaması %1$s tanındı</string>
+    <string name="a_verify_fail">%1$s için doğrulama başarısız: orijinal uygulama kalıyor</string>
+    <string name="s_officina" formatted="false">Atölye modu</string>
+    <string name="s_officina_sub" formatted="false">MG4 Klima değişimini birkaç gün durdurur, böylece servis orijinal klima uygulamasını görür. Sonra her şey kendiliğinden geri döner.</string>
+    <string name="s_officina_1" formatted="false">1 gün</string>
+    <string name="s_officina_3" formatted="false">3 gün</string>
+    <string name="s_officina_7" formatted="false">7 gün</string>
+    <string name="s_officina_on">%1$s tarihine kadar aktif</string>
+    <string name="c_officina_msg">%1$d gün boyunca MG4 Klima orijinal klima uygulamasını değiştirmez. Bu ekrandan istediğin zaman iptal edebilirsin.</string>
+    <string name="s_swipe" formatted="false">Kaydırarak kapat</string>
+    <string name="s_swipe_sub" formatted="false">Ana ekrana dönmek için seçilen kenardan kaydır</string>
+    <string name="s_swipe_off" formatted="false">Kapalı</string>
+    <string name="s_swipe_bottom" formatted="false">Alttan</string>
+    <string name="s_swipe_top" formatted="false">Üstten</string>
+    <string name="s_uninstall" formatted="false">MG4 Klima\'yı kaldır</string>
+    <string name="s_uninstall_sub" formatted="false">MG4 Klima\'yı araçtan kaldırır. Orijinal klima uygulaması olduğu gibi kalır.</string>
+    <string name="b_uninstall" formatted="false">Kaldır</string>
+    <string name="c_uninstall_msg" formatted="false">MG4 Klima kaldırılsın mı? Aracın orijinal klima uygulaması olduğu gibi kalır.</string>
+    <string name="a_uninstall_failed">Kaldırma başarısız: %1$s</string>
     <string name="c_model" formatted="false">Model</string>
     <string name="c_model_auto">otomatik algılama (%1$s)</string>
     <string name="c_model_msg">%1$s kullanılsın mı? Yalnızca algılanan model yanlışsa elle seç: yanlış modelle komutlar çalışmaz. MG4 Klima yeniden başlar.</string>

@@ -112,6 +112,29 @@
     <string name="b_cancel" formatted="false">Cancel</string>
     <string name="c_update" formatted="false">Update</string>
     <string name="c_update_msg">Install MG4 Climate %1$s? The screen closes for a few seconds.</string>
+    <string name="b_activate" formatted="false">Activate</string>
+    <string name="s_verify" formatted="false">Verify climate app</string>
+    <string name="s_verify_sub" formatted="false">A new version of the original climate app isn\'t recognised yet: I test the commands and, if they work, replace it. Car stopped and climate off.</string>
+    <string name="c_verify_msg" formatted="false">I test the climate commands on the original app and, if they work, replace it with MG4 Climate. It takes about two minutes. The test puts everything back as it was.</string>
+    <string name="a_verify_ok">Verification passed: climate app %1$s recognised</string>
+    <string name="a_verify_fail">Verification failed for %1$s: keeping the original app</string>
+    <string name="s_officina" formatted="false">Workshop mode</string>
+    <string name="s_officina_sub" formatted="false">Pauses the MG4 Climate replacement for a few days, so the workshop sees the original climate app. Then everything returns automatically.</string>
+    <string name="s_officina_1" formatted="false">1 day</string>
+    <string name="s_officina_3" formatted="false">3 days</string>
+    <string name="s_officina_7" formatted="false">7 days</string>
+    <string name="s_officina_on">Active until %1$s</string>
+    <string name="c_officina_msg">For %1$d days MG4 Climate won\'t replace the original climate app. You can cancel any time from this screen.</string>
+    <string name="s_swipe" formatted="false">Close with swipe</string>
+    <string name="s_swipe_sub" formatted="false">Swipe from the chosen edge to return home</string>
+    <string name="s_swipe_off" formatted="false">Off</string>
+    <string name="s_swipe_bottom" formatted="false">From bottom</string>
+    <string name="s_swipe_top" formatted="false">From top</string>
+    <string name="s_uninstall" formatted="false">Uninstall MG4 Climate</string>
+    <string name="s_uninstall_sub" formatted="false">Removes MG4 Climate from the car. The original climate app stays as it is.</string>
+    <string name="b_uninstall" formatted="false">Uninstall</string>
+    <string name="c_uninstall_msg" formatted="false">Uninstall MG4 Climate? The car\'s original climate app stays as it is.</string>
+    <string name="a_uninstall_failed">Uninstall failed: %1$s</string>
     <string name="c_model" formatted="false">Model</string>
     <string name="c_model_auto">automatic detection (%1$s)</string>
     <string name="c_model_msg">Use %1$s? Only choose by hand if the detected model is wrong: with the wrong model the commands don\'t work. MG4 Climate restarts.</string>

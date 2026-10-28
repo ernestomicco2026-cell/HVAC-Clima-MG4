@@ -96,6 +96,7 @@ public final class ClimaActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        h.postDelayed(this::maybeAskVerify, 2500);
         if (L.init(this, Store.language(this))) view.invalidate();   // lingua dell'auto cambiata
         getWindow().getDecorView().setSystemUiVisibility(IMMERSIVE);
         if (Store.closeShade(this)) {
@@ -389,6 +390,12 @@ public final class ClimaActivity extends Activity {
                         Store.event(this, "apertura dal launcher " + (v ? "attivata" : "spenta"));
                     }), false);
         }
+        s.row(c1, L.s(R.string.s_swipe), L.s(R.string.s_swipe_sub),
+                s.choices(new String[]{L.s(R.string.s_swipe_off), L.s(R.string.s_swipe_bottom), L.s(R.string.s_swipe_top)},
+                        Store.swipeMode(this), i -> {
+                            Store.setSwipeMode(this, i);
+                            Store.event(this, "chiusura con swipe: " + i);
+                        }), false);
         if (panelModel) {
             int pm = Store.panelMode(this);
             s.row(c1, L.s(R.string.s_panel), L.s(R.string.s_panel_sub),
@@ -444,7 +451,25 @@ public final class ClimaActivity extends Activity {
         LinearLayout c5 = s.card();
         s.row(c5, L.s(app ? R.string.s_orig_app : R.string.s_orig_panel), L.s(app ? R.string.s_orig_app_sub : R.string.s_orig_panel_sub),
                 s.button(L.s(R.string.b_open), v -> openOriginal()), false);
+        if (ClimaGuard.hasOriginalApp(this) && !ClimaGuard.originalKnown(this))
+            s.row(c5, L.s(R.string.s_verify), L.s(R.string.s_verify_sub), s.button(L.s(R.string.b_start), v -> confirmVerify()), false);
+        long oUntil = Store.bypassUntil(this);
+        if (System.currentTimeMillis() < oUntil) {
+            s.row(c5, L.s(R.string.s_officina), L.f(R.string.s_officina_on,
+                    new java.text.SimpleDateFormat("dd/MM", java.util.Locale.ITALY).format(new java.util.Date(oUntil))),
+                    s.button(L.s(R.string.b_cancel), v -> {
+                        Store.bypass(this, 0);
+                        Store.event(this, "modalità officina annullata");
+                        settings();
+                    }), false);
+        } else {
+            s.row(c5, L.s(R.string.s_officina), L.s(R.string.s_officina_sub),
+                    s.choices(new String[]{L.s(R.string.s_officina_1), L.s(R.string.s_officina_3), L.s(R.string.s_officina_7)}, -1,
+                            i -> confirmOfficina(new int[]{1, 3, 7}[i])), false);
+        }
         s.row(c5, L.s(R.string.s_test), L.s(R.string.s_test_sub), s.button(L.s(R.string.b_start), v -> confirmTest()), false);
+        s.row(c5, L.s(R.string.s_uninstall), L.s(R.string.s_uninstall_sub),
+                s.button(L.s(R.string.b_uninstall), v -> confirmUninstall()), false);
         s.row(c5, L.s(R.string.s_diag), L.s(R.string.s_diag_sub), s.button(L.s(R.string.b_show), v -> diagnostics()), false);
         s.row(c5, L.s(R.string.s_send_diag), L.s(R.string.s_send_diag_sub),
                 s.button(L.s(R.string.b_send), v -> LogSend.send(this, "manuale", r -> h.post(() -> toast(
@@ -523,6 +548,60 @@ public final class ClimaActivity extends Activity {
                 });
     }
 
+    /** Modalità officina (1.3.0): la sostituzione resta sospesa per N giorni, poi torna da sola. */
+    private void confirmOfficina(int days) {
+        sheet.confirm(L.s(R.string.s_officina), L.f(R.string.c_officina_msg, days),
+                L.s(R.string.b_cancel), L.s(R.string.b_activate), () -> {
+                    sheet.close();
+                    Store.bypass(this, days * 24L * 3600_000L);
+                    Store.event(this, "modalità officina per " + days + " giorni");
+                    toast(L.f(R.string.s_officina_on, new java.text.SimpleDateFormat("dd/MM", java.util.Locale.ITALY)
+                            .format(new java.util.Date(Store.bypassUntil(this)))));
+                });
+    }
+
+    /** Verifica di una versione nuova dell'app clima originale (1.3.0): stessi comandi del test automatico. */
+    private void confirmVerify() {
+        sheet.confirm(L.s(R.string.s_verify), L.s(R.string.c_verify_msg),
+                L.s(R.string.b_cancel), L.s(R.string.b_start), () -> {
+                    sheet.close();
+                    runVerify();
+                });
+    }
+
+    private void runVerify() {
+        final String ver = ClimaGuard.originalVersion(this);
+        testRunning = true;
+        banner.setText(L.s(R.string.s_verify));
+        banner.setVisibility(View.VISIBLE);
+        Store.event(this, "verifica app clima " + ver + " avviata");
+        AutoTest.start(this, client,
+                x -> h.post(() -> banner.setText(L.s(R.string.s_verify) + " · " + x)),
+                r -> h.post(() -> {
+                    boolean ok = !r.startsWith("interrotto") && !r.startsWith("errore") && r.contains(", 0 non riusciti");
+                    if (ok) Store.addVerified(this, ver);
+                    if (ok) Store.setPendingVerify(this, "");
+                    Store.event(this, "verifica " + ver + (ok ? ": riuscita" : ": non riuscita") + " · " + r);
+                    LogSend.send(this, "verifica", res -> h.post(() -> {
+                        testRunning = false;
+                        banner.setText((ok ? L.f(R.string.a_verify_ok, ver) : L.f(R.string.a_verify_fail, ver))
+                                + " · log " + ("ok".equals(res) ? "✓" : res));
+                        banner.setOnClickListener(v -> banner.setVisibility(View.GONE));
+                        h.postDelayed(() -> banner.setVisibility(View.GONE), 60_000);
+                    }));
+                }));
+    }
+
+    /** All'apertura: se c'è una versione sconosciuta in attesa, chiede la verifica (solo clima spento, auto ferma). */
+    private void maybeAskVerify() {
+        if (!ClimaGuard.hasOriginalApp(this) || ClimaGuard.originalKnown(this)) return;
+        if (Store.pendingVerify(this).isEmpty() || !Store.pendingVerify(this).equals(ClimaGuard.originalVersion(this))) return;
+        if (System.currentTimeMillis() < Store.bypassUntil(this)) return;
+        if (last.on() || Float.isNaN(last.speed) || last.speed > 0f) return;
+        if (sheet == null) sheet = new Sheet(this, root, view);
+        confirmVerify();
+    }
+
     private void runTest() {
         testRunning = true;
         banner.setText(L.s(R.string.a_test_start));
@@ -568,6 +647,91 @@ public final class ClimaActivity extends Activity {
     protected void onPause() {
         shadeBlock(false);
         super.onPause();
+    }
+
+    /** Il manifest dichiara uiMode in configChanges: l'activity non si ricrea, quindi avvisa la vista del nuovo tema (1.3.0). */
+    @Override
+    public void onConfigurationChanged(android.content.res.Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (view != null) view.theme();
+    }
+
+    private float swipeX, swipeY;
+    private long swipeT;
+
+    /** Disinstallazione di MG4 Clima (1.3.0): come nel launcher, ma senza toccare l'accessibilità (Android la toglie col pacchetto). */
+    private void confirmUninstall() {
+        sheet.confirm(L.s(R.string.s_uninstall), L.s(R.string.c_uninstall_msg), L.s(R.string.b_cancel), L.s(R.string.b_uninstall), () -> {
+            sheet.close();
+            uninstallSelf();
+        });
+    }
+
+    private void uninstallSelf() {
+        Store.event(this, "disinstallazione richiesta");
+        final String action = "com.mg4.clima.UNINSTALL_RESULT";
+        try {
+            android.content.pm.PackageInstaller inst = getPackageManager().getPackageInstaller();
+            registerReceiver(new android.content.BroadcastReceiver() {
+                @Override
+                public void onReceive(android.content.Context ctx, Intent i) {
+                    int st = i.getIntExtra(android.content.pm.PackageInstaller.EXTRA_STATUS,
+                            android.content.pm.PackageInstaller.STATUS_FAILURE);
+                    String msg = i.getStringExtra(android.content.pm.PackageInstaller.EXTRA_STATUS_MESSAGE);
+                    Store.event(ctx, "disinstallazione esito " + st + (msg == null ? "" : " " + msg));
+                    if (st == android.content.pm.PackageInstaller.STATUS_PENDING_USER_ACTION) {
+                        Intent confirm = i.getParcelableExtra(Intent.EXTRA_INTENT);
+                        if (confirm != null) {
+                            confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            try {
+                                ctx.startActivity(confirm);
+                                return;
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    }
+                    if (st != android.content.pm.PackageInstaller.STATUS_SUCCESS)
+                        h.post(() -> toast(L.f(R.string.a_uninstall_failed, msg == null ? "codice " + st : msg)));
+                }
+            }, new android.content.IntentFilter(action));
+            android.app.PendingIntent pi = android.app.PendingIntent.getBroadcast(this, 0,
+                    new Intent(action).setPackage(getPackageName()), android.app.PendingIntent.FLAG_UPDATE_CURRENT);
+            inst.uninstall(getPackageName(), pi.getIntentSender());
+        } catch (Throwable e) {
+            try {
+                startActivity(new Intent(Intent.ACTION_DELETE, android.net.Uri.parse("package:" + getPackageName()))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            } catch (Throwable e2) {
+                toast(L.f(R.string.a_uninstall_failed, e2.getClass().getSimpleName()));
+            }
+        }
+    }
+
+    /** Chiusura con swipe (1.3.0): osserva il tocco senza consumarlo, così i tasti restano uguali. */
+    @Override
+    public boolean dispatchTouchEvent(android.view.MotionEvent e) {
+        int mode = Store.swipeMode(this);
+        if (mode != 0 && (sheet == null || !sheet.showing())) {
+            int a = e.getActionMasked();
+            if (a == android.view.MotionEvent.ACTION_DOWN) {
+                swipeX = e.getX();
+                swipeY = e.getY();
+                swipeT = e.getEventTime();
+            } else if (a == android.view.MotionEvent.ACTION_UP) {
+                float dx = e.getX() - swipeX, dy = e.getY() - swipeY;
+                long dt = e.getEventTime() - swipeT;
+                float h = getResources().getDisplayMetrics().heightPixels;
+                boolean longEnough = Math.abs(dy) > h * 0.25f && Math.abs(dx) < Math.abs(dy) / 2 && dt < 700;
+                boolean up = dy < 0;
+                // mode 1: parte dalla metà bassa e sale; mode 2: parte dalla metà alta e scende
+                boolean fromBottom = swipeY > h / 2;
+                if (longEnough && ((mode == 1 && up && fromBottom) || (mode == 2 && !up && !fromBottom))) {
+                    onBackPressed();
+                    return true;
+                }
+            }
+        }
+        return super.dispatchTouchEvent(e);
     }
 
     /** Chiudendo si torna alla home (sotto c'è l'app clima originale, che non si vuole rivedere). */

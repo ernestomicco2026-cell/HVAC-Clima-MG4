@@ -75,7 +75,7 @@ public final class ClimaGuard extends AccessibilityService {
         String v = originalVersion(c);
         String[] o = original(c);
         for (int i = 2; i < o.length; i++) if (o[i].equals(v)) return true;
-        return false;
+        return Store.isVerified(c, v);   // verificata su quest'auto (1.3.0)
     }
 
     /** Attiva il servizio in modo permanente (WRITE_SECURE_SETTINGS, firma platform), senza toccare gli altri. */
@@ -300,6 +300,7 @@ public final class ClimaGuard extends AccessibilityService {
             return;
         }
         if (!originalKnown(this)) {
+            Store.setPendingVerify(this, originalVersion(this));   // da verificare alla prossima apertura di MG4 Clima
             Store.event(this, "app clima " + originalVersion(this) + " non verificata: niente sostituzione");
             return;
         }

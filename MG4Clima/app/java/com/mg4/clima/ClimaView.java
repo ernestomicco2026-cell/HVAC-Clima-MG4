@@ -93,6 +93,7 @@ public final class ClimaView extends View {
 
     public void setDashStyle(int s) {
         style = s;
+        theme();
         invalidate();
     }
 
@@ -295,7 +296,8 @@ public final class ClimaView extends View {
     /** Tema giorno/notte come il launcher: giorno = colori chiari del launcher, notte = tinte blu. */
     public void theme() {
         int night = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        day = night == Configuration.UI_MODE_NIGHT_NO;
+        // lo stile realistico è una foto scura: resta sempre con la palette notte (1.3.0)
+        day = night == Configuration.UI_MODE_NIGHT_NO && style != Store.STYLE_PHOTO;
         if (day) {
             BG = 0xFFE6E8EB; PANEL = 0xFFFFFFFF; CHIP = 0xFFF1F3F5; TRACK = 0xFFE1E4E8; TEXT = 0xFF111318; SUB = 0xFF555C66;
             ONTEXT = 0xFFFFFFFF; HEAT = 0xFFE1621F; HEATBG = 0xFFFFF1EA; FLOW = 0xFF7D8793; FLOW2 = 0xFFB9C0C8;

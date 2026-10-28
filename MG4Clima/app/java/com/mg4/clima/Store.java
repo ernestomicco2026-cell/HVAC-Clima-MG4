@@ -113,6 +113,40 @@ public final class Store {
         sp(c).edit().putBoolean("guidaDestra", on).apply();
     }
 
+    /** Chiusura con swipe (1.3.0): 0 spenta, 1 dal basso verso l'alto, 2 dall'alto verso il basso. */
+    public static int swipeMode(Context c) {
+        return sp(c).getInt("swipeMode", 0);
+    }
+
+    public static void setSwipeMode(Context c, int m) {
+        sp(c).edit().putInt("swipeMode", m).apply();
+    }
+
+    /** Versioni dell'app clima originale verificate su quest'auto (1.3.0). */
+    public static boolean isVerified(Context c, String v) {
+        return ("|" + sp(c).getString("verificate", "") + "|").contains("|" + v + "|");
+    }
+
+    public static void addVerified(Context c, String v) {
+        if (v == null || v.isEmpty() || isVerified(c, v)) return;
+        String old = sp(c).getString("verificate", "");
+        sp(c).edit().putString("verificate", old.isEmpty() ? v : old + "|" + v).apply();
+    }
+
+    /** Versione vista ma non ancora verificata ("" = nessuna). */
+    public static String pendingVerify(Context c) {
+        return sp(c).getString("daVerificare", "");
+    }
+
+    public static void setPendingVerify(Context c, String v) {
+        sp(c).edit().putString("daVerificare", v == null ? "" : v).apply();
+    }
+
+    /** Fino a quando la sostituzione è sospesa (modalità officina); 0 = mai. */
+    public static long bypassUntil(Context c) {
+        return sp(c).getLong("bypassFinoA", 0);
+    }
+
     /** Per un po' l'app clima originale non viene sostituita (aperta apposta). */
     public static void bypass(Context c, long ms) {
         sp(c).edit().putLong("bypassFinoA", System.currentTimeMillis() + ms).apply();

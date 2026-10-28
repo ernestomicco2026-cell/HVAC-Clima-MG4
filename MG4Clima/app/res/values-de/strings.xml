@@ -112,6 +112,29 @@
     <string name="b_cancel" formatted="false">Abbrechen</string>
     <string name="c_update" formatted="false">Update</string>
     <string name="c_update_msg">MG4 Klima %1$s installieren? Der Bildschirm schließt sich für einige Sekunden.</string>
+    <string name="b_activate" formatted="false">Aktivieren</string>
+    <string name="s_verify" formatted="false">Klima-App prüfen</string>
+    <string name="s_verify_sub" formatted="false">Eine neue Version der Original-Klima-App ist noch nicht erkannt: Ich teste die Befehle und ersetze die App, wenn sie funktionieren. Auto steht, Klima aus.</string>
+    <string name="c_verify_msg" formatted="false">Ich teste die Klimabefehle an der Original-App und ersetze sie bei Erfolg durch MG4 Klima. Dauert etwa zwei Minuten. Der Test stellt alles wieder her.</string>
+    <string name="a_verify_ok">Prüfung bestanden: Klima-App %1$s erkannt</string>
+    <string name="a_verify_fail">Prüfung für %1$s fehlgeschlagen: Original-App bleibt</string>
+    <string name="s_officina" formatted="false">Werkstattmodus</string>
+    <string name="s_officina_sub" formatted="false">Pausiert den Ersatz durch MG4 Klima für einige Tage, damit die Werkstatt die Original-Klima-App sieht. Danach kehrt alles automatisch zurück.</string>
+    <string name="s_officina_1" formatted="false">1 Tag</string>
+    <string name="s_officina_3" formatted="false">3 Tage</string>
+    <string name="s_officina_7" formatted="false">7 Tage</string>
+    <string name="s_officina_on">Aktiv bis %1$s</string>
+    <string name="c_officina_msg">Für %1$d Tage ersetzt MG4 Klima die Original-Klima-App nicht. Du kannst jederzeit auf diesem Bildschirm abbrechen.</string>
+    <string name="s_swipe" formatted="false">Mit Wischgeste schließen</string>
+    <string name="s_swipe_sub" formatted="false">Vom gewählten Rand wischen, um zum Startbildschirm zu gelangen</string>
+    <string name="s_swipe_off" formatted="false">Aus</string>
+    <string name="s_swipe_bottom" formatted="false">Von unten</string>
+    <string name="s_swipe_top" formatted="false">Von oben</string>
+    <string name="s_uninstall" formatted="false">MG4 Klima deinstallieren</string>
+    <string name="s_uninstall_sub" formatted="false">Entfernt MG4 Klima aus dem Auto. Die Original-Klima-App bleibt unverändert.</string>
+    <string name="b_uninstall" formatted="false">Deinstallieren</string>
+    <string name="c_uninstall_msg" formatted="false">MG4 Klima deinstallieren? Die Original-Klima-App des Autos bleibt unverändert.</string>
+    <string name="a_uninstall_failed">Deinstallation fehlgeschlagen: %1$s</string>
     <string name="c_model" formatted="false">Modell</string>
     <string name="c_model_auto">die automatische Erkennung (%1$s)</string>
     <string name="c_model_msg">%1$s verwenden? Nur manuell wählen, wenn das erkannte Modell falsch ist: Mit falschem Modell funktionieren die Befehle nicht. MG4 Klima startet neu.</string>
