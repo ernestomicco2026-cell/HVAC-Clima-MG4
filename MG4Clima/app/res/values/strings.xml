@@ -34,7 +34,7 @@
     <string name="t_wheel" formatted="false">Wheel</string>
     <string name="t_driver" formatted="false">Driver</string>
     <string name="t_passenger" formatted="false">Passenger</string>
-    <string name="a_original_unverified">Original climate app %1$s not verified: MG4 Climate won\'t replace it.</string>
+    <string name="a_original_unverified">Original climate app %1$s not verified yet: MG4 Climate won\'t replace it. Run the check from Settings → Tools → Verify climate app (car stopped, climate off, about 2 minutes).</string>
     <string name="a_test_running" formatted="false">Automatic test running…</string>
     <string name="a_not_connected" formatted="false">Climate service not connected yet</string>
     <string name="a_switch_on" formatted="false">Switch the car on to use the climate</string>
@@ -126,8 +126,9 @@
     <string name="s_officina_on">Active until %1$s</string>
     <string name="c_officina_msg">For %1$d days MG4 Climate won\'t replace the original climate app. You can cancel any time from this screen.</string>
     <string name="s_swipe" formatted="false">Close with swipe</string>
-    <string name="s_swipe_sub" formatted="false">Swipe from the chosen edge to return home</string>
+    <string name="s_swipe_sub" formatted="false">Swipe vertically on the panel or from the screen edge to return home</string>
     <string name="s_swipe_off" formatted="false">Off</string>
+    <string name="s_swipe_auto" formatted="false">Automatic</string>
     <string name="s_swipe_bottom" formatted="false">From bottom</string>
     <string name="s_swipe_top" formatted="false">From top</string>
     <string name="s_uninstall" formatted="false">Uninstall MG4 Climate</string>

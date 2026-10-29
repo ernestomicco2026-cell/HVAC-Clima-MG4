@@ -26,7 +26,7 @@
         android:allowBackup="false"
         android:hardwareAccelerated="true"
         android:directBootAware="true"
-        android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+        android:theme="@style/Clima">
 
         <!-- velocità dell'auto per il test automatico su SWI69 / SWI132 (facoltativa) -->
         <uses-library android:name="android.car" android:required="false" />

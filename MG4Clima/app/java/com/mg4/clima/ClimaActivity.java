@@ -23,6 +23,9 @@ public final class ClimaActivity extends Activity {
             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
     private static final long BYPASS_MS = 2 * 60_000L;
     private static final String SETTINGS = "impostazioni", DIAG = "diagnostica";
+    /** Istante (ora, ms) in cui è comparsa l'app clima originale sostituita (1.3.1, per misurare il lampeggio). */
+    static final String EXTRA_ORIGINAL_AT = "com.mg4.clima.ORIGINALE_AT";
+    private long originalAt;
 
     private ClimaView view;
     private TextView banner;
@@ -34,7 +37,13 @@ public final class ClimaActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        overridePendingTransition(0, 0);   // 1.3.1: senza animazione, copre subito l'app originale
         L.init(this, Store.language(this));
+        // 1.3.1: modello scelto a mano uguale a quello che dice il nome del software → si torna al riconoscimento automatico
+        if (Model.manual(this) && Store.model(this).equals(Model.fromSoftware())) {
+            Store.setModel(this, "");
+            Store.event(this, "modello " + Model.fromSoftware() + " riconosciuto dal software " + Model.software() + ": torna automatico");
+        }
         getWindow().getDecorView().setSystemUiVisibility(IMMERSIVE);
         view = new ClimaView(this);
         view.setRightHand(Store.rightHand(this));
@@ -53,6 +62,17 @@ public final class ClimaActivity extends Activity {
         root.addView(banner, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.CENTER_HORIZONTAL));
         setContentView(root);
+        swipe = new android.view.GestureDetector(this, new android.view.GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDown(android.view.MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public boolean onFling(android.view.MotionEvent e1, android.view.MotionEvent e2, float vx, float vy) {
+                return onSwipe(e1, e2, vy);
+            }
+        });
         client = new HvacClient(this);
         // al primo avvio dopo l'installazione attiva la sostituzione dell'app clima
         ClimaGuard.ensureEnabled(this);
@@ -60,13 +80,33 @@ public final class ClimaActivity extends Activity {
             toastLong(L.f(R.string.a_original_unverified, ClimaGuard.originalVersion(this)));
         }
         Store.event(this, "schermata aperta · " + Model.get(this) + (Model.manual(this) ? " (scelto a mano)" : ""));
+        fromGuard(getIntent());
         fromLauncher(getIntent());
     }
 
     @Override
     protected void onNewIntent(Intent i) {
         super.onNewIntent(i);
+        overridePendingTransition(0, 0);
+        fromGuard(i);
         fromLauncher(i);
+    }
+
+    /** Aperta al posto dell'app clima originale: si ricorda quando è comparsa l'originale (1.3.1). */
+    private void fromGuard(Intent i) {
+        long at = i == null ? 0 : i.getLongExtra(EXTRA_ORIGINAL_AT, 0);
+        if (at > 0) originalAt = at;
+    }
+
+    /** 1.3.1: la nostra è davvero sullo schermo: nel log quanto è rimasta visibile l'originale. */
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (!hasFocus || originalAt <= 0) return;
+        long now = System.currentTimeMillis();
+        Store.event(this, "MG4 Clima aperta alle " + Store.ms(now) + " · originale comparsa alle " + Store.ms(originalAt)
+                + " (+" + Math.max(0, now - originalAt) + " ms)");
+        originalAt = 0;
     }
 
     /** Aperta dal launcher MG4: con la sostituzione spenta si va al clima originale. */
@@ -103,6 +143,13 @@ public final class ClimaActivity extends Activity {
             shadeBlock(true);
             if (Model.sysUiPanel(this)) SysUiPanel.prepare(this);
         }
+        edges();
+    }
+
+    /** Strisce sui bordi per lo swipe dal bordo, solo mentre MG4 Clima è in primo piano (1.3.1). */
+    private void edges() {
+        int m = Store.swipeMode(this);
+        ClimaGuard.edges(this, m == Store.SWIPE_OFF ? 0 : m == Store.SWIPE_UP ? 1 : m == Store.SWIPE_DOWN ? 2 : 3);
     }
 
     /** L'ora sul quadro strumenti stilizzato. */
@@ -116,7 +163,11 @@ public final class ClimaActivity extends Activity {
 
     private void onTap(String id) {
         if ("chiudi".equals(id)) {
-            onBackPressed();
+            close("tasto chiudi");
+            return;
+        }
+        if ("fuori".equals(id)) {
+            close("tocco fuori dal pannello");
             return;
         }
         if (testRunning) {
@@ -346,14 +397,12 @@ public final class ClimaActivity extends Activity {
                 s.button(L.s(R.string.b_change), v -> languages()), true);
 
         // ---- clima automatico: le impostazioni dell'app clima originale, lette e scritte nell'auto
-        s.label(L.s(R.string.s_auto_section));
-        LinearLayout ca = s.card();
+        // 1.3.1: se l'auto non le fornisce (es. SWI132: -1) la sezione non si mostra; ogni voce solo se c'è il valore
         HvacClient.State st = last;
         boolean any = st.autoLevel >= 0 || st.econLink >= 0 || st.defrostLink >= 0;
-        if (!any) {
-            s.row(ca, L.s(R.string.s_auto_none),
-                    Model.SWI132.equals(model) ? L.s(R.string.s_auto_none_model) : L.s(R.string.s_auto_none_sub), null, true);
-        } else {
+        if (any) {
+            s.label(L.s(R.string.s_auto_section));
+            LinearLayout ca = s.card();
             if (st.autoLevel >= 0) {
                 int sel = st.autoLevel == HvacClient.AUTO_LOW ? 0 : st.autoLevel == HvacClient.AUTO_MEDIUM ? 1 : 2;
                 s.row(ca, L.s(R.string.s_auto_level), L.s(R.string.s_auto_level_sub),
@@ -390,12 +439,17 @@ public final class ClimaActivity extends Activity {
                         Store.event(this, "apertura dal launcher " + (v ? "attivata" : "spenta"));
                     }), false);
         }
+        // 1.3.1: Spento / Automatico (entrambe le direzioni) / Verso l'alto / Verso il basso
+        final int[] swModes = {Store.SWIPE_OFF, Store.SWIPE_AUTO, Store.SWIPE_UP, Store.SWIPE_DOWN};
+        int swSel = 1;
+        for (int i = 0; i < swModes.length; i++) if (swModes[i] == Store.swipeMode(this)) swSel = i;
         s.row(c1, L.s(R.string.s_swipe), L.s(R.string.s_swipe_sub),
-                s.choices(new String[]{L.s(R.string.s_swipe_off), L.s(R.string.s_swipe_bottom), L.s(R.string.s_swipe_top)},
-                        Store.swipeMode(this), i -> {
-                            Store.setSwipeMode(this, i);
-                            Store.event(this, "chiusura con swipe: " + i);
-                        }), false);
+                s.choices(new String[]{L.s(R.string.s_swipe_off), L.s(R.string.s_swipe_auto), L.s(R.string.s_swipe_bottom),
+                        L.s(R.string.s_swipe_top)}, swSel, i -> {
+                    Store.setSwipeMode(this, swModes[i]);
+                    Store.event(this, "chiusura con swipe: " + Store.swipeName(swModes[i]));
+                    edges();
+                }), false);
         if (panelModel) {
             int pm = Store.panelMode(this);
             s.row(c1, L.s(R.string.s_panel), L.s(R.string.s_panel_sub),
@@ -595,9 +649,16 @@ public final class ClimaActivity extends Activity {
     /** All'apertura: se c'è una versione sconosciuta in attesa, chiede la verifica (solo clima spento, auto ferma). */
     private void maybeAskVerify() {
         if (!ClimaGuard.hasOriginalApp(this) || ClimaGuard.originalKnown(this)) return;
-        if (Store.pendingVerify(this).isEmpty() || !Store.pendingVerify(this).equals(ClimaGuard.originalVersion(this))) return;
+        String ver = ClimaGuard.originalVersion(this);
+        // 1.3.1: si chiede una volta per versione (prima solo dopo che l'originale era stata aperta)
+        boolean pending = ver.equals(Store.pendingVerify(this));
+        if (!pending && ver.equals(Store.askedVerify(this))) return;
         if (System.currentTimeMillis() < Store.bypassUntil(this)) return;
-        if (last.on() || Float.isNaN(last.speed) || last.speed > 0f) return;
+        if (testRunning || (sheet != null && sheet.showing())) return;
+        // 1.3.1: senza velocità (SWI69: NaN) si chiede lo stesso, la conferma dice di stare fermi; il test si ferma da solo
+        if (!last.connected || last.on() || (!Float.isNaN(last.speed) && last.speed > 0f)) return;
+        Store.setAskedVerify(this, ver);
+        Store.event(this, "verifica di " + ver + " proposta all'apertura");
         if (sheet == null) sheet = new Sheet(this, root, view);
         confirmVerify();
     }
@@ -646,6 +707,7 @@ public final class ClimaActivity extends Activity {
     @Override
     protected void onPause() {
         shadeBlock(false);
+        ClimaGuard.edges(this, 0);
         super.onPause();
     }
 
@@ -656,8 +718,9 @@ public final class ClimaActivity extends Activity {
         if (view != null) view.theme();
     }
 
-    private float swipeX, swipeY;
-    private long swipeT;
+    private android.view.GestureDetector swipe;
+    private boolean swiped;
+    private long lastMissAt;
 
     /** Disinstallazione di MG4 Clima (1.3.0): come nel launcher, ma senza toccare l'accessibilità (Android la toglie col pacchetto). */
     private void confirmUninstall() {
@@ -707,31 +770,59 @@ public final class ClimaActivity extends Activity {
         }
     }
 
-    /** Chiusura con swipe (1.3.0): osserva il tocco senza consumarlo, così i tasti restano uguali. */
+    /**
+     * Chiusura con swipe dentro il pannello (1.3.1, come MG4 Swipe): GestureDetector.onFling, almeno 100 px in
+     * verticale e velocità 100, ovunque parta. Osserva il tocco senza consumarlo, così i tasti restano uguali; solo
+     * lo swipe riconosciuto consuma il sollevamento del dito (niente tocco su un tasto). Con le impostazioni aperte no.
+     */
     @Override
     public boolean dispatchTouchEvent(android.view.MotionEvent e) {
         int mode = Store.swipeMode(this);
-        if (mode != 0 && (sheet == null || !sheet.showing())) {
-            int a = e.getActionMasked();
-            if (a == android.view.MotionEvent.ACTION_DOWN) {
-                swipeX = e.getX();
-                swipeY = e.getY();
-                swipeT = e.getEventTime();
-            } else if (a == android.view.MotionEvent.ACTION_UP) {
-                float dx = e.getX() - swipeX, dy = e.getY() - swipeY;
-                long dt = e.getEventTime() - swipeT;
-                float h = getResources().getDisplayMetrics().heightPixels;
-                boolean longEnough = Math.abs(dy) > h * 0.25f && Math.abs(dx) < Math.abs(dy) / 2 && dt < 700;
-                boolean up = dy < 0;
-                // mode 1: parte dalla metà bassa e sale; mode 2: parte dalla metà alta e scende
-                boolean fromBottom = swipeY > h / 2;
-                if (longEnough && ((mode == 1 && up && fromBottom) || (mode == 2 && !up && !fromBottom))) {
-                    onBackPressed();
+        if (mode != Store.SWIPE_OFF && swipe != null && (sheet == null || !sheet.showing())) {
+            if (e.getActionMasked() == android.view.MotionEvent.ACTION_DOWN) {
+                swiped = false;
+                downY = e.getRawY();
+                downX = e.getRawX();
+            }
+            swipe.onTouchEvent(e);
+            if (e.getActionMasked() == android.view.MotionEvent.ACTION_UP) {
+                if (swiped) {
+                    close(swipeHow);
                     return true;
+                }
+                // gesto verticale lungo ma non valido (troppo lento o storto): nel log, al massimo ogni 3 s
+                float dy = e.getRawY() - downY, dx = e.getRawX() - downX;
+                long now = android.os.SystemClock.elapsedRealtime();
+                if (Math.abs(dy) >= 60 && Math.abs(dy) > Math.abs(dx) && now - lastMissAt > 3000) {
+                    lastMissAt = now;
+                    Store.event(this, "chiusura: swipe " + (dy < 0 ? "verso l'alto" : "verso il basso") + " nel pannello ("
+                            + Math.round(Math.abs(dy)) + " px) non riconosciuto (modo " + Store.swipeName(mode) + ")");
                 }
             }
         }
         return super.dispatchTouchEvent(e);
+    }
+
+    private float downX, downY;
+    private String swipeHow = "";
+
+    private boolean onSwipe(android.view.MotionEvent e1, android.view.MotionEvent e2, float vy) {
+        if (e1 == null) return false;
+        float dy = e2.getRawY() - e1.getRawY(), dx = e2.getRawX() - e1.getRawX();
+        int mode = Store.swipeMode(this);
+        boolean up = dy < 0;
+        boolean dirOk = mode == Store.SWIPE_AUTO || (mode == Store.SWIPE_UP && up) || (mode == Store.SWIPE_DOWN && !up);
+        boolean ok = Math.abs(dy) > 100 && Math.abs(vy) > 100 && Math.abs(dy) > Math.abs(dx) * 1.5f && dirOk;
+        String g = "swipe " + (up ? "verso l'alto" : "verso il basso") + " nel pannello (" + Math.round(Math.abs(dy))
+                + " px, velocità " + Math.round(Math.abs(vy)) + ")";
+        if (!ok) {
+            lastMissAt = android.os.SystemClock.elapsedRealtime();
+            Store.event(this, "chiusura: " + g + " non riconosciuto (modo " + Store.swipeName(mode) + ")");
+            return false;
+        }
+        swiped = true;
+        swipeHow = g;
+        return true;
     }
 
     /** Chiudendo si torna alla home (sotto c'è l'app clima originale, che non si vuole rivedere). */
@@ -741,6 +832,15 @@ public final class ClimaActivity extends Activity {
             sheet.close();
             return;
         }
+        boolean edge = android.os.SystemClock.elapsedRealtime() - ClimaGuard.edgeBackAt < 1500;
+        ClimaGuard.edgeBackAt = 0;
+        close(edge ? "swipe dal bordo" : "tasto indietro");
+    }
+
+    /** 1.3.1: ogni chiusura va nel log con il modo in cui è avvenuta. */
+    private void close(String how) {
+        if (sheet != null && sheet.showing()) sheet.close();
+        Store.event(this, "chiusura: " + how + " → chiusa");
         try {
             startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         } catch (Throwable ignored) {

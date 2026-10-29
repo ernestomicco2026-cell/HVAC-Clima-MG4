@@ -34,7 +34,7 @@
     <string name="t_wheel" formatted="false">Volante</string>
     <string name="t_driver" formatted="false">Conductor</string>
     <string name="t_passenger" formatted="false">Pasajero</string>
-    <string name="a_original_unverified">App de clima original %1$s no verificada: MG4 Clima no la sustituye.</string>
+    <string name="a_original_unverified">App de clima original %1$s aún no verificada: MG4 Clima no la sustituye. Haz la verificación en Ajustes → Herramientas → Verificar app de clima (coche parado, clima apagado, unos 2 minutos).</string>
     <string name="a_test_running" formatted="false">Prueba automática en curso…</string>
     <string name="a_not_connected" formatted="false">Servicio de clima aún no conectado</string>
     <string name="a_switch_on" formatted="false">Enciende el coche para usar el clima</string>
@@ -126,8 +126,9 @@
     <string name="s_officina_on">Activa hasta el %1$s</string>
     <string name="c_officina_msg">Durante %1$d días MG4 Clima no sustituirá la app de clima original. Puedes cancelarlo cuando quieras desde esta pantalla.</string>
     <string name="s_swipe" formatted="false">Cerrar con deslizamiento</string>
-    <string name="s_swipe_sub" formatted="false">Desliza desde el borde elegido para volver al inicio</string>
+    <string name="s_swipe_sub" formatted="false">Desliza en vertical sobre el panel o desde el borde de la pantalla para volver al inicio</string>
     <string name="s_swipe_off" formatted="false">Apagado</string>
+    <string name="s_swipe_auto" formatted="false">Automático</string>
     <string name="s_swipe_bottom" formatted="false">Desde abajo</string>
     <string name="s_swipe_top" formatted="false">Desde arriba</string>
     <string name="s_uninstall" formatted="false">Desinstalar MG4 Clima</string>

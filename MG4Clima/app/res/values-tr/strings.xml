@@ -34,7 +34,7 @@
     <string name="t_wheel" formatted="false">Direksiyon</string>
     <string name="t_driver" formatted="false">Sürücü</string>
     <string name="t_passenger" formatted="false">Yolcu</string>
-    <string name="a_original_unverified">Orijinal klima uygulaması %1$s doğrulanmadı: MG4 Klima onun yerini almıyor.</string>
+    <string name="a_original_unverified">Orijinal klima uygulaması %1$s henüz doğrulanmadı: MG4 Klima onun yerini almıyor. Ayarlar → Araçlar → Klima uygulamasını doğrula ile doğrulamayı yap (araç durmuş, klima kapalı, yaklaşık 2 dakika).</string>
     <string name="a_test_running" formatted="false">Otomatik test sürüyor…</string>
     <string name="a_not_connected" formatted="false">Klima hizmeti henüz bağlı değil</string>
     <string name="a_switch_on" formatted="false">Klimayı kullanmak için aracı çalıştır</string>
@@ -126,8 +126,9 @@
     <string name="s_officina_on">%1$s tarihine kadar aktif</string>
     <string name="c_officina_msg">%1$d gün boyunca MG4 Klima orijinal klima uygulamasını değiştirmez. Bu ekrandan istediğin zaman iptal edebilirsin.</string>
     <string name="s_swipe" formatted="false">Kaydırarak kapat</string>
-    <string name="s_swipe_sub" formatted="false">Ana ekrana dönmek için seçilen kenardan kaydır</string>
+    <string name="s_swipe_sub" formatted="false">Ana ekrana dönmek için panelde veya ekran kenarından dikey kaydır</string>
     <string name="s_swipe_off" formatted="false">Kapalı</string>
+    <string name="s_swipe_auto" formatted="false">Otomatik</string>
     <string name="s_swipe_bottom" formatted="false">Alttan</string>
     <string name="s_swipe_top" formatted="false">Üstten</string>
     <string name="s_uninstall" formatted="false">MG4 Klima\'yı kaldır</string>

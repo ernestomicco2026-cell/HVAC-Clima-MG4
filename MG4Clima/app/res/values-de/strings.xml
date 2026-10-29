@@ -34,7 +34,7 @@
     <string name="t_wheel" formatted="false">Lenkrad</string>
     <string name="t_driver" formatted="false">Fahrer</string>
     <string name="t_passenger" formatted="false">Beifahrer</string>
-    <string name="a_original_unverified">Original-Klima-App %1$s nicht geprüft: MG4 Klima ersetzt sie nicht.</string>
+    <string name="a_original_unverified">Original-Klima-App %1$s noch nicht geprüft: MG4 Klima ersetzt sie nicht. Prüfung unter Einstellungen → Werkzeuge → Klima-App prüfen starten (Auto steht, Klima aus, etwa 2 Minuten).</string>
     <string name="a_test_running" formatted="false">Automatischer Test läuft…</string>
     <string name="a_not_connected" formatted="false">Klimadienst noch nicht verbunden</string>
     <string name="a_switch_on" formatted="false">Schalte das Auto ein, um die Klimaanlage zu nutzen</string>
@@ -126,8 +126,9 @@
     <string name="s_officina_on">Aktiv bis %1$s</string>
     <string name="c_officina_msg">Für %1$d Tage ersetzt MG4 Klima die Original-Klima-App nicht. Du kannst jederzeit auf diesem Bildschirm abbrechen.</string>
     <string name="s_swipe" formatted="false">Mit Wischgeste schließen</string>
-    <string name="s_swipe_sub" formatted="false">Vom gewählten Rand wischen, um zum Startbildschirm zu gelangen</string>
+    <string name="s_swipe_sub" formatted="false">Senkrecht auf dem Feld oder vom Bildschirmrand wischen, um zum Startbildschirm zu gelangen</string>
     <string name="s_swipe_off" formatted="false">Aus</string>
+    <string name="s_swipe_auto" formatted="false">Automatisch</string>
     <string name="s_swipe_bottom" formatted="false">Von unten</string>
     <string name="s_swipe_top" formatted="false">Von oben</string>
     <string name="s_uninstall" formatted="false">MG4 Klima deinstallieren</string>

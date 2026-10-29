@@ -207,6 +207,22 @@ public final class AutoTest {
             send("AUTO (ripristino)", HvacClient.SET_AUTO_PRESS, 1);
             waitFor(s -> s.auto, x -> x == 1);
         }
+        // 1.3.1: AUTO porta il ricircolo in automatico (1 → 2) e uscendo da AUTO resta così: si rimette com'era
+        // premendo il tasto finché torna al valore di partenza (al massimo 3 pressioni). Non conta nel risultato.
+        int l0 = s1.loop;
+        if (s1.auto != 1 && l0 >= 0 && safe().loop != l0) {
+            int lv = safe().loop;
+            StringBuilder seq = new StringBuilder().append(lv);
+            for (int i = 0; i < 3 && lv != l0; i++) {
+                SystemClock.sleep(600);
+                send("ricircolo (ripristino " + (i + 1) + ")", HvacClient.SET_LOOP_PRESS, 1);
+                final int before = lv;
+                lv = waitFor(s -> s.loop, x -> x != before);
+                seq.append(" → ").append(lv);
+                if (lv == before) break;
+            }
+            log((lv == l0 ? "✓" : "✗") + " ricircolo (ripristino) " + seq + (lv == l0 ? "" : " (non è tornato a " + l0 + ")"));
+        }
         if (poweredOn) {
             SystemClock.sleep(800);
             send("spegnimento clima (era spento)", HvacClient.SET_POWER_PRESS, 1);

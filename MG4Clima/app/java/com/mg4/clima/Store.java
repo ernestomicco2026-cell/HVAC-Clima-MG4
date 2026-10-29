@@ -113,9 +113,33 @@ public final class Store {
         sp(c).edit().putBoolean("guidaDestra", on).apply();
     }
 
-    /** Chiusura con swipe (1.3.0): 0 spenta, 1 dal basso verso l'alto, 2 dall'alto verso il basso. */
+    /**
+     * Chiusura con swipe: 0 spenta, 1 dal basso verso l'alto, 2 dall'alto verso il basso, 3 automatica (1.3.1: swipe
+     * verticale in entrambe le direzioni e da entrambi i bordi). 1.3.1: automatica di default (prima spenta).
+     */
+    public static final int SWIPE_OFF = 0, SWIPE_UP = 1, SWIPE_DOWN = 2, SWIPE_AUTO = 3;
+
     public static int swipeMode(Context c) {
-        return sp(c).getInt("swipeMode", 0);
+        int m = sp(c).getInt("swipeMode", SWIPE_AUTO);
+        return m >= SWIPE_OFF && m <= SWIPE_AUTO ? m : SWIPE_AUTO;
+    }
+
+    static String swipeName(int m) {
+        return m == SWIPE_OFF ? "spenta" : m == SWIPE_UP ? "verso l'alto" : m == SWIPE_DOWN ? "verso il basso" : "automatica";
+    }
+
+    /** Versione per cui è già stata chiesta la verifica all'apertura (1.3.1: una volta per versione). */
+    public static String askedVerify(Context c) {
+        return sp(c).getString("verificaChiesta", "");
+    }
+
+    public static void setAskedVerify(Context c, String v) {
+        sp(c).edit().putString("verificaChiesta", v == null ? "" : v).apply();
+    }
+
+    /** Ora con i millisecondi, per misurare il lampeggio (1.3.1). */
+    public static String ms(long wall) {
+        return new SimpleDateFormat("HH:mm:ss.SSS", Locale.ITALY).format(new Date(wall));
     }
 
     public static void setSwipeMode(Context c, int m) {
@@ -208,9 +232,10 @@ public final class Store {
         int pm = panelMode(c);
         sb.append("lingua: ").append(language(c)).append(" · cruscotto: ").append(dashStyle(c) == STYLE_PHOTO ? "realistico" : "disegnato")
                 .append(" · tasti parabrezza/lunotto: ").append(defrostTiles(c) ? "sì" : "no").append('\n');
-        sb.append("chiusura pannello/tendina: ").append(pm == PANEL_ALWAYS ? "sempre" : pm == PANEL_WITH_APP ? "solo con MG4 Clima aperto" : "spenta").append('\n');
-        sb.append("app clima originale: ").append(ClimaGuard.originalVersion(c))
-                .append(ClimaGuard.originalKnown(c) ? " (verificata)" : " (non verificata: niente sostituzione)").append('\n');
+        sb.append("chiusura pannello/tendina: ").append(pm == PANEL_ALWAYS ? "sempre" : pm == PANEL_WITH_APP ? "solo con MG4 Clima aperto" : "spenta")
+                .append(Model.sysUiPanel(c) ? " · interfaccia pannello di sistema: " + SysUiPanel.interfaceName() : "").append('\n');
+        sb.append("chiusura con swipe: ").append(swipeName(swipeMode(c))).append('\n');
+        sb.append("app clima originale: ").append(ClimaGuard.originalLine(c)).append('\n');
         sb.append("sostituzione: ").append(replace(c) ? "attiva" : "spenta")
                 .append(bypassed(c) ? " (sospesa: app originale aperta apposta)" : "")
                 .append(" · accessibilità: ").append(ClimaGuard.enabledState(c)).append('\n');

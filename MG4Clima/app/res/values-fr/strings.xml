@@ -34,7 +34,7 @@
     <string name="t_wheel" formatted="false">Volant</string>
     <string name="t_driver" formatted="false">Conducteur</string>
     <string name="t_passenger" formatted="false">Passager</string>
-    <string name="a_original_unverified">Appli climat d\'origine %1$s non vérifiée : MG4 Climat ne la remplace pas.</string>
+    <string name="a_original_unverified">Appli climat d\'origine %1$s pas encore vérifiée : MG4 Climat ne la remplace pas. Lance la vérification dans Réglages → Outils → Vérifier l\'appli climat (voiture à l\'arrêt, climatisation éteinte, environ 2 minutes).</string>
     <string name="a_test_running" formatted="false">Test automatique en cours…</string>
     <string name="a_not_connected" formatted="false">Service climat pas encore connecté</string>
     <string name="a_switch_on" formatted="false">Allume la voiture pour utiliser la climatisation</string>
@@ -126,8 +126,9 @@
     <string name="s_officina_on">Active jusqu\'au %1$s</string>
     <string name="c_officina_msg">Pendant %1$d jours, MG4 Climat ne remplace pas l\'appli climat d\'origine. Tu peux annuler à tout moment depuis cet écran.</string>
     <string name="s_swipe" formatted="false">Fermer par glissement</string>
-    <string name="s_swipe_sub" formatted="false">Glisse depuis le bord choisi pour revenir à l\'accueil</string>
+    <string name="s_swipe_sub" formatted="false">Glisse verticalement sur le panneau ou depuis le bord de l\'écran pour revenir à l\'accueil</string>
     <string name="s_swipe_off" formatted="false">Désactivé</string>
+    <string name="s_swipe_auto" formatted="false">Automatique</string>
     <string name="s_swipe_bottom" formatted="false">Du bas</string>
     <string name="s_swipe_top" formatted="false">Du haut</string>
     <string name="s_uninstall" formatted="false">Désinstaller MG4 Climat</string>

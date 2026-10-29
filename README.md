@@ -50,7 +50,7 @@ Se ti è utile e ti va di contribuire alle ore passate a svilupparlo e provarlo 
 
 | Software dell'auto / Car software | Auto / Car | Versione / Version | Stato / Status | Download |
 |---|---|---|---|---|
-| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.3.0** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.3.0.apk](releases/MG4Clima-1.3.0.apk) |
+| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.3.1** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.3.1.apk](releases/MG4Clima-1.3.1.apk) |
 
 **Un unico APK per tutti i modelli**: il software dell'auto si riconosce da solo. Dalla 1.0.0 gli aggiornamenti si
 
@@ -173,7 +173,7 @@ disinstallata tutto torna come prima.
 
 - Sostituisce solo le versioni dell'app clima già analizzate; con una versione sconosciuta lascia l'originale.
 
-- Anti-ciclo: se l'app originale si riapre più di 3 volte in 10 secondi, MG4 Clima si mette in pausa per 2 minuti.
+- Anti-ciclo: al massimo una sostituzione ogni 4 secondi; se l'app originale si riapre subito viene lasciata, e dopo 3 sostituzioni in 30 secondi MG4 Clima si mette in pausa per 2 minuti.
 
 - Nessun dato personale: le impostazioni restano nell'auto, i log diagnostici sono anonimi.
 
@@ -198,7 +198,7 @@ Scarica l'APK dalla tabella in alto. Poi scegli uno dei due metodi.
 
 Serve poter aprire un file manager sull'infotainment.
 
-1. Copia `MG4Clima-1.3.0.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
+1. Copia `MG4Clima-1.3.1.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
 2. Inserisci la chiavetta nell'auto, apri il file manager e tocca l'APK.
 3. Se Android avvisa che non può installare app da questa fonte: tocca **Impostazioni**, attiva
    **Consenti da questa fonte** per il file manager e torna indietro.
@@ -216,7 +216,7 @@ Il firmware MG può bloccare l'installazione normale delle app: l'opzione `-f` l
 1. Installa:
 
    ```bash
-   adb install -r -f MG4Clima-1.3.0.apk
+   adb install -r -f MG4Clima-1.3.1.apk
    ```
 
 2. Apri il clima come al solito (tasto, barra o launcher): al primo avvio MG4 Clima si attiva da sola.
@@ -245,6 +245,17 @@ o una segnalazione sono un aiuto prezioso. Grazie!
 [![Offrimi un caffè con PayPal](https://img.shields.io/badge/Offrimi%20un%20caff%C3%A8-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/pool/9tv7fQ36nA?sr=wccr)
 
 ### Versioni
+
+#### 1.3.1
+- Chiusura con swipe più affidabile: nuova scelta **Automatico** (predefinita), swipe verticale sul pannello o dal bordo alto/basso dello schermo, tocco fuori dal pannello e tasto indietro. Ogni chiusura finisce nel log.
+- Meno lampeggio con l'app clima originale: una sola sostituzione per apertura, al massimo una ogni 4 secondi, apertura senza animazione e con sfondo già scuro. Nel log i millisecondi tra la comparsa dell'originale e l'apertura di MG4 Clima.
+- Pannello clima di sistema: l'interfaccia giusta si chiede al SystemUI dell'auto, non dipende più dal modello (corregge l'errore "Binder invocation to an incorrect interface" sulla SWI68 con software vecchio, es. R40).
+- Riconosciuto il software SWI165 (stessa app clima della SWI68).
+- Versioni dell'app clima originale HVAC.41131 e HVAC.47141 riconosciute come verificate.
+- Test automatico: alla fine il ricircolo torna com'era.
+- La richiesta di verifica compare anche quando l'auto non fornisce la velocità (SWI69); messaggio più chiaro per le versioni non verificate.
+- SWI133: modello riconosciuto in automatico dal software; versione del clima originale più completa nei log.
+- I valori che l'auto non fornisce non si mostrano più (es. impostazioni del clima automatico sulla SWI132).
 
 #### 1.3.0
 - Verifica dell'app clima originale: con una versione nuova MG4 Clima chiede di verificarla prima di sostituirla (Strumenti → Verifica app clima).
@@ -422,7 +433,7 @@ Clima is uninstalled everything goes back to how it was.
 
 - It only replaces the climate app versions that have been analysed; with an unknown version it leaves the original.
 
-- Anti-loop: if the original app reopens more than 3 times in 10 seconds, MG4 Clima pauses for 2 minutes.
+- Anti-loop: at most one replacement every 4 seconds; if the original app reopens straight away it is left alone, and after 3 replacements in 30 seconds MG4 Clima pauses for 2 minutes.
 
 - No personal data: settings stay in the car, diagnostic logs are anonymous.
 
@@ -447,7 +458,7 @@ Download the APK from the table at the top. Then pick one of the two methods.
 
 You need to be able to open a file manager on the infotainment.
 
-1. Copy `MG4Clima-1.3.0.apk` to a USB stick formatted as **FAT32** or **exFAT**.
+1. Copy `MG4Clima-1.3.1.apk` to a USB stick formatted as **FAT32** or **exFAT**.
 2. Plug it into the car, open the file manager and tap the APK.
 3. If Android says it cannot install apps from this source: tap **Settings**, enable
    **Allow from this source** for the file manager and go back.
@@ -464,7 +475,7 @@ The MG firmware may block normal app installs; the `-f` option allows it.
 1. Install it:
 
    ```bash
-   adb install -r -f MG4Clima-1.3.0.apk
+   adb install -r -f MG4Clima-1.3.1.apk
    ```
 
 2. Open the climate as usual (button, bar or launcher): MG4 Clima activates itself on first start.
@@ -495,6 +506,17 @@ A star on the repository or a bug report also help a lot. Thank you!
 
 
 ### Changelog
+
+#### 1.3.1
+- More reliable swipe to close: new **Automatic** option (default), vertical swipe on the panel or from the top/bottom edge of the screen, tap outside the panel and back key. Every close is logged.
+- Less flicker with the original climate app: one replacement per opening, at most one every 4 seconds, opened without animation and with a dark background straight away. The log shows the milliseconds between the original appearing and MG4 Climate opening.
+- System climate panel: the right interface is asked to the car's SystemUI and no longer depends on the model (fixes the "Binder invocation to an incorrect interface" error on SWI68 with old software, e.g. R40).
+- SWI165 software recognised (same climate app as SWI68).
+- Original climate app versions HVAC.41131 and HVAC.47141 recognised as verified.
+- Automatic test: recirculation goes back to how it was at the end.
+- The verification request also appears when the car doesn't provide the speed (SWI69); clearer message for unverified versions.
+- SWI133: model detected automatically from the software; fuller original climate version in the logs.
+- Values the car doesn't provide are no longer shown (e.g. automatic climate settings on SWI132).
 
 #### 1.3.0
 - Original climate app verification: with a new version, MG4 Climate asks to verify it before replacing it (Tools → Verify climate app).

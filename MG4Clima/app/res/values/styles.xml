@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 1.3.1: la finestra di MG4 Clima nasce già con lo sfondo scuro e senza animazione, così copre subito l'app
+     clima originale (niente lampeggio bianco o dissolvenza mentre la schermata si disegna). -->
+<resources>
+    <style name="Clima" parent="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@color/clima_bg</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowDisablePreview">false</item>
+    </style>
+    <color name="clima_bg">#FF080A10</color>
+</resources>

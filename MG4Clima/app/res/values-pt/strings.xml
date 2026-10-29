@@ -34,7 +34,7 @@
     <string name="t_wheel" formatted="false">Volante</string>
     <string name="t_driver" formatted="false">Condutor</string>
     <string name="t_passenger" formatted="false">Passageiro</string>
-    <string name="a_original_unverified">App de climatização original %1$s não verificada: o MG4 Clima não a substitui.</string>
+    <string name="a_original_unverified">App de climatização original %1$s ainda não verificada: o MG4 Clima não a substitui. Faz a verificação em Definições → Ferramentas → Verificar app de climatização (carro parado, climatização desligada, cerca de 2 minutos).</string>
     <string name="a_test_running" formatted="false">Teste automático em curso…</string>
     <string name="a_not_connected" formatted="false">Serviço de climatização ainda não ligado</string>
     <string name="a_switch_on" formatted="false">Liga o carro para usar a climatização</string>
@@ -126,8 +126,9 @@
     <string name="s_officina_on">Ativa até %1$s</string>
     <string name="c_officina_msg">Durante %1$d dias o MG4 Clima não substitui a app de climatização original. Podes cancelar a qualquer momento neste ecrã.</string>
     <string name="s_swipe" formatted="false">Fechar com deslizar</string>
-    <string name="s_swipe_sub" formatted="false">Desliza a partir da borda escolhida para voltar ao início</string>
+    <string name="s_swipe_sub" formatted="false">Desliza na vertical no painel ou a partir da borda do ecrã para voltar ao início</string>
     <string name="s_swipe_off" formatted="false">Desligado</string>
+    <string name="s_swipe_auto" formatted="false">Automático</string>
     <string name="s_swipe_bottom" formatted="false">De baixo</string>
     <string name="s_swipe_top" formatted="false">De cima</string>
     <string name="s_uninstall" formatted="false">Desinstalar MG4 Clima</string>

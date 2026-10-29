@@ -98,17 +98,26 @@ public final class HvacClient {
             return hasSeats && seatConfig != 2;
         }
 
+        /** 1.3.1: valore che l'auto non fornisce (-1 / NaN) scritto in chiaro nei log. */
+        private static String nv(int v) {
+            return v < 0 ? "non fornito" : String.valueOf(v);
+        }
+
+        private static String nv(float v) {
+            return Float.isNaN(v) ? "non fornita" : String.valueOf(v);
+        }
+
         public String dump() {
             return model + " · collegato " + connected + (caradapter ? " · servizio caradapter"
                     : " · clima disponibile " + acAvailable + " · accensione " + ignition)
                     + "\nacceso " + power + " · temperatura " + temp + " (" + tempMin + "=LO, " + tempMax + "=HI)"
                     + " · ventola " + fan + " (" + fanMin + "–" + fanMax + ")"
                     + "\nAUTO " + auto + " · A/C " + ac + " · ECO " + econ + " · direzione " + blowerMode + " · ricircolo " + loop
-                    + "\nintensità AUTO " + autoLevel + " · segui ECO " + econLink + " · lunotto automatico " + defrostLink
+                    + "\nintensità AUTO " + nv(autoLevel) + " · segui ECO " + nv(econLink) + " · lunotto automatico " + nv(defrostLink)
                     + "\nparabrezza " + frontDefrost + " · lunotto " + rearDefrost
                     + (hasWheel ? " · volante " + wheel : "")
                     + (hasSeats ? "\nsedili " + seatDrv + " / " + seatPsg + " (configurazione " + seatConfig + ")" : "")
-                    + " · esterna " + outTemp + " · velocità " + speed
+                    + " · esterna " + nv(outTemp) + " · velocità " + nv(speed)
                     + (error.isEmpty() ? "" : "\nerrore: " + error);
         }
     }

@@ -35,8 +35,10 @@ public final class ClimaGuard extends AccessibilityService {
     private static String[] original(Context c) {
         switch (Model.get(c)) {
             case Model.SWI68:
+                // 1.3.1: HVAC.41131 (SWI68 R40, verifica 25/25) e HVAC.47141 (SWI165-29176, verifica 23/23),
+                // verificate in auto dagli utenti con la verifica della 1.3.0
                 return new String[]{"com.saicmotor.hmi.hvac", "com.saicmotor.hmi.hvac.HvacActivity",
-                        "HVAC.44041", "HVAC.4C051", "1.0.0_EH32_SOP_2502201112"};
+                        "HVAC.44041", "HVAC.4C051", "1.0.0_EH32_SOP_2502201112", "HVAC.41131", "HVAC.47141"};
             case Model.SWI69:
             case Model.SWI132:   // SWI69 R45 e SWI132 R43: stesso file
                 return new String[]{"com.saicmotor.hvac", "com.saicmotor.hvac.ui.activity.MainActivity", "A9_Hvac_V1.0.1.120"};
@@ -58,17 +60,44 @@ public final class ClimaGuard extends AccessibilityService {
         return !"-".equals(hvacMain(c));
     }
 
-    private static final long LOOP_WINDOW_MS = 10_000, LOOP_PAUSE_MS = 2 * 60_000L;
+    private static final long LOOP_WINDOW_MS = 30_000, LOOP_PAUSE_MS = 2 * 60_000L;
     private static final int LOOP_MAX = 3;
+    /** 1.3.1: eventi doppi della stessa apertura (DUP_MS) e al massimo una sostituzione ogni GAP_MS. */
+    private static final long DUP_MS = 1500, GAP_MS = 4000;
+    private long lastReplaceAt = -60_000, dupLogged;
     private final ArrayDeque<Long> seen = new ArrayDeque<>();
     private long pausedUntil = -1;
 
     public static String originalVersion(Context c) {
         try {
-            return c.getPackageManager().getPackageInfo(hvacPkg(c), 0).versionName;
+            String v = c.getPackageManager().getPackageInfo(hvacPkg(c), 0).versionName;
+            return v == null || v.isEmpty() ? "senza nome" : v;
         } catch (Exception e) {
             return "assente";
         }
+    }
+
+    /**
+     * 1.3.1: versione completa per i log: pacchetto, versionName e versionCode (sulla SWI133 il versionName è solo
+     * "9", il codice dice di più). Sulla SWI133 il clima originale è il pannello del SystemUI.
+     */
+    public static String originalDetails(Context c) {
+        String pkg = hasOriginalApp(c) ? hvacPkg(c) : "com.android.systemui";
+        try {
+            android.content.pm.PackageInfo pi = c.getPackageManager().getPackageInfo(pkg, 0);
+            @SuppressWarnings("deprecation") long code = pi.versionCode;
+            return pkg + " " + pi.versionName + " (codice " + code + ")"
+                    + (hasOriginalApp(c) ? "" : " · " + hvacPkg(c) + " " + originalVersion(c));
+        } catch (Exception e) {
+            return pkg + " assente";
+        }
+    }
+
+    /** Riga per la diagnostica: sulla SWI133 non c'è un'app da verificare (si apre il pannello di sistema). */
+    public static String originalLine(Context c) {
+        if (!hasOriginalApp(c)) return "pannello del SystemUI (nessuna app da sostituire) · " + originalDetails(c);
+        return originalVersion(c) + (originalKnown(c) ? " (verificata)" : " (non verificata: niente sostituzione)")
+                + " · " + originalDetails(c);
     }
 
     public static boolean originalKnown(Context c) {
@@ -261,8 +290,8 @@ public final class ClimaGuard extends AccessibilityService {
         panel = Model.sysUiPanel(this);
         hvacPkg = hvacPkg(this);
         hvacMain = hvacMain(this);
-        Store.event(this, "servizio collegato · " + Model.get(this) + " · app clima " + originalVersion(this)
-                + (originalKnown(this) ? " (verificata)" : " (non verificata)"));
+        Store.event(this, "servizio collegato · " + Model.get(this) + " · clima originale " + originalLine(this));
+        instance = this;
         if (bg == null) {
             android.os.HandlerThread th = new android.os.HandlerThread("mg4-clima-guard");
             th.start();
@@ -274,6 +303,8 @@ public final class ClimaGuard extends AccessibilityService {
 
     @Override
     public void onDestroy() {
+        if (instance == this) instance = null;
+        edgesOff();
         if (bg != null) bg.removeCallbacksAndMessages(null);
         if (hvac != null) hvac.stop();
         super.onDestroy();
@@ -305,7 +336,22 @@ public final class ClimaGuard extends AccessibilityService {
             return;
         }
         long now = SystemClock.elapsedRealtime();
+        // 1.3.1: istante preciso in cui la finestra originale è comparsa (ora dell'evento, in ms)
+        long shownAt = System.currentTimeMillis() - Math.max(0, SystemClock.uptimeMillis() - e.getEventTime());
         if (pausedUntil > now) return;
+        // 1.3.1: la stessa apertura arriva spesso con due eventi di seguito: una sola sostituzione
+        if (now - lastReplaceAt < DUP_MS) {
+            if (dupLogged != lastReplaceAt) {
+                dupLogged = lastReplaceAt;
+                Store.event(this, "app clima originale: evento doppio ignorato (" + (now - lastReplaceAt) + " ms dopo la sostituzione)");
+            }
+            return;
+        }
+        // 1.3.1: se l'originale si riapre subito dopo la sostituzione la si lascia (niente alternanza tra le due)
+        if (now - lastReplaceAt < GAP_MS) {
+            Store.event(this, "app clima originale riaperta " + (now - lastReplaceAt) + " ms dopo la sostituzione: lasciata");
+            return;
+        }
         seen.addLast(now);
         while (!seen.isEmpty() && now - seen.peekFirst() > LOOP_WINDOW_MS) seen.removeFirst();
         if (seen.size() > LOOP_MAX) {
@@ -315,12 +361,114 @@ public final class ClimaGuard extends AccessibilityService {
             return;
         }
         try {
+            lastReplaceAt = now;
+            Store.event(this, "app clima originale comparsa alle " + Store.ms(shownAt) + " (evento ricevuto dopo "
+                    + Math.max(0, System.currentTimeMillis() - shownAt) + " ms)");
             startActivity(new Intent(this, ClimaActivity.class)
+                    .putExtra(ClimaActivity.EXTRA_ORIGINAL_AT, shownAt)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION));
             Store.event(this, "app clima originale sostituita");
         } catch (Throwable t) {
             Store.event(this, "sostituzione non riuscita: " + t);
         }
+    }
+
+    // ---- 1.3.1: swipe dal bordo per chiudere MG4 Clima (come MG4 Swipe) -----------------------------------------
+    // In alto e in basso ci sono le barre del sistema: uno swipe che parte da lì non arriva mai a MG4 Clima. Finché
+    // MG4 Clima è in primo piano il servizio mette due strisce invisibili sottili sui bordi (finestre di
+    // accessibilità: nessun permesso di sovrapposizione), riconosce il gesto (almeno 100 px e velocità 100, come
+    // MG4 Swipe) e manda "indietro" con performGlobalAction. Appena MG4 Clima esce le strisce si tolgono.
+
+    private static volatile ClimaGuard instance;
+    /** Ultimo "indietro" mandato da una striscia (per distinguere nel log lo swipe dal bordo dal tasto indietro). */
+    static volatile long edgeBackAt;
+    private static boolean edgeWarned;
+    private static final int EDGE_PX = 12, SWIPE_MIN = 100, SWIPE_VEL = 100;
+    private android.view.View edgeTop, edgeBottom;
+
+    /** Accende (mode 1 = bordo basso, 2 = bordo alto, 3 = entrambi) o spegne (0) le strisce. Dal thread principale. */
+    static void edges(Context c, int mode) {
+        ClimaGuard g = instance;
+        if (g == null) {
+            if (mode != 0 && !edgeWarned) {
+                edgeWarned = true;
+                Store.event(c, "chiusura dal bordo non disponibile: servizio di accessibilità non collegato");
+            }
+            return;
+        }
+        g.edgesOff();
+        if (mode == 0) return;
+        try {
+            if (mode == 1 || mode == 3) g.edgeBottom = g.edge(false);
+            if (mode == 2 || mode == 3) g.edgeTop = g.edge(true);
+        } catch (Throwable t) {
+            Store.event(c, "chiusura dal bordo: strisce non aggiunte " + t);
+            g.edgesOff();
+        }
+    }
+
+    private android.view.View edge(final boolean top) {
+        android.view.WindowManager wm = (android.view.WindowManager) getSystemService(WINDOW_SERVICE);
+        android.view.WindowManager.LayoutParams lp = new android.view.WindowManager.LayoutParams(
+                android.view.WindowManager.LayoutParams.MATCH_PARENT, EDGE_PX,
+                android.view.WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+                android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                        | android.view.WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                        | android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                android.graphics.PixelFormat.TRANSLUCENT);
+        lp.gravity = (top ? android.view.Gravity.TOP : android.view.Gravity.BOTTOM) | android.view.Gravity.LEFT;
+        lp.setTitle("MG4 Clima bordo " + (top ? "alto" : "basso"));
+        android.view.View v = new android.view.View(this);
+        final android.view.GestureDetector gd = new android.view.GestureDetector(this,
+                new android.view.GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onDown(android.view.MotionEvent e) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onFling(android.view.MotionEvent e1, android.view.MotionEvent e2, float vx, float vy) {
+                        if (e1 == null) return false;
+                        float dy = e2.getRawY() - e1.getRawY();
+                        boolean ok = (top ? dy > SWIPE_MIN : dy < -SWIPE_MIN) && Math.abs(vy) > SWIPE_VEL;
+                        String g = "swipe dal bordo " + (top ? "alto" : "basso") + " (" + Math.round(Math.abs(dy)) + " px, velocità "
+                                + Math.round(Math.abs(vy)) + ")";
+                        if (!ok) {
+                            Store.event(ClimaGuard.this, "chiusura: " + g + " non riconosciuto");
+                            return false;
+                        }
+                        edgeBackAt = SystemClock.elapsedRealtime();
+                        boolean done = performGlobalAction(GLOBAL_ACTION_BACK);
+                        Store.event(ClimaGuard.this, "chiusura: " + g + " → indietro " + (done ? "mandato" : "non riuscito"));
+                        if (!done) {
+                            edgeBackAt = 0;
+                            try {
+                                startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                        return true;
+                    }
+                });
+        v.setOnTouchListener((view, ev) -> {
+            gd.onTouchEvent(ev);
+            return true;
+        });
+        wm.addView(v, lp);
+        return v;
+    }
+
+    private void edgesOff() {
+        android.view.WindowManager wm = (android.view.WindowManager) getSystemService(WINDOW_SERVICE);
+        for (android.view.View v : new android.view.View[]{edgeTop, edgeBottom}) {
+            if (v == null) continue;
+            try {
+                wm.removeView(v);
+            } catch (Throwable ignored) {
+            }
+        }
+        edgeTop = edgeBottom = null;
     }
 
     @Override

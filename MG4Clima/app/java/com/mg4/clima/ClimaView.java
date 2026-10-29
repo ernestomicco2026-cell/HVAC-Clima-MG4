@@ -864,6 +864,8 @@ public final class ClimaView extends View {
                 return true;
             }
         }
+        // 1.3.1: tocco fuori dal pannello (bordo intorno al riquadro) = chiudi
+        if (listener != null && (pt[0] < -4 || pt[0] > W + 4 || pt[1] < -4 || pt[1] > 684)) listener.onTap("fuori");
         return true;
     }
 

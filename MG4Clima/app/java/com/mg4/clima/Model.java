@@ -72,14 +72,10 @@ public final class Model {
     public static synchronized String detected(Context c) {
         if (detected != null) return detected;
         String sw = software();
-        String fromProp = null;
-        String u = sw.trim().toUpperCase(Locale.ROOT);
-        for (String k : new String[]{SWI132, SWI133, SWI68, SWI69}) {
-            if (u.equals(k) || u.startsWith(k + "-") || u.startsWith(k + "_")) fromProp = k;
-        }
+        String fromProp = fromSoftware();
         if (fromProp != null) {
             detected = fromProp;
-            how = "software " + sw;
+            how = "software " + sw + (family(sw) != null ? " (" + family(sw)[1] + ")" : "");
             return detected;
         }
         PackageManager pm = c.getPackageManager();
@@ -99,6 +95,33 @@ public final class Model {
         }
         how = "app di sistema (" + (caradapter ? "caradapter" : "servizio veicolo SAIC") + ")";
         return detected;
+    }
+
+    /**
+     * Software noti con un altro nome, ricondotti al modello con lo stesso clima: {prefisso, spiegazione, modello}.
+     * 1.3.1: SWI165-29176 (stessa piattaforma 29176 della SWI133) ha però l'app clima com.saicmotor.hmi.hvac e il
+     * servizio veicolo SAIC come la SWI68, e il test dei comandi come SWI68 è riuscito (23/23): si usa la SWI68.
+     * L'interfaccia del pannello clima di sistema si legge dal SystemUI (SysUiPanel), quindi va bene in entrambi i casi.
+     */
+    private static final String[][] FAMILY = {
+            {"SWI165", "stessa app clima della SWI68", SWI68},
+    };
+
+    private static String[] family(String sw) {
+        String u = sw == null ? "" : sw.trim().toUpperCase(Locale.ROOT);
+        for (String[] f : FAMILY) if (u.equals(f[0]) || u.startsWith(f[0] + "-") || u.startsWith(f[0] + "_")) return f;
+        return null;
+    }
+
+    /** Modello riconosciuto dal nome del software (ro.build.mt2712.version), null se il nome non dice niente. */
+    public static String fromSoftware() {
+        String sw = software();
+        String u = sw.trim().toUpperCase(Locale.ROOT);
+        for (String k : new String[]{SWI132, SWI133, SWI68, SWI69}) {
+            if (u.equals(k) || u.startsWith(k + "-") || u.startsWith(k + "_")) return k;
+        }
+        String[] f = family(sw);
+        return f != null ? f[2] : null;
     }
 
     /** Nome da mostrare, es. "SWI68 SAIC 1.0+ (MG4 MY22)". */

@@ -1,9 +1,9 @@
 {
   "MG4Clima": {
-    "version": "1.3.0",
-    "apk": "releases/MG4Clima-1.3.0.apk",
-    "size": 432415,
-    "sha256": "e40fabbe6f14dd91416c1fd3b2cf58b9c7722bb235b0d5bd66dc12f3f9017a20",
-    "notes": "Verifica dell'app clima originale: con una versione nuova MG4 Clima chiede di verificarla prima di sostituirla. Modalità officina (1, 3 o 7 giorni). Chiusura con swipe, dal basso o dall'alto. Disinstallazione da Strumenti. Stile realistico sempre scuro; cambio giorno/notte aggiornato subito con l'app aperta."
+    "version": "1.3.1",
+    "apk": "releases/MG4Clima-1.3.1.apk",
+    "size": 440607,
+    "sha256": "9de156c7c62551ca7c1ea6ac9140b54ff3cec830861cffcfbdf97f11ec597364",
+    "notes": "Chiusura con swipe più affidabile (Automatico, dal pannello o dal bordo, tocco fuori, tasto indietro). Meno lampeggio con l'app clima originale. Pannello clima di sistema: interfaccia letta dal SystemUI (corregge l'errore sulla SWI68 R40). Riconosciuto il software SWI165. Ricircolo rimesso com'era dopo il test. Valori non forniti dall'auto nascosti."
   }
 }
