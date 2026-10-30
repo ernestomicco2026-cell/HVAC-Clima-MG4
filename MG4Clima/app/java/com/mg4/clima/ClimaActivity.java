@@ -74,6 +74,7 @@ public final class ClimaActivity extends Activity {
             }
         });
         client = new HvacClient(this);
+        joy = new Joystick(this, (code, down, lp, consumed) -> h.post(() -> onWheelKey(code, down, lp, consumed)));
         // al primo avvio dopo l'installazione attiva la sostituzione dell'app clima
         ClimaGuard.ensureEnabled(this);
         if (ClimaGuard.hasOriginalApp(this) && !ClimaGuard.originalKnown(this)) {
@@ -144,13 +145,23 @@ public final class ClimaActivity extends Activity {
             if (Model.sysUiPanel(this)) SysUiPanel.prepare(this);
         }
         edges();
+        joy.register();   // 1.3.3: tasti del volante solo con la schermata aperta e in primo piano
     }
 
     /** Strisce sui bordi per lo swipe dal bordo, solo mentre MG4 Clima è in primo piano (1.3.1). */
     private void edges() {
         int m = Store.swipeMode(this);
         ClimaGuard.edges(this, m == Store.SWIPE_OFF ? 0 : m == Store.SWIPE_UP ? 1 : m == Store.SWIPE_DOWN ? 2 : 3);
+        // 1.3.3: se dopo qualche secondo il servizio di accessibilità non si è collegato, lo si dice una volta
+        if (m != Store.SWIPE_OFF && !a11yWarned) h.postDelayed(() -> {
+            if (a11yWarned || ClimaGuard.connected() || isFinishing()) return;
+            a11yWarned = true;
+            Store.event(this, "avviso: servizio di accessibilità non collegato (mostrato all'utente)");
+            toastLong(L.s(R.string.a_a11y_off));
+        }, 6000);
     }
+
+    private static boolean a11yWarned;
 
     /** L'ora sul quadro strumenti stilizzato. */
     private final Runnable clock = new Runnable() {
@@ -450,6 +461,15 @@ public final class ClimaActivity extends Activity {
                     Store.event(this, "chiusura con swipe: " + Store.swipeName(swModes[i]));
                     edges();
                 }), false);
+        // 1.3.3: comandi dal joystick del volante (solo con la schermata aperta)
+        int js = Store.joystick(this);
+        s.row(c1, L.s(R.string.s_joy), js != Store.JOY_OFF && !Joystick.complete(this, js) ? L.s(R.string.s_joy_unset) : L.s(R.string.s_joy_sub),
+                s.choices(new String[]{L.s(R.string.s_swipe_off), L.s(R.string.s_joy_right), L.s(R.string.s_joy_left)}, js, i -> {
+                    Store.setJoystick(this, i);
+                    Store.event(this, "comandi dal joystick: " + (i == 0 ? "spenti" : i == 1 ? "joystick destro" : "joystick sinistro")
+                            + (i == 0 ? "" : " (" + Joystick.mapText(this, i) + ")"));
+                    settings();
+                }), false);
         if (panelModel) {
             int pm = Store.panelMode(this);
             s.row(c1, L.s(R.string.s_panel), L.s(R.string.s_panel_sub),
@@ -506,7 +526,8 @@ public final class ClimaActivity extends Activity {
         s.row(c5, L.s(app ? R.string.s_orig_app : R.string.s_orig_panel), L.s(app ? R.string.s_orig_app_sub : R.string.s_orig_panel_sub),
                 s.button(L.s(R.string.b_open), v -> openOriginal()), false);
         if (ClimaGuard.hasOriginalApp(this) && !ClimaGuard.originalKnown(this))
-            s.row(c5, L.s(R.string.s_verify), L.s(R.string.s_verify_sub), s.button(L.s(R.string.b_start), v -> confirmVerify()), false);
+            s.row(c5, L.s(R.string.s_verify), L.s(R.string.s_verify_sub), s.button(L.s(AutoTest.resumable(this, "verifica")
+                    ? R.string.b_resume : R.string.b_start), v -> confirmVerify()), false);
         long oUntil = Store.bypassUntil(this);
         if (System.currentTimeMillis() < oUntil) {
             s.row(c5, L.s(R.string.s_officina), L.f(R.string.s_officina_on,
@@ -521,7 +542,9 @@ public final class ClimaActivity extends Activity {
                     s.choices(new String[]{L.s(R.string.s_officina_1), L.s(R.string.s_officina_3), L.s(R.string.s_officina_7)}, -1,
                             i -> confirmOfficina(new int[]{1, 3, 7}[i])), false);
         }
-        s.row(c5, L.s(R.string.s_test), L.s(R.string.s_test_sub), s.button(L.s(R.string.b_start), v -> confirmTest()), false);
+        s.row(c5, L.s(R.string.s_keys), L.s(R.string.s_keys_sub), s.button(L.s(R.string.b_open), v -> keyTest()), false);
+        s.row(c5, L.s(R.string.s_test), L.s(R.string.s_test_sub), s.button(L.s(AutoTest.resumable(this, "test")
+                ? R.string.b_resume : R.string.b_start), v -> confirmTest()), false);
         s.row(c5, L.s(R.string.s_uninstall), L.s(R.string.s_uninstall_sub),
                 s.button(L.s(R.string.b_uninstall), v -> confirmUninstall()), false);
         s.row(c5, L.s(R.string.s_diag), L.s(R.string.s_diag_sub), s.button(L.s(R.string.b_show), v -> diagnostics()), false);
@@ -628,18 +651,20 @@ public final class ClimaActivity extends Activity {
         testRunning = true;
         banner.setText(L.s(R.string.s_verify));
         banner.setVisibility(View.VISIBLE);
-        Store.event(this, "verifica app clima " + ver + " avviata");
+        Store.event(this, "verifica app clima " + ver + (AutoTest.resumable(this, "verifica") ? " ripresa" : " avviata"));
         AutoTest.start(this, client,
-                x -> h.post(() -> banner.setText(L.s(R.string.s_verify) + " · " + x)),
+                x -> h.post(() -> banner.setText(L.s(R.string.s_verify) + " · " + x)), "verifica",
                 r -> h.post(() -> {
                     boolean ok = !r.startsWith("interrotto") && !r.startsWith("errore") && r.contains(", 0 non riusciti");
+                    boolean moving = r.contains(AutoTest.MOVING);
                     if (ok) Store.addVerified(this, ver);
                     if (ok) Store.setPendingVerify(this, "");
-                    Store.event(this, "verifica " + ver + (ok ? ": riuscita" : ": non riuscita") + " · " + r);
+                    Store.event(this, "verifica " + ver + (ok ? ": riuscita" : moving ? ": interrotta (auto in movimento, si può riprendere)"
+                            : ": non riuscita") + " · " + r);
                     LogSend.send(this, "verifica", res -> h.post(() -> {
                         testRunning = false;
-                        banner.setText((ok ? L.f(R.string.a_verify_ok, ver) : L.f(R.string.a_verify_fail, ver))
-                                + " · log " + ("ok".equals(res) ? "✓" : res));
+                        banner.setText((ok ? L.f(R.string.a_verify_ok, ver) : moving ? L.s(R.string.a_test_moving)
+                                : L.f(R.string.a_verify_fail, ver)) + " · log " + ("ok".equals(res) ? "✓" : res));
                         banner.setOnClickListener(v -> banner.setVisibility(View.GONE));
                         h.postDelayed(() -> banner.setVisibility(View.GONE), 60_000);
                     }));
@@ -667,18 +692,168 @@ public final class ClimaActivity extends Activity {
         testRunning = true;
         banner.setText(L.s(R.string.a_test_start));
         banner.setVisibility(View.VISIBLE);
-        Store.event(this, "test automatico avviato");
+        Store.event(this, "test automatico " + (AutoTest.resumable(this, "test") ? "ripreso" : "avviato"));
         AutoTest.start(this, client,
-                x -> h.post(() -> banner.setText(L.s(R.string.s_test) + " · " + x)),
+                x -> h.post(() -> banner.setText(L.s(R.string.s_test) + " · " + x)), "test",
                 r -> h.post(() -> {
-                    banner.setText(L.f(R.string.a_test_done, r) + " · " + L.s(R.string.a_sending_log));
+                    final String shown = r.contains(AutoTest.MOVING) ? L.s(R.string.a_test_moving) : L.f(R.string.a_test_done, r);
+                    banner.setText(shown + " · " + L.s(R.string.a_sending_log));
                     LogSend.send(this, "test", res -> h.post(() -> {
                         testRunning = false;
-                        banner.setText(L.f(R.string.a_test_done, r) + " · log " + ("ok".equals(res) ? "✓" : res));
+                        banner.setText(shown + " · log " + ("ok".equals(res) ? "✓" : res));
                         banner.setOnClickListener(v -> banner.setVisibility(View.GONE));
                         h.postDelayed(() -> banner.setVisibility(View.GONE), 60_000);
                     }));
                 }));
+    }
+
+    // ---------------------------------------------------------------------------------- joystick del volante (1.3.3)
+
+    private Joystick joy;
+    private boolean consumeLogged;
+    private final java.util.ArrayDeque<String> keysSeen = new java.util.ArrayDeque<>();
+    /** Associazione in corso dalla schermata Prova tasti: joystick (1/2) e passo (indice in Joystick.ACTIONS). */
+    private int assignSide, assignStep = -1;
+    private static final String KEYS = "tasti";
+
+    private void onWheelKey(int code, boolean down, boolean lp, boolean consumed) {
+        if (!consumeLogged && down) {
+            consumeLogged = true;
+            Store.event(this, "joystick: tasti del volante " + (consumed ? "consumati da MG4 Clima (le altre app non li ricevono)"
+                    : "ricevuti anche dalle altre app (il sistema non permette di bloccarli)"));
+        }
+        // schermata Prova tasti: si mostra e si scrive ogni tasto, niente comandi
+        if (sheet != null && sheet.showing() && KEYS.equals(currentSheet)) {
+            String line = code + (down ? " premuto" : " rilasciato") + (lp ? " (lungo)" : "");
+            Store.event(this, "tasto volante: codice " + line);
+            keysSeen.addFirst(new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ITALY).format(new java.util.Date()) + "  " + line);
+            while (keysSeen.size() > 12) keysSeen.removeLast();
+            if (down && !lp && assignStep >= 0) {
+                String a = Joystick.ACTIONS[assignStep];
+                Store.setJoyCode(this, assignSide, a, code);
+                assignStep++;
+                if (assignStep >= Joystick.ACTIONS.length) {
+                    assignStep = -1;
+                    Store.event(this, "joystick " + (assignSide == Store.JOY_RIGHT ? "destro" : "sinistro") + " associato: "
+                            + Joystick.mapText(this, assignSide));
+                    LogSend.send(this, "joystick", null);
+                }
+            }
+            keyTest();
+            return;
+        }
+        if (sheet != null && sheet.showing()) return;   // impostazioni aperte: i tasti non comandano il clima
+        int side = Store.joystick(this);
+        if (side == Store.JOY_OFF) return;
+        String action = Joystick.actionOf(this, side, code);
+        if (action == null) return;
+        if (!down) {
+            stopRepeat();
+            return;
+        }
+        if (lp && repeatAction != null) return;   // già in ripetizione col nostro timer
+        joyAction(code, action, false);
+        if (!"ok".equals(action)) startRepeat(code, action);
+    }
+
+    /** Esegue l'azione: OK accende (in AUTO) o spegne, su/giù temperatura, sinistra/destra ventola. */
+    private void joyAction(int code, String action, boolean repeat) {
+        HvacClient.State s = last;
+        String id, what, esito = "inviato";
+        switch (action) {
+            case "ok":
+                id = s.on() ? "accensione" : "auto";
+                what = s.on() ? "spegni clima" : "accendi clima (AUTO)";
+                break;
+            case "su":
+                id = "temp+";
+                what = "temperatura +";
+                if (s.temp >= s.tempMax) esito = "già al massimo (HI)";
+                break;
+            case "giu":
+                id = "temp-";
+                what = "temperatura -";
+                if (s.temp <= s.tempMin) esito = "già al minimo (LO)";
+                break;
+            case "sinistra":
+                id = "fan-";
+                what = "ventola -";
+                if (s.fan >= 1 && s.fan <= 11 && s.fan <= Math.max(1, s.fanMin)) esito = "già al minimo";
+                break;
+            default:
+                id = "fan+";
+                what = "ventola +";
+                if (s.fan >= 1 && s.fan <= 11 && s.fan >= Math.min(11, s.fanMax)) esito = "già al massimo";
+                break;
+        }
+        if (!s.connected) esito = "servizio clima non collegato";
+        else if (!s.usable()) esito = "auto non accesa";
+        if (!repeat || !"inviato".equals(esito)) Store.event(this, "joystick: codice " + code + " → " + what + " → " + esito);
+        view.flash("auto".equals(id) ? "accensione" : id);
+        if ("inviato".equals(esito)) command(id);
+        else if (repeat) stopRepeat();
+    }
+
+    private String repeatAction;
+    private int repeatCode, repeatCount;
+    private final Runnable repeater = new Runnable() {
+        @Override
+        public void run() {
+            if (repeatAction == null) return;
+            if (++repeatCount > 30) {   // al massimo 30 ripetizioni (se il rilascio non arrivasse)
+                stopRepeat();
+                return;
+            }
+            joyAction(repeatCode, repeatAction, true);
+            h.postDelayed(this, 300);
+        }
+    };
+
+    /** Tenendo premuto su/giù/sinistra/destra il comando si ripete (dopo mezzo secondo, ogni 0,3 s). */
+    private void startRepeat(int code, String action) {
+        stopRepeat();
+        repeatAction = action;
+        repeatCode = code;
+        repeatCount = 0;
+        h.postDelayed(repeater, 500);
+    }
+
+    private void stopRepeat() {
+        repeatAction = null;
+        h.removeCallbacks(repeater);
+    }
+
+    /** Schermata Prova tasti del volante: mostra i codici premuti e permette di associare il joystick. */
+    private void keyTest() {
+        if (sheet == null) sheet = new Sheet(this, root, view);
+        Sheet s = sheet.open(L.s(R.string.s_keys), L.s(R.string.s_keys_hint));
+        currentSheet = KEYS;
+        LinearLayout c = s.card();
+        String prompt = assignStep >= 0 ? L.f(R.string.k_press, L.s(assignSide == Store.JOY_RIGHT ? R.string.s_joy_right : R.string.s_joy_left),
+                L.s(actionName(Joystick.ACTIONS[assignStep]))) : L.s(R.string.k_idle);
+        s.row(c, prompt, keysSeen.isEmpty() ? L.s(R.string.k_none) : String.join("\n", keysSeen), null, true);
+        LinearLayout c2 = s.card();
+        for (int side : new int[]{Store.JOY_RIGHT, Store.JOY_LEFT}) {
+            final int sd = side;
+            s.row(c2, L.s(side == Store.JOY_RIGHT ? R.string.s_joy_right : R.string.s_joy_left), Joystick.mapText(this, side),
+                    s.button(L.s(R.string.b_assign), v -> {
+                        Store.clearJoy(this, sd);
+                        assignSide = sd;
+                        assignStep = 0;
+                        Store.event(this, "associazione joystick " + (sd == Store.JOY_RIGHT ? "destro" : "sinistro") + " avviata");
+                        keyTest();
+                    }), side == Store.JOY_LEFT);
+        }
+    }
+
+    private static int actionName(String a) {
+        switch (a) {
+            case "su": return R.string.k_up;
+            case "giu": return R.string.k_down;
+            case "sinistra": return R.string.k_left;
+            case "destra": return R.string.k_right;
+            default: return R.string.k_ok;
+        }
     }
 
     private void diagnostics() {
@@ -708,6 +883,8 @@ public final class ClimaActivity extends Activity {
     protected void onPause() {
         shadeBlock(false);
         ClimaGuard.edges(this, 0);
+        joy.unregister();
+        stopRepeat();
         super.onPause();
     }
 
@@ -812,12 +989,16 @@ public final class ClimaActivity extends Activity {
         int mode = Store.swipeMode(this);
         boolean up = dy < 0;
         boolean dirOk = mode == Store.SWIPE_AUTO || (mode == Store.SWIPE_UP && up) || (mode == Store.SWIPE_DOWN && !up);
-        boolean ok = Math.abs(dy) > 100 && Math.abs(vy) > 100 && Math.abs(dy) > Math.abs(dx) * 1.5f && dirOk;
+        // 1.3.3: 60 px (prima 100): i tocchi brevi sono 3–13 px, quindi non si confondono
+        boolean ok = Math.abs(dy) > 60 && Math.abs(vy) > 100 && Math.abs(dy) > Math.abs(dx) * 1.5f && dirOk;
         String g = "swipe " + (up ? "verso l'alto" : "verso il basso") + " nel pannello (" + Math.round(Math.abs(dy))
                 + " px, velocità " + Math.round(Math.abs(vy)) + ")";
         if (!ok) {
-            lastMissAt = android.os.SystemClock.elapsedRealtime();
-            Store.event(this, "chiusura: " + g + " non riconosciuto (modo " + Store.swipeName(mode) + ")");
+            // 1.3.3: i tocchi brevi (sotto i 30 px) non sono swipe: non vanno nel log
+            if (Math.abs(dy) >= 30) {
+                lastMissAt = android.os.SystemClock.elapsedRealtime();
+                Store.event(this, "chiusura: " + g + " non riconosciuto (modo " + Store.swipeName(mode) + ")");
+            }
             return false;
         }
         swiped = true;
@@ -829,6 +1010,7 @@ public final class ClimaActivity extends Activity {
     @Override
     public void onBackPressed() {
         if (sheet != null && sheet.showing()) {
+            assignStep = -1;   // associazione del joystick lasciata a metà: si ricomincia da "Associa"
             sheet.close();
             return;
         }

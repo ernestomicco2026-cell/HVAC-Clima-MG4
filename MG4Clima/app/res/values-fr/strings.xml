@@ -131,6 +131,26 @@
     <string name="s_swipe_auto" formatted="false">Automatique</string>
     <string name="s_swipe_bottom" formatted="false">Du bas</string>
     <string name="s_swipe_top" formatted="false">Du haut</string>
+    <string name="s_joy" formatted="false">Commandes au joystick</string>
+    <string name="s_joy_sub" formatted="false">MG4 Climat ouvert : OK allume/éteint, haut/bas température, gauche/droite ventilation</string>
+    <string name="s_joy_unset" formatted="false">Touches à associer : Outils → Tester les touches du volant</string>
+    <string name="s_joy_right" formatted="false">Joystick droit</string>
+    <string name="s_joy_left" formatted="false">Joystick gauche</string>
+    <string name="s_keys" formatted="false">Tester les touches du volant</string>
+    <string name="s_keys_sub" formatted="false">Affiche le code de chaque touche appuyée et associe le joystick</string>
+    <string name="s_keys_hint" formatted="false">Appuie sur les touches du volant : les codes vont aussi dans le journal</string>
+    <string name="k_press">%1$s : appuie sur %2$s</string>
+    <string name="k_idle" formatted="false">Dernières touches appuyées</string>
+    <string name="k_none" formatted="false">Aucune touche pour l\'instant</string>
+    <string name="k_up" formatted="false">HAUT</string>
+    <string name="k_down" formatted="false">BAS</string>
+    <string name="k_left" formatted="false">GAUCHE</string>
+    <string name="k_right" formatted="false">DROITE</string>
+    <string name="k_ok" formatted="false">OK</string>
+    <string name="b_assign" formatted="false">Associer</string>
+    <string name="b_resume" formatted="false">Reprendre</string>
+    <string name="a_test_moving" formatted="false">Fais la vérification voiture à l\'arrêt, frein de stationnement serré. Tu peux la reprendre là où elle s\'est arrêtée (Outils → Reprendre).</string>
+    <string name="a_a11y_off" formatted="false">Le service d\'accessibilité de MG4 Climat n\'est pas actif : pas de remplacement de l\'appli d\'origine, pas de fermeture du panneau ni de glissement depuis le bord. Redémarre la voiture ou réinstalle MG4 Climat ; sinon active-le dans Paramètres Android → Accessibilité → MG4 Climat.</string>
     <string name="s_uninstall" formatted="false">Désinstaller MG4 Climat</string>
     <string name="s_uninstall_sub" formatted="false">Retire MG4 Climat de la voiture. L\'appli climat d\'origine reste telle quelle.</string>
     <string name="b_uninstall" formatted="false">Désinstaller</string>

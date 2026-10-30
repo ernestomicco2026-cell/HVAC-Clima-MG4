@@ -137,6 +137,41 @@ public final class Store {
         sp(c).edit().putString("verificaChiesta", v == null ? "" : v).apply();
     }
 
+    /** 1.3.3: parti già fatte del test / della verifica interrotti ("" = niente da riprendere). */
+    public static String testProgress(Context c, String kind) {
+        return sp(c).getString("ripresa_" + kind, "");
+    }
+
+    public static void setTestProgress(Context c, String kind, String json) {
+        sp(c).edit().putString("ripresa_" + kind, json == null ? "" : json).apply();
+    }
+
+    /** 1.3.3: comandi dal joystick del volante: 0 spenti, 1 joystick destro, 2 joystick sinistro. */
+    public static final int JOY_OFF = 0, JOY_RIGHT = 1, JOY_LEFT = 2;
+
+    public static int joystick(Context c) {
+        return sp(c).getInt("joystick", JOY_RIGHT);
+    }
+
+    public static void setJoystick(Context c, int m) {
+        sp(c).edit().putInt("joystick", m).apply();
+    }
+
+    /** Codice del tasto associato a un'azione del joystick (su, giu, sinistra, destra, ok), -1 se non associato. */
+    public static int joyCode(Context c, int side, String action) {
+        return sp(c).getInt("joy" + side + "_" + action, -1);
+    }
+
+    public static void setJoyCode(Context c, int side, String action, int code) {
+        sp(c).edit().putInt("joy" + side + "_" + action, code).apply();
+    }
+
+    public static void clearJoy(Context c, int side) {
+        SharedPreferences.Editor e = sp(c).edit();
+        for (String a : Joystick.ACTIONS) e.remove("joy" + side + "_" + a);
+        e.apply();
+    }
+
     /** Ora con i millisecondi, per misurare il lampeggio (1.3.1). */
     public static String ms(long wall) {
         return new SimpleDateFormat("HH:mm:ss.SSS", Locale.ITALY).format(new Date(wall));
@@ -235,6 +270,9 @@ public final class Store {
         sb.append("chiusura pannello/tendina: ").append(pm == PANEL_ALWAYS ? "sempre" : pm == PANEL_WITH_APP ? "solo con MG4 Clima aperto" : "spenta")
                 .append(Model.sysUiPanel(c) ? " · interfaccia pannello di sistema: " + SysUiPanel.interfaceName() : "").append('\n');
         sb.append("chiusura con swipe: ").append(swipeName(swipeMode(c))).append('\n');
+        int js = joystick(c);
+        sb.append("comandi dal joystick: ").append(js == JOY_OFF ? "spenti" : (js == JOY_RIGHT ? "joystick destro" : "joystick sinistro")
+                + " (" + Joystick.mapText(c, js) + ")").append('\n');
         sb.append("app clima originale: ").append(ClimaGuard.originalLine(c)).append('\n');
         sb.append("sostituzione: ").append(replace(c) ? "attiva" : "spenta")
                 .append(bypassed(c) ? " (sospesa: app originale aperta apposta)" : "")

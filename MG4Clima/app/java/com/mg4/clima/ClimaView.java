@@ -391,6 +391,7 @@ public final class ClimaView extends View {
 
         // ---- tasti in basso
         drawTiles(c, usable, on, dir);
+        drawFlash(c);
         c.restore();
         // aria animata: prossimo fotogramma tra 40 ms se c'è aria che esce o se il colore sta ancora cambiando
         if (animated && (on && (dir[0] || dir[1] || dir[2]) || Math.abs(warmth - (warm ? 1f : 0f)) > .001f || colorMoving)) postInvalidateDelayed(40);
@@ -847,6 +848,34 @@ public final class ClimaView extends View {
                 text(c, label, mx, seat ? top + 104 : top + 98, fit(label, 16, tw - 14, regular), lab, Paint.Align.CENTER, regular);
             }
             x += tw + gap;
+        }
+    }
+
+    // ---- 1.3.3: riscontro dei comandi dal joystick del volante: bordo luminoso sul tasto per mezzo secondo
+
+    private String flashId;
+    private long flashUntil;
+
+    /** Evidenzia il tasto con quell'id (es. "temp+", "fan-", "accensione") come riscontro di un comando dal volante. */
+    public void flash(String id) {
+        flashId = id;
+        flashUntil = android.os.SystemClock.uptimeMillis() + 550;
+        invalidate();
+        postInvalidateDelayed(600);
+    }
+
+    private void drawFlash(Canvas c) {
+        if (flashId == null) return;
+        if (android.os.SystemClock.uptimeMillis() > flashUntil) {
+            flashId = null;
+            return;
+        }
+        for (Object[] h : hits) {
+            if (!flashId.equals(h[0])) continue;
+            RectF b = (RectF) h[1];
+            stroke(TEXT, 5);
+            r.set(b.left + 4, b.top + 4, b.right - 4, b.bottom - 4);
+            c.drawRoundRect(r, 22, 22, p);
         }
     }
 

@@ -131,6 +131,26 @@
     <string name="s_swipe_auto" formatted="false">Otomatik</string>
     <string name="s_swipe_bottom" formatted="false">Alttan</string>
     <string name="s_swipe_top" formatted="false">Üstten</string>
+    <string name="s_joy" formatted="false">Joystick ile kontrol</string>
+    <string name="s_joy_sub" formatted="false">MG4 Klima açıkken: OK aç/kapat, yukarı/aşağı sıcaklık, sol/sağ fan</string>
+    <string name="s_joy_unset" formatted="false">Atanacak tuşlar: Araçlar → Direksiyon tuşlarını dene</string>
+    <string name="s_joy_right" formatted="false">Sağ joystick</string>
+    <string name="s_joy_left" formatted="false">Sol joystick</string>
+    <string name="s_keys" formatted="false">Direksiyon tuşlarını dene</string>
+    <string name="s_keys_sub" formatted="false">Basılan her tuşun kodunu gösterir ve joystick\'i atar</string>
+    <string name="s_keys_hint" formatted="false">Direksiyon tuşlarına bas: kodlar günlüğe de yazılır</string>
+    <string name="k_press">%1$s: %2$s tuşuna bas</string>
+    <string name="k_idle" formatted="false">Son basılan tuşlar</string>
+    <string name="k_none" formatted="false">Henüz tuş yok</string>
+    <string name="k_up" formatted="false">YUKARI</string>
+    <string name="k_down" formatted="false">AŞAĞI</string>
+    <string name="k_left" formatted="false">SOL</string>
+    <string name="k_right" formatted="false">SAĞ</string>
+    <string name="k_ok" formatted="false">OK</string>
+    <string name="b_assign" formatted="false">Ata</string>
+    <string name="b_resume" formatted="false">Devam et</string>
+    <string name="a_test_moving" formatted="false">Doğrulamayı araç dururken ve el freni çekiliyken yap. Durduğu yerden devam edebilirsin (Araçlar → Devam et).</string>
+    <string name="a_a11y_off" formatted="false">MG4 Klima erişilebilirlik hizmeti etkin değil: orijinal uygulama değiştirilmiyor, panel kapanmıyor, kenardan kaydırma yok. Aracı yeniden başlat veya MG4 Klima\'yı yeniden yükle; yetmezse Android Ayarları → Erişilebilirlik → MG4 Klima\'dan etkinleştir.</string>
     <string name="s_uninstall" formatted="false">MG4 Klima\'yı kaldır</string>
     <string name="s_uninstall_sub" formatted="false">MG4 Klima\'yı araçtan kaldırır. Orijinal klima uygulaması olduğu gibi kalır.</string>
     <string name="b_uninstall" formatted="false">Kaldır</string>

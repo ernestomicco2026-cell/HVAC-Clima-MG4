@@ -50,7 +50,7 @@ Se ti è utile e ti va di contribuire alle ore passate a svilupparlo e provarlo 
 
 | Software dell'auto / Car software | Auto / Car | Versione / Version | Stato / Status | Download |
 |---|---|---|---|---|
-| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.3.1** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.3.1.apk](releases/MG4Clima-1.3.1.apk) |
+| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.3.3** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.3.3.apk](releases/MG4Clima-1.3.3.apk) |
 
 **Un unico APK per tutti i modelli**: il software dell'auto si riconosce da solo. Dalla 1.0.0 gli aggiornamenti si
 
@@ -198,7 +198,7 @@ Scarica l'APK dalla tabella in alto. Poi scegli uno dei due metodi.
 
 Serve poter aprire un file manager sull'infotainment.
 
-1. Copia `MG4Clima-1.3.1.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
+1. Copia `MG4Clima-1.3.3.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
 2. Inserisci la chiavetta nell'auto, apri il file manager e tocca l'APK.
 3. Se Android avvisa che non può installare app da questa fonte: tocca **Impostazioni**, attiva
    **Consenti da questa fonte** per il file manager e torna indietro.
@@ -216,7 +216,7 @@ Il firmware MG può bloccare l'installazione normale delle app: l'opzione `-f` l
 1. Installa:
 
    ```bash
-   adb install -r -f MG4Clima-1.3.1.apk
+   adb install -r -f MG4Clima-1.3.3.apk
    ```
 
 2. Apri il clima come al solito (tasto, barra o launcher): al primo avvio MG4 Clima si attiva da sola.
@@ -247,6 +247,16 @@ Anche solo **2 €** sono un aiuto prezioso per continuare a sviluppare e provar
 [![Offrimi un caffè con PayPal](https://img.shields.io/badge/Offrimi%20un%20caff%C3%A8-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT)
 
 ### Versioni
+
+#### 1.3.3
+- **Comandi dal joystick del volante** con MG4 Clima aperta: OK accende (in AUTO) o spegne, su/giù temperatura, sinistra/destra ventola; tenendo premuto il comando si ripete, e sulla schermata si illumina il tasto comandato. Si sceglie in Impostazioni → Apertura del clima (spento, joystick destro o sinistro). Fuori dalla schermata i tasti restano alle altre funzioni.
+- Nuova schermata **Strumenti → Prova tasti del volante**: mostra il codice di ogni tasto e permette di associare il joystick.
+- Test e verifica: il massimo della temperatura si raggiunge un grado alla volta, come col tasto +. Corregge la verifica che falliva solo su "32 / HI" con le app clima EH32_SOP.
+- App clima originale 1.0.0_EH32_SOP_2407251338 (SWI68 R63) riconosciuta come verificata.
+- Riconosciuto il software del mercato turco (DBI68), come SWI68.
+- Se l'auto si muove durante il test o la verifica, compare un messaggio chiaro e si può riprendere da dove si era fermata.
+- Chiusura con swipe: basta uno swipe più corto (60 px); i tocchi brevi non finiscono più nel log. Se il servizio di accessibilità non è attivo, un avviso spiega come attivarlo.
+- Nel log l'ora in millisecondi ogni volta che compare l'app clima originale, anche quando non viene sostituita.
 
 #### 1.3.1
 - Chiusura con swipe più affidabile: nuova scelta **Automatico** (predefinita), swipe verticale sul pannello o dal bordo alto/basso dello schermo, tocco fuori dal pannello e tasto indietro. Ogni chiusura finisce nel log.
@@ -460,7 +470,7 @@ Download the APK from the table at the top. Then pick one of the two methods.
 
 You need to be able to open a file manager on the infotainment.
 
-1. Copy `MG4Clima-1.3.1.apk` to a USB stick formatted as **FAT32** or **exFAT**.
+1. Copy `MG4Clima-1.3.3.apk` to a USB stick formatted as **FAT32** or **exFAT**.
 2. Plug it into the car, open the file manager and tap the APK.
 3. If Android says it cannot install apps from this source: tap **Settings**, enable
    **Allow from this source** for the file manager and go back.
@@ -477,7 +487,7 @@ The MG firmware may block normal app installs; the `-f` option allows it.
 1. Install it:
 
    ```bash
-   adb install -r -f MG4Clima-1.3.1.apk
+   adb install -r -f MG4Clima-1.3.3.apk
    ```
 
 2. Open the climate as usual (button, bar or launcher): MG4 Clima activates itself on first start.
@@ -510,6 +520,16 @@ Even just **€2** is a great help to keep developing and testing new versions i
 
 
 ### Changelog
+
+#### 1.3.3
+- **Steering-wheel joystick controls** with MG4 Climate open: OK turns the climate on (in AUTO) or off, up/down temperature, left/right fan; holding repeats the command, and the screen highlights the button. Choose it in Settings → Opening the climate (off, right or left joystick). Outside the screen the keys keep their usual functions.
+- New **Tools → Test steering-wheel keys** screen: shows the code of each key and lets you assign the joystick.
+- Test and verification: the maximum temperature is reached one degree at a time, like with the + button. Fixes the verification that only failed on "32 / HI" with the EH32_SOP climate apps.
+- Original climate app 1.0.0_EH32_SOP_2407251338 (SWI68 R63) recognised as verified.
+- Turkish market software (DBI68) recognised, as SWI68.
+- If the car moves during the test or verification, a clear message appears and it can be resumed where it stopped.
+- Swipe to close: a shorter swipe is enough (60 px); short taps no longer go into the log. If the accessibility service isn't active, a notice explains how to enable it.
+- The log shows the time in milliseconds every time the original climate app appears, even when it isn't replaced.
 
 #### 1.3.1
 - More reliable swipe to close: new **Automatic** option (default), vertical swipe on the panel or from the top/bottom edge of the screen, tap outside the panel and back key. Every close is logged.

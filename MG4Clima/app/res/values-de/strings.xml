@@ -131,6 +131,26 @@
     <string name="s_swipe_auto" formatted="false">Automatisch</string>
     <string name="s_swipe_bottom" formatted="false">Von unten</string>
     <string name="s_swipe_top" formatted="false">Von oben</string>
+    <string name="s_joy" formatted="false">Steuerung per Joystick</string>
+    <string name="s_joy_sub" formatted="false">Bei geöffnetem MG4 Klima: OK ein/aus, hoch/runter Temperatur, links/rechts Gebläse</string>
+    <string name="s_joy_unset" formatted="false">Tasten zuordnen: Werkzeuge → Lenkradtasten testen</string>
+    <string name="s_joy_right" formatted="false">Rechter Joystick</string>
+    <string name="s_joy_left" formatted="false">Linker Joystick</string>
+    <string name="s_keys" formatted="false">Lenkradtasten testen</string>
+    <string name="s_keys_sub" formatted="false">Zeigt den Code jeder gedrückten Taste und ordnet den Joystick zu</string>
+    <string name="s_keys_hint" formatted="false">Drücke die Lenkradtasten: die Codes landen auch im Protokoll</string>
+    <string name="k_press">%1$s: drücke %2$s</string>
+    <string name="k_idle" formatted="false">Zuletzt gedrückte Tasten</string>
+    <string name="k_none" formatted="false">Noch keine Taste</string>
+    <string name="k_up" formatted="false">HOCH</string>
+    <string name="k_down" formatted="false">RUNTER</string>
+    <string name="k_left" formatted="false">LINKS</string>
+    <string name="k_right" formatted="false">RECHTS</string>
+    <string name="k_ok" formatted="false">OK</string>
+    <string name="b_assign" formatted="false">Zuordnen</string>
+    <string name="b_resume" formatted="false">Fortsetzen</string>
+    <string name="a_test_moving" formatted="false">Führe die Prüfung bei stehendem Auto mit angezogener Feststellbremse durch. Du kannst sie dort fortsetzen, wo sie angehalten hat (Werkzeuge → Fortsetzen).</string>
+    <string name="a_a11y_off" formatted="false">Der Bedienungshilfedienst von MG4 Klima ist nicht aktiv: kein Ersetzen der Original-App, kein Schließen des Feldes, keine Wischgeste vom Rand. Starte das Auto neu oder installiere MG4 Klima neu; reicht das nicht, aktiviere ihn unter Android-Einstellungen → Bedienungshilfen → MG4 Klima.</string>
     <string name="s_uninstall" formatted="false">MG4 Klima deinstallieren</string>
     <string name="s_uninstall_sub" formatted="false">Entfernt MG4 Klima aus dem Auto. Die Original-Klima-App bleibt unverändert.</string>
     <string name="b_uninstall" formatted="false">Deinstallieren</string>

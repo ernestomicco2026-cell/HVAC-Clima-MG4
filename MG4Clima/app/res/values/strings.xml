@@ -131,6 +131,26 @@
     <string name="s_swipe_auto" formatted="false">Automatic</string>
     <string name="s_swipe_bottom" formatted="false">From bottom</string>
     <string name="s_swipe_top" formatted="false">From top</string>
+    <string name="s_joy" formatted="false">Steering-wheel joystick</string>
+    <string name="s_joy_sub" formatted="false">With MG4 Climate open: OK on/off, up/down temperature, left/right fan</string>
+    <string name="s_joy_unset" formatted="false">Keys to assign: Tools → Test steering-wheel keys</string>
+    <string name="s_joy_right" formatted="false">Right joystick</string>
+    <string name="s_joy_left" formatted="false">Left joystick</string>
+    <string name="s_keys" formatted="false">Test steering-wheel keys</string>
+    <string name="s_keys_sub" formatted="false">Shows the code of each key pressed and assigns the joystick</string>
+    <string name="s_keys_hint" formatted="false">Press the steering-wheel keys: the codes also go into the log</string>
+    <string name="k_press">%1$s: press %2$s</string>
+    <string name="k_idle" formatted="false">Last keys pressed</string>
+    <string name="k_none" formatted="false">No key yet</string>
+    <string name="k_up" formatted="false">UP</string>
+    <string name="k_down" formatted="false">DOWN</string>
+    <string name="k_left" formatted="false">LEFT</string>
+    <string name="k_right" formatted="false">RIGHT</string>
+    <string name="k_ok" formatted="false">OK</string>
+    <string name="b_assign" formatted="false">Assign</string>
+    <string name="b_resume" formatted="false">Resume</string>
+    <string name="a_test_moving" formatted="false">Run the check with the car stopped and the parking brake on. You can resume it where it stopped (Tools → Resume).</string>
+    <string name="a_a11y_off" formatted="false">The MG4 Climate accessibility service is not active: no replacement of the original app, no panel closing and no edge swipe. Restart the car or reinstall MG4 Climate; if that\'s not enough, enable it in Android Settings → Accessibility → MG4 Climate.</string>
     <string name="s_uninstall" formatted="false">Uninstall MG4 Climate</string>
     <string name="s_uninstall_sub" formatted="false">Removes MG4 Climate from the car. The original climate app stays as it is.</string>
     <string name="b_uninstall" formatted="false">Uninstall</string>

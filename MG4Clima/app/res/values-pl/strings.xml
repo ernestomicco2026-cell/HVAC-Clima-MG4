@@ -131,6 +131,26 @@
     <string name="s_swipe_auto" formatted="false">Automatycznie</string>
     <string name="s_swipe_bottom" formatted="false">Od dołu</string>
     <string name="s_swipe_top" formatted="false">Od góry</string>
+    <string name="s_joy" formatted="false">Sterowanie joystickiem</string>
+    <string name="s_joy_sub" formatted="false">Przy otwartej MG4 Klimatyzacji: OK wł./wył., góra/dół temperatura, lewo/prawo nawiew</string>
+    <string name="s_joy_unset" formatted="false">Klawisze do przypisania: Narzędzia → Test klawiszy kierownicy</string>
+    <string name="s_joy_right" formatted="false">Prawy joystick</string>
+    <string name="s_joy_left" formatted="false">Lewy joystick</string>
+    <string name="s_keys" formatted="false">Test klawiszy kierownicy</string>
+    <string name="s_keys_sub" formatted="false">Pokazuje kod każdego naciśniętego klawisza i przypisuje joystick</string>
+    <string name="s_keys_hint" formatted="false">Naciśnij klawisze kierownicy: kody trafiają też do dziennika</string>
+    <string name="k_press">%1$s: naciśnij %2$s</string>
+    <string name="k_idle" formatted="false">Ostatnio naciśnięte klawisze</string>
+    <string name="k_none" formatted="false">Jeszcze żadnego klawisza</string>
+    <string name="k_up" formatted="false">GÓRA</string>
+    <string name="k_down" formatted="false">DÓŁ</string>
+    <string name="k_left" formatted="false">LEWO</string>
+    <string name="k_right" formatted="false">PRAWO</string>
+    <string name="k_ok" formatted="false">OK</string>
+    <string name="b_assign" formatted="false">Przypisz</string>
+    <string name="b_resume" formatted="false">Wznów</string>
+    <string name="a_test_moving" formatted="false">Wykonaj sprawdzenie, gdy samochód stoi z zaciągniętym hamulcem postojowym. Możesz je wznowić od miejsca przerwania (Narzędzia → Wznów).</string>
+    <string name="a_a11y_off" formatted="false">Usługa ułatwień dostępu MG4 Klimatyzacji nie jest aktywna: brak zastępowania oryginalnej aplikacji, zamykania panelu i przesuwania od krawędzi. Uruchom ponownie samochód lub zainstaluj ponownie MG4 Klimatyzację; jeśli to nie wystarczy, włącz ją w Ustawienia Androida → Ułatwienia dostępu → MG4 Klimatyzacja.</string>
     <string name="s_uninstall" formatted="false">Odinstaluj MG4 Klimatyzacja</string>
     <string name="s_uninstall_sub" formatted="false">Usuwa MG4 Klimatyzacja z samochodu. Oryginalna aplikacja klimatyzacji zostaje bez zmian.</string>
     <string name="b_uninstall" formatted="false">Odinstaluj</string>

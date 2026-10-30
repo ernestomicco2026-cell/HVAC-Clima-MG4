@@ -131,6 +131,26 @@
     <string name="s_swipe_auto" formatted="false">Automático</string>
     <string name="s_swipe_bottom" formatted="false">De baixo</string>
     <string name="s_swipe_top" formatted="false">De cima</string>
+    <string name="s_joy" formatted="false">Comandos pelo joystick</string>
+    <string name="s_joy_sub" formatted="false">Com o MG4 Clima aberto: OK liga/desliga, cima/baixo temperatura, esquerda/direita ventilador</string>
+    <string name="s_joy_unset" formatted="false">Teclas por associar: Ferramentas → Testar teclas do volante</string>
+    <string name="s_joy_right" formatted="false">Joystick direito</string>
+    <string name="s_joy_left" formatted="false">Joystick esquerdo</string>
+    <string name="s_keys" formatted="false">Testar teclas do volante</string>
+    <string name="s_keys_sub" formatted="false">Mostra o código de cada tecla premida e associa o joystick</string>
+    <string name="s_keys_hint" formatted="false">Prime as teclas do volante: os códigos vão também para o registo</string>
+    <string name="k_press">%1$s: prime %2$s</string>
+    <string name="k_idle" formatted="false">Últimas teclas premidas</string>
+    <string name="k_none" formatted="false">Nenhuma tecla ainda</string>
+    <string name="k_up" formatted="false">CIMA</string>
+    <string name="k_down" formatted="false">BAIXO</string>
+    <string name="k_left" formatted="false">ESQUERDA</string>
+    <string name="k_right" formatted="false">DIREITA</string>
+    <string name="k_ok" formatted="false">OK</string>
+    <string name="b_assign" formatted="false">Associar</string>
+    <string name="b_resume" formatted="false">Retomar</string>
+    <string name="a_test_moving" formatted="false">Faz a verificação com o carro parado e o travão de estacionamento ativo. Podes retomá-la onde parou (Ferramentas → Retomar).</string>
+    <string name="a_a11y_off" formatted="false">O serviço de acessibilidade do MG4 Clima não está ativo: sem substituição da app original, sem fecho do painel e sem deslizar a partir da borda. Reinicia o carro ou reinstala o MG4 Clima; se não chegar, ativa-o em Definições Android → Acessibilidade → MG4 Clima.</string>
     <string name="s_uninstall" formatted="false">Desinstalar MG4 Clima</string>
     <string name="s_uninstall_sub" formatted="false">Remove o MG4 Clima do carro. A app de climatização original fica como estava.</string>
     <string name="b_uninstall" formatted="false">Desinstalar</string>

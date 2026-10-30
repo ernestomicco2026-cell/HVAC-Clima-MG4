@@ -38,7 +38,9 @@ public final class ClimaGuard extends AccessibilityService {
                 // 1.3.1: HVAC.41131 (SWI68 R40, verifica 25/25) e HVAC.47141 (SWI165-29176, verifica 23/23),
                 // verificate in auto dagli utenti con la verifica della 1.3.0
                 return new String[]{"com.saicmotor.hmi.hvac", "com.saicmotor.hmi.hvac.HvacActivity",
-                        "HVAC.44041", "HVAC.4C051", "1.0.0_EH32_SOP_2502201112", "HVAC.41131", "HVAC.47141"};
+                        "HVAC.44041", "HVAC.4C051", "1.0.0_EH32_SOP_2502201112", "HVAC.41131", "HVAC.47141",
+                        // 1.3.3: SWI68 R63 (3 auto, 20 comandi ok; il massimo fallito era il test, che saltava da LO a 32)
+                        "1.0.0_EH32_SOP_2407251338"};
             case Model.SWI69:
             case Model.SWI132:   // SWI69 R45 e SWI132 R43: stesso file
                 return new String[]{"com.saicmotor.hvac", "com.saicmotor.hvac.ui.activity.MainActivity", "A9_Hvac_V1.0.1.120"};
@@ -292,6 +294,8 @@ public final class ClimaGuard extends AccessibilityService {
         hvacMain = hvacMain(this);
         Store.event(this, "servizio collegato · " + Model.get(this) + " · clima originale " + originalLine(this));
         instance = this;
+        // 1.3.3: se MG4 Clima è già aperta (il servizio si collega dopo), mette subito le strisce sui bordi
+        if (wantedEdges != 0) edges(this, wantedEdges);
         if (bg == null) {
             android.os.HandlerThread th = new android.os.HandlerThread("mg4-clima-guard");
             th.start();
@@ -325,20 +329,28 @@ public final class ClimaGuard extends AccessibilityService {
         if (e.getPackageName() == null || !hvacPkg.contentEquals(e.getPackageName())) return;
         CharSequence cls = e.getClassName();
         if (cls == null || !hvacMain.contentEquals(cls)) return;   // solo la schermata principale
-        if (!Store.replace(this)) return;
+        // 1.3.1: istante preciso in cui la finestra originale è comparsa (ora dell'evento, in ms)
+        long shownAt = System.currentTimeMillis() - Math.max(0, SystemClock.uptimeMillis() - e.getEventTime());
+        // 1.3.3: anche quando l'originale si lascia, nel log l'ora in ms (per misurare il lampeggio)
+        String at = " · originale comparsa alle " + Store.ms(shownAt);
+        if (!Store.replace(this)) {
+            Store.event(this, "app clima originale lasciata (sostituzione spenta)" + at);
+            return;
+        }
         if (Store.bypassed(this)) {
-            Store.event(this, "app clima originale lasciata (aperta apposta)");
+            Store.event(this, "app clima originale lasciata (aperta apposta)" + at);
             return;
         }
         if (!originalKnown(this)) {
             Store.setPendingVerify(this, originalVersion(this));   // da verificare alla prossima apertura di MG4 Clima
-            Store.event(this, "app clima " + originalVersion(this) + " non verificata: niente sostituzione");
+            Store.event(this, "app clima " + originalVersion(this) + " non verificata: niente sostituzione" + at);
             return;
         }
         long now = SystemClock.elapsedRealtime();
-        // 1.3.1: istante preciso in cui la finestra originale è comparsa (ora dell'evento, in ms)
-        long shownAt = System.currentTimeMillis() - Math.max(0, SystemClock.uptimeMillis() - e.getEventTime());
-        if (pausedUntil > now) return;
+        if (pausedUntil > now) {
+            Store.event(this, "app clima originale lasciata (pausa anti-ciclo)" + at);
+            return;
+        }
         // 1.3.1: la stessa apertura arriva spesso con due eventi di seguito: una sola sostituzione
         if (now - lastReplaceAt < DUP_MS) {
             if (dupLogged != lastReplaceAt) {
@@ -383,11 +395,20 @@ public final class ClimaGuard extends AccessibilityService {
     /** Ultimo "indietro" mandato da una striscia (per distinguere nel log lo swipe dal bordo dal tasto indietro). */
     static volatile long edgeBackAt;
     private static boolean edgeWarned;
-    private static final int EDGE_PX = 12, SWIPE_MIN = 100, SWIPE_VEL = 100;
+    /** Strisce volute dalla schermata (0 = nessuna): si mettono anche se il servizio si collega dopo (1.3.3). */
+    private static volatile int wantedEdges;
+
+    /** Il servizio di accessibilità è collegato (serve per la sostituzione, la tendina e lo swipe dal bordo). */
+    static boolean connected() {
+        return instance != null;
+    }
+    // 1.3.3: distanza minima 60 px (prima 100): i tocchi brevi restano sotto i 15 px
+    private static final int EDGE_PX = 12, SWIPE_MIN = 60, SWIPE_VEL = 100;
     private android.view.View edgeTop, edgeBottom;
 
     /** Accende (mode 1 = bordo basso, 2 = bordo alto, 3 = entrambi) o spegne (0) le strisce. Dal thread principale. */
     static void edges(Context c, int mode) {
+        wantedEdges = mode;
         ClimaGuard g = instance;
         if (g == null) {
             if (mode != 0 && !edgeWarned) {

@@ -131,6 +131,26 @@
     <string name="s_swipe_auto" formatted="false">Automático</string>
     <string name="s_swipe_bottom" formatted="false">Desde abajo</string>
     <string name="s_swipe_top" formatted="false">Desde arriba</string>
+    <string name="s_joy" formatted="false">Mandos desde el joystick</string>
+    <string name="s_joy_sub" formatted="false">Con MG4 Clima abierta: OK enciende/apaga, arriba/abajo temperatura, izquierda/derecha ventilador</string>
+    <string name="s_joy_unset" formatted="false">Teclas por asignar: Herramientas → Probar teclas del volante</string>
+    <string name="s_joy_right" formatted="false">Joystick derecho</string>
+    <string name="s_joy_left" formatted="false">Joystick izquierdo</string>
+    <string name="s_keys" formatted="false">Probar teclas del volante</string>
+    <string name="s_keys_sub" formatted="false">Muestra el código de cada tecla pulsada y asigna el joystick</string>
+    <string name="s_keys_hint" formatted="false">Pulsa las teclas del volante: los códigos van también al registro</string>
+    <string name="k_press">%1$s: pulsa %2$s</string>
+    <string name="k_idle" formatted="false">Últimas teclas pulsadas</string>
+    <string name="k_none" formatted="false">Ninguna tecla todavía</string>
+    <string name="k_up" formatted="false">ARRIBA</string>
+    <string name="k_down" formatted="false">ABAJO</string>
+    <string name="k_left" formatted="false">IZQUIERDA</string>
+    <string name="k_right" formatted="false">DERECHA</string>
+    <string name="k_ok" formatted="false">OK</string>
+    <string name="b_assign" formatted="false">Asignar</string>
+    <string name="b_resume" formatted="false">Reanudar</string>
+    <string name="a_test_moving" formatted="false">Haz la verificación con el coche parado y el freno de estacionamiento puesto. Puedes reanudarla donde se detuvo (Herramientas → Reanudar).</string>
+    <string name="a_a11y_off" formatted="false">El servicio de accesibilidad de MG4 Clima no está activo: no se sustituye la app original, no se cierra el panel y no hay deslizamiento desde el borde. Reinicia el coche o reinstala MG4 Clima; si no basta, actívalo en Ajustes de Android → Accesibilidad → MG4 Clima.</string>
     <string name="s_uninstall" formatted="false">Desinstalar MG4 Clima</string>
     <string name="s_uninstall_sub" formatted="false">Quita MG4 Clima del coche. La app de clima original queda como estaba.</string>
     <string name="b_uninstall" formatted="false">Desinstalar</string>

@@ -131,6 +131,26 @@
     <string name="s_swipe_auto" formatted="false">Automatico</string>
     <string name="s_swipe_bottom" formatted="false">Dal basso</string>
     <string name="s_swipe_top" formatted="false">Dall\'alto</string>
+    <string name="s_joy" formatted="false">Comandi dal joystick</string>
+    <string name="s_joy_sub" formatted="false">Con MG4 Clima aperta: OK accende/spegne, su/giù temperatura, sinistra/destra ventola</string>
+    <string name="s_joy_unset" formatted="false">Tasti da associare: Strumenti → Prova tasti del volante</string>
+    <string name="s_joy_right" formatted="false">Joystick destro</string>
+    <string name="s_joy_left" formatted="false">Joystick sinistro</string>
+    <string name="s_keys" formatted="false">Prova tasti del volante</string>
+    <string name="s_keys_sub" formatted="false">Mostra il codice di ogni tasto premuto e associa il joystick</string>
+    <string name="s_keys_hint" formatted="false">Premi i tasti del volante: i codici finiscono anche nel log</string>
+    <string name="k_press">%1$s: premi %2$s</string>
+    <string name="k_idle" formatted="false">Ultimi tasti premuti</string>
+    <string name="k_none" formatted="false">Nessun tasto ancora</string>
+    <string name="k_up" formatted="false">SU</string>
+    <string name="k_down" formatted="false">GIÙ</string>
+    <string name="k_left" formatted="false">SINISTRA</string>
+    <string name="k_right" formatted="false">DESTRA</string>
+    <string name="k_ok" formatted="false">OK</string>
+    <string name="b_assign" formatted="false">Associa</string>
+    <string name="b_resume" formatted="false">Riprendi</string>
+    <string name="a_test_moving" formatted="false">Fai la verifica a auto ferma, con il freno di stazionamento. Puoi riprenderla da dove si è fermata (Strumenti → Riprendi).</string>
+    <string name="a_a11y_off" formatted="false">Il servizio di accessibilità di MG4 Clima non è attivo: niente sostituzione dell\'app originale, chiusura della tendina e swipe dal bordo. Riavvia l\'auto oppure reinstalla MG4 Clima; se non basta attivalo da Impostazioni Android → Accessibilità → MG4 Clima.</string>
     <string name="s_uninstall" formatted="false">Disinstalla MG4 Clima</string>
     <string name="s_uninstall_sub" formatted="false">Rimuove MG4 Clima dall\'auto. L\'app clima originale resta com\'era.</string>
     <string name="b_uninstall" formatted="false">Disinstalla</string>
