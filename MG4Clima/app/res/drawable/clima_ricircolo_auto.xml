@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MG4 Clima · ricircolo automatico · simbolo in stile ISO 2575, bianco: il colore lo dà il tint (acceso / spento / non disponibile) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M3,40 L3,30 Q3,27 6,26 L12,24.5 L18,13 Q19.6,10.5 22.6,10.5 L32.4,10.5 Q35.2,10.5 36.8,13 L42,23.8 Q45,25.3 45,28.6 L45,40"/>
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M13.8,37.4 A10.3,9.8 0 1,1 33.9,38"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M33.00,41.60 L32.19,35.86 L37.31,37.72 Z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M19.723087248322145 39.5H21.985637583892615L22.545503355704696 37.670335570469796H25.408322147651006L25.991275167785233 39.5H28.27691275167785L25.32174496644295 30.9H22.59167785234899ZM23.02456375838926 36.11194630872483 23.139999999999997 35.74255033557047C23.422818791946305 34.767114093959734 23.67677852348993 33.68201342281879 23.936510067114092 32.52187919463087C24.213557046979865 33.67624161073826 24.496375838926173 34.761342281879195 24.79651006711409 35.74255033557047L24.91194630872483 36.11194630872483Z"/>
+</vector>

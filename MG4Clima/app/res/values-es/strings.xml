@@ -174,4 +174,19 @@
     <string name="u_apk_missing" formatted="false">APK no encontrado en GitHub</string>
     <string name="u_updated" formatted="false">Actualizada</string>
     <string name="u_install_failed">Instalación fallida: %1$s</string>
+    <string name="s_joy_on" formatted="false">Encendido</string>
+    <string name="s_joy_shared" formatted="false">En este coche las teclas también controlan la música: al ajustar el clima pueden cambiar el volumen o la canción</string>
+    <string name="s_joy_excl" formatted="false">Con MG4 Clima abierta las teclas solo controlan el clima (OK, arriba/abajo temperatura, izquierda/derecha ventilador)</string>
+    <string name="a_joy_shared" formatted="false">En este coche las teclas del volante también controlan la música: mandos del joystick apagados. Puedes volver a encenderlos en los ajustes.</string>
+    <string name="s_quick" formatted="false">Apertura rápida</string>
+    <string name="s_quick_sub" formatted="false">Cubre al instante la app de clima original con una pantalla ya lista mientras se abre MG4 Clima</string>
+    <string name="s_labels" formatted="false">Mostrar textos en los botones</string>
+    <string name="s_labels_sub" formatted="false">Apagado: solo iconos más grandes, como en el inicio del launcher</string>
+    <string name="k_factory" formatted="false">de fábrica</string>
+    <string name="k_left_try" formatted="false">Prueba si envía códigos propios (normalmente no)</string>
+    <string name="k_left_none" formatted="false">El joystick izquierdo no está disponible en este coche (envía las mismas teclas que el derecho)</string>
+    <string name="b_try" formatted="false">Probar</string>
+    <string name="n_title">Novedades de la %1$s</string>
+    <string name="n_sub" formatted="false">Qué cambia en esta versión</string>
+    <string name="n_body" formatted="false">• Iconos nuevos, como los símbolos de los botones del coche. La recirculación tiene un icono por estado: interior, aire exterior, automático\n• El estado activo se ve enseguida: color vivo, fondo resaltado, icono más grande\n• Nueva opción \"Mostrar textos en los botones\": apagada, solo iconos más grandes\n• Joystick del volante listo al momento, sin asignar. Si en tu coche las teclas también controlan la música, queda apagado (se puede encender)\n• El joystick izquierdo ya no es una opción: envía las mismas teclas que el derecho\n• Apertura más rápida en lugar de la app de clima original\n• Software SWI131 reconocido; la verificación elige sola los valores de LO y HI</string>
 </resources>

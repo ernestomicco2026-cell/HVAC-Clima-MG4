@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MG4 Clima · sbrinamento del lunotto · simbolo in stile ISO 2575, bianco: il colore lo dà il tint (acceso / spento / non disponibile) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M9,8 H39 Q43,8 43,12 V36 Q43,40 39,40 H9 Q5,40 5,36 V12 Q5,8 9,8 Z"/>
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M16.00,34.00 q2.72,-4.00 0,-8.00 q-2.72,-4.00 0,-8.00"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M16.00,14.00 L18.35,18.41 L13.65,18.41 Z"/>
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M24.00,34.00 q2.72,-4.00 0,-8.00 q-2.72,-4.00 0,-8.00"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M24.00,14.00 L26.35,18.41 L21.65,18.41 Z"/>
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M32.00,34.00 q2.72,-4.00 0,-8.00 q-2.72,-4.00 0,-8.00"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M32.00,14.00 L34.35,18.41 L29.65,18.41 Z"/>
+</vector>

@@ -21,7 +21,9 @@ public final class HvacClient {
             SET_PSG_SEAT_PRESS = 9, SET_DRV_TEMP = 10, SET_WHEEL_PRESS = 11,
             FRONT_DEFROST_OPEN = 12, FRONT_DEFROST_CLOSE = 13, REAR_DEFROST_OPEN = 14, REAR_DEFROST_CLOSE = 15,
             // impostazioni dell'app clima originale (1.2.0): valore come l'originale
-            SET_AUTO_LEVEL = 16, SET_ECON_LINK = 17, SET_DEFROST_LINK = 18;
+            SET_AUTO_LEVEL = 16, SET_ECON_LINK = 17, SET_DEFROST_LINK = 18,
+            // 1.4.0: temperatura col valore grezzo dell'auto, in decimi di grado (solo la verifica di LO / HI, caradapter)
+            SET_DRV_TEMP_RAW = 19;
 
     /** Intensità di AUTO nei valori dell'auto: 2 bassa, 1 media, 0 alta (come l'app originale). */
     public static final int AUTO_LOW = 2, AUTO_MEDIUM = 1, AUTO_HIGH = 0;
@@ -66,6 +68,20 @@ public final class HvacClient {
         public float outTemp = Float.NaN, speed = Float.NaN;
         /** Temperatura: valore minimo = "LO", massimo = "HI". */
         public int tempMin = 17, tempMax = 33;
+        /** 1.4.0: LO / HI non comandabili su questa auto (la verifica non ha trovato un valore): si va dal minimo al massimo numerico. */
+        public boolean noLo, noHi;
+        /** 1.4.0: temperatura come la manda l'auto (prima dell'arrotondamento), NaN se non letta. */
+        public float tempRaw = Float.NaN;
+
+        /** Valore più basso che si può impostare (LO, oppure il minimo numerico se LO non c'è). */
+        public int setMin() {
+            return noLo ? tempMin + 1 : tempMin;
+        }
+
+        /** Valore più alto che si può impostare (HI, oppure il massimo numerico se HI non c'è). */
+        public int setMax() {
+            return noHi ? tempMax - 1 : tempMax;
+        }
         public boolean hasWheel = true, hasSeats = true;
         public String model = "", error = "";
 
@@ -110,7 +126,8 @@ public final class HvacClient {
         public String dump() {
             return model + " · collegato " + connected + (caradapter ? " · servizio caradapter"
                     : " · clima disponibile " + acAvailable + " · accensione " + ignition)
-                    + "\nacceso " + power + " · temperatura " + temp + " (" + tempMin + "=LO, " + tempMax + "=HI)"
+                    + "\nacceso " + power + " · temperatura " + temp + (Float.isNaN(tempRaw) ? "" : " (grezza " + tempRaw + ")")
+                    + " (" + tempMin + "=LO" + (noLo ? " nascosto" : "") + ", " + tempMax + "=HI" + (noHi ? " nascosto" : "") + ")"
                     + " · ventola " + fan + " (" + fanMin + "–" + fanMax + ")"
                     + "\nAUTO " + auto + " · A/C " + ac + " · ECO " + econ + " · direzione " + blowerMode + " · ricircolo " + loop
                     + "\nintensità AUTO " + nv(autoLevel) + " · segui ECO " + nv(econLink) + " · lunotto automatico " + nv(defrostLink)

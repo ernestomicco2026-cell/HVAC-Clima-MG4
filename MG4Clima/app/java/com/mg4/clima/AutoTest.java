@@ -241,6 +241,55 @@ public final class AutoTest {
         }
     }
 
+    /**
+     * 1.4.0 (caradapter, es. SWI131): LO / HI. Si provano i valori possibili (LO 15,5 · 15 · 14,5 · 14; HI 30,5 · 31 ·
+     * 31,5 · 32) e si tiene il primo che l'auto rilegge davvero come LO (≤ 15,5) o come HI (≥ 30,5): un "LO" che torna
+     * come HI non va mai bene. Prima di ogni nuova prova si torna a un valore normale. Se nessuno va, LO / HI si
+     * nascondono (temperatura dal minimo al massimo numerico) e la sostituzione resta possibile: non conta come errore.
+     * Nel log i valori provati, il valore grezzo riletto e quello scelto.
+     */
+    private void probeLimit(boolean isLo, int target, int back) {
+        String name = isLo ? "LO" : "HI";
+        float[] tries = isLo ? CarAdapterBackend.LO_TRY : CarAdapterBackend.HI_TRY;
+        StringBuilder tried = new StringBuilder();
+        float chosen = Float.NaN;
+        for (int i = 0; i < tries.length; i++) {
+            if (i > 0) {   // di nuovo a un valore normale, così si vede se la prova cambia qualcosa
+                send("temperatura " + back + " (prima della prova " + name + ")", HvacClient.SET_DRV_TEMP, back);
+                waitFor(s -> s.temp, x -> x == back);
+                SystemClock.sleep(600);
+            }
+            float t = tries[i];
+            send("temperatura " + name + " prova " + t, HvacClient.SET_DRV_TEMP_RAW, Math.round(t * 10));
+            int v = waitFor(s -> s.temp, x -> x == target);
+            float raw = safe().tempRaw;
+            boolean good = v == target;
+            if (tried.length() > 0) tried.append(", ");
+            tried.append(t).append(" → ").append(raw);
+            log("· prova " + name + " = " + t + " → riletto " + raw + " (" + (v == target ? name : v == hiOf(isLo, target) ? "letto come " + (isLo ? "HI" : "LO") : String.valueOf(v)) + ")"
+                    + (good ? " ✓" : " ✗"));
+            if (good) {
+                chosen = t;
+                break;
+            }
+            SystemClock.sleep(600);
+        }
+        Store.setTempLimit(ctx, name, version(), chosen);
+        CarAdapterBackend.loadLimits(ctx);
+        if (!Float.isNaN(chosen)) {
+            check("temperatura " + name, true, "valore scelto " + chosen + " (provati: " + tried + ")");
+        } else {
+            log("· temperatura " + name + " NASCOSTO: nessun valore riletto come " + name + " (provati: " + tried
+                    + ") · temperatura fino al " + (isLo ? "minimo" : "massimo") + " numerico, la sostituzione resta possibile");
+        }
+        SystemClock.sleep(600);
+    }
+
+    /** Il valore "opposto" (per scrivere nel log se un LO è tornato come HI o viceversa). */
+    private static int hiOf(boolean isLo, int target) {
+        return isLo ? target + 16 : target - 16;
+    }
+
     private String run() {
         HvacClient.State s0 = safe();
         if (s0.acAvailable != 1) throw new Abort("clima non disponibile (" + s0.acAvailable + ")");
@@ -273,11 +322,13 @@ public final class AutoTest {
         if (todo("temperatura")) {
             int t1 = mid + 2;
             setValue("temperatura", HvacClient.SET_DRV_TEMP, t1, s -> s.temp);
-            setValue("temperatura LO", HvacClient.SET_DRV_TEMP, lo, s -> s.temp);
+            if (s1.caradapter) probeLimit(true, lo, mid);   // 1.4.0: prova i valori possibili di LO
+            else setValue("temperatura LO", HvacClient.SET_DRV_TEMP, lo, s -> s.temp);
             setValue("temperatura (dopo LO)", HvacClient.SET_DRV_TEMP, mid, s -> s.temp);
             stepTemp(hi - 2);
             setValue("temperatura " + (hi - 1), HvacClient.SET_DRV_TEMP, hi - 1, s -> s.temp);
-            setValue("temperatura HI", HvacClient.SET_DRV_TEMP, hi, s -> s.temp);
+            if (s1.caradapter) probeLimit(false, hi, hi - 1);   // 1.4.0: prova i valori possibili di HI
+            else setValue("temperatura HI", HvacClient.SET_DRV_TEMP, hi, s -> s.temp);
             if (t0 >= lo && t0 <= hi) setValue("temperatura (ripristino)", HvacClient.SET_DRV_TEMP, t0, s -> s.temp);
             did("temperatura");
         }

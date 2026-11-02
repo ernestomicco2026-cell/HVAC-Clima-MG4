@@ -174,4 +174,19 @@
     <string name="u_apk_missing" formatted="false">Nie znaleziono APK na GitHubie</string>
     <string name="u_updated" formatted="false">Zaktualizowano</string>
     <string name="u_install_failed">Instalacja nie powiodła się: %1$s</string>
+    <string name="s_joy_on" formatted="false">Wł.</string>
+    <string name="s_joy_shared" formatted="false">W tym aucie klawisze sterują też muzyką: podczas regulacji klimatyzacji może zmienić się głośność lub utwór</string>
+    <string name="s_joy_excl" formatted="false">Przy otwartej MG4 Klimatyzacji klawisze sterują tylko klimatyzacją (OK, góra/dół temperatura, lewo/prawo nawiew)</string>
+    <string name="a_joy_shared" formatted="false">W tym aucie klawisze kierownicy sterują też muzyką: sterowanie joystickiem wyłączone. Możesz je włączyć w ustawieniach.</string>
+    <string name="s_quick" formatted="false">Szybkie otwieranie</string>
+    <string name="s_quick_sub" formatted="false">Od razu zakrywa oryginalną aplikację klimatyzacji gotowym ekranem, gdy otwiera się MG4 Klimatyzacja</string>
+    <string name="s_labels" formatted="false">Pokaż napisy na przyciskach</string>
+    <string name="s_labels_sub" formatted="false">Wyłączone: tylko większe ikony, jak na ekranie głównym launchera</string>
+    <string name="k_factory" formatted="false">fabryczne</string>
+    <string name="k_left_try" formatted="false">Sprawdź, czy wysyła własne kody (zwykle nie)</string>
+    <string name="k_left_none" formatted="false">Lewy joystick nie jest dostępny w tym aucie (wysyła te same klawisze co prawy)</string>
+    <string name="b_try" formatted="false">Sprawdź</string>
+    <string name="n_title">Nowości w wersji %1$s</string>
+    <string name="n_sub" formatted="false">Co się zmienia w tej wersji</string>
+    <string name="n_body" formatted="false">• Nowe ikony, jak symbole na przyciskach auta. Recyrkulacja ma ikonę dla każdego stanu: wewnętrzna, powietrze zewnętrzne, automatyczna\n• Stan aktywny widać od razu: żywy kolor, wyróżnione tło, większa ikona\n• Nowa opcja \"Pokaż napisy na przyciskach\": wyłączona = tylko większe ikony\n• Joystick kierownicy gotowy od razu, bez przypisywania. Jeśli w Twoim aucie klawisze sterują też muzyką, pozostaje wyłączony (można go włączyć)\n• Lewy joystick nie jest już do wyboru: wysyła te same klawisze co prawy\n• Szybsze otwieranie zamiast oryginalnej aplikacji klimatyzacji\n• Rozpoznawane oprogramowanie SWI131; weryfikacja sama wybiera wartości LO i HI</string>
 </resources>

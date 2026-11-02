@@ -174,4 +174,19 @@
     <string name="u_apk_missing" formatted="false">APK não encontrado no GitHub</string>
     <string name="u_updated" formatted="false">Atualizada</string>
     <string name="u_install_failed">Instalação falhou: %1$s</string>
+    <string name="s_joy_on" formatted="false">Ligado</string>
+    <string name="s_joy_shared" formatted="false">Neste carro as teclas também controlam a música: ao ajustar a climatização o volume ou a faixa podem mudar</string>
+    <string name="s_joy_excl" formatted="false">Com o MG4 Clima aberto as teclas só controlam a climatização (OK, cima/baixo temperatura, esquerda/direita ventilador)</string>
+    <string name="a_joy_shared" formatted="false">Neste carro as teclas do volante também controlam a música: comandos do joystick desligados. Pode voltar a ligá-los nas definições.</string>
+    <string name="s_quick" formatted="false">Abertura rápida</string>
+    <string name="s_quick_sub" formatted="false">Cobre logo a app de climatização original com um ecrã já pronto enquanto o MG4 Clima abre</string>
+    <string name="s_labels" formatted="false">Mostrar textos nos botões</string>
+    <string name="s_labels_sub" formatted="false">Desligado: só ícones maiores, como no ecrã inicial do launcher</string>
+    <string name="k_factory" formatted="false">de fábrica</string>
+    <string name="k_left_try" formatted="false">Testa se envia códigos próprios (normalmente não)</string>
+    <string name="k_left_none" formatted="false">O joystick esquerdo não está disponível neste carro (envia as mesmas teclas do direito)</string>
+    <string name="b_try" formatted="false">Testar</string>
+    <string name="n_title">Novidades da %1$s</string>
+    <string name="n_sub" formatted="false">O que muda nesta versão</string>
+    <string name="n_body" formatted="false">• Ícones novos, como os símbolos dos botões do carro. A recirculação tem um ícone por estado: interior, ar exterior, automático\n• O estado ativo vê-se logo: cor viva, fundo realçado, ícone maior\n• Nova opção \"Mostrar textos nos botões\": desligada, só ícones maiores\n• Joystick do volante pronto de imediato, sem associar. Se no seu carro as teclas também controlam a música, fica desligado (pode ligá-lo)\n• O joystick esquerdo deixou de ser uma opção: envia as mesmas teclas do direito\n• Abertura mais rápida no lugar da app de climatização original\n• Software SWI131 reconhecido; a verificação escolhe sozinha os valores de LO e HI</string>
 </resources>

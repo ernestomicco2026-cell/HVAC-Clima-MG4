@@ -174,4 +174,19 @@
     <string name="u_apk_missing" formatted="false">APK introuvable sur GitHub</string>
     <string name="u_updated" formatted="false">Mise à jour faite</string>
     <string name="u_install_failed">Installation échouée : %1$s</string>
+    <string name="s_joy_on" formatted="false">Activé</string>
+    <string name="s_joy_shared" formatted="false">Sur cette voiture les touches commandent aussi la musique : en réglant la climatisation, le volume ou le titre peuvent changer</string>
+    <string name="s_joy_excl" formatted="false">MG4 Climat ouvert, les touches ne commandent que la climatisation (OK, haut/bas température, gauche/droite ventilation)</string>
+    <string name="a_joy_shared" formatted="false">Sur cette voiture les touches du volant commandent aussi la musique : commandes au joystick désactivées. Réactivables dans les réglages.</string>
+    <string name="s_quick" formatted="false">Ouverture rapide</string>
+    <string name="s_quick_sub" formatted="false">Couvre aussitôt l\'appli climat d\'origine avec un écran déjà prêt pendant l\'ouverture de MG4 Climat</string>
+    <string name="s_labels" formatted="false">Afficher les libellés des boutons</string>
+    <string name="s_labels_sub" formatted="false">Désactivé : icônes plus grandes seules, comme sur l\'accueil du launcher</string>
+    <string name="k_factory" formatted="false">d\'usine</string>
+    <string name="k_left_try" formatted="false">Vérifie s\'il envoie ses propres codes (en général non)</string>
+    <string name="k_left_none" formatted="false">Le joystick gauche n\'est pas disponible sur cette voiture (il envoie les mêmes touches que le droit)</string>
+    <string name="b_try" formatted="false">Tester</string>
+    <string name="n_title">Nouveautés de la %1$s</string>
+    <string name="n_sub" formatted="false">Ce qui change dans cette version</string>
+    <string name="n_body" formatted="false">• Nouvelles icônes, comme les symboles des boutons de la voiture. Le recyclage a une icône par état : intérieur, air extérieur, automatique\n• L\'état actif se voit tout de suite : couleur vive, fond mis en évidence, icône plus grande\n• Nouvelle option \"Afficher les libellés des boutons\" : désactivée, icônes plus grandes seules\n• Joystick du volant prêt tout de suite, sans association. Si sur ta voiture les touches commandent aussi la musique, il reste désactivé (réactivable)\n• Le joystick gauche n\'est plus un choix : il envoie les mêmes touches que le droit\n• Ouverture plus rapide à la place de l\'appli climat d\'origine\n• Logiciel SWI131 reconnu ; la vérification choisit seule les valeurs LO et HI</string>
 </resources>

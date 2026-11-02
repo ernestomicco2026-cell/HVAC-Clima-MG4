@@ -1,9 +1,9 @@
 {
   "MG4Clima": {
-    "version": "1.3.3",
-    "apk": "releases/MG4Clima-1.3.3.apk",
-    "size": 456991,
-    "sha256": "d364e5e0001e87ce8e9f6c356026f730a99e16391c1dfac1476016bb1edd9561",
-    "notes": "Comandi dal joystick del volante con MG4 Clima aperta (da associare in Strumenti → Prova tasti del volante). Test e verifica: massimo della temperatura un grado alla volta; app clima R63 verificata; software del mercato turco riconosciuto. Ripresa del test se l'auto si muove. Swipe più corto e avviso se l'accessibilità non è attiva."
+    "version": "1.4.0",
+    "apk": "releases/MG4Clima-1.4.0.apk",
+    "size": 490263,
+    "sha256": "0adc5ba93844e8009d18b74122fcc10770f710a9f769faa629ef494f26e4fcce",
+    "notes": "Icone nuove come i tasti dell'auto, ricircolo con un'icona per stato, stato attivo più evidente e opzione per mostrare solo le icone. Joystick del volante pronto subito; esclusiva dei tasti dove possibile e modalità clima dell'auto riconosciuta. Apertura più rapida al posto dell'app originale. Software SWI131 riconosciuto, LO e HI scelti dalla verifica. Popup Novità."
   }
 }

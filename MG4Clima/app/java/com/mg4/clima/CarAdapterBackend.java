@@ -36,7 +36,8 @@ final class CarAdapterBackend implements HvacClient.Backend {
             case HvacClient.SET_LOOP_PRESS: return 15;
             case HvacClient.SET_BLOWER_MODE: return SET_DIRECTION;
             case HvacClient.SET_AIR_VOLUME: return SET_FAN;
-            case HvacClient.SET_DRV_TEMP: return SET_DRV_TEMP;
+            case HvacClient.SET_DRV_TEMP:
+            case HvacClient.SET_DRV_TEMP_RAW: return SET_DRV_TEMP;
             case HvacClient.FRONT_DEFROST_OPEN:
             case HvacClient.FRONT_DEFROST_CLOSE: return 27;
             case HvacClient.REAR_DEFROST_OPEN:
@@ -57,9 +58,30 @@ final class CarAdapterBackend implements HvacClient.Backend {
     }
 
     static float tempToCar(int v) {
-        if (v <= TEMP_MIN) return CAR_LO;
-        if (v >= TEMP_MAX) return CAR_HI;
+        if (v <= TEMP_MIN) return loSend;
+        if (v >= TEMP_MAX) return hiSend;
         return v;
+    }
+
+    // ---- 1.4.0: LO e HI scelti dalla verifica (SWI131: 15,5 torna come HI, 30,5 resta a 30) ------------------------
+    /** Valori mandati all'auto per LO e HI; noLo/noHi = nessun valore funziona, LO/HI nascosti. */
+    private static volatile float loSend = CAR_LO, hiSend = CAR_HI;
+    private static volatile boolean noLo, noHi;
+    /** Valori da provare nella verifica, nell'ordine (il primo è quello di sempre). Solo vicino al campo 16–30. */
+    static final float[] LO_TRY = {15.5f, 15f, 14.5f, 14f}, HI_TRY = {30.5f, 31f, 31.5f, 32f};
+
+    /** Legge dalle impostazioni i valori scelti per questa versione dell'app clima originale. */
+    static void loadLimits(Context c) {
+        String ver = ClimaGuard.originalVersion(c);
+        Float lo = Store.tempLimit(c, "LO", ver), hi = Store.tempLimit(c, "HI", ver);
+        noLo = lo != null && Float.isNaN(lo);
+        noHi = hi != null && Float.isNaN(hi);
+        loSend = lo == null || noLo ? CAR_LO : lo;
+        hiSend = hi == null || noHi ? CAR_HI : hi;
+    }
+
+    static String limitsText() {
+        return "LO " + (noLo ? "nascosto" : String.valueOf(loSend)) + " · HI " + (noHi ? "nascosto" : String.valueOf(hiSend));
     }
 
     private final Context ctx;
@@ -76,6 +98,7 @@ final class CarAdapterBackend implements HvacClient.Backend {
     CarAdapterBackend(Context c, boolean swi69) {
         settings = swi69;
         ctx = c;
+        loadLimits(c);
         speed = new Speed(c);
     }
 
@@ -140,6 +163,8 @@ final class CarAdapterBackend implements HvacClient.Backend {
         s.fanMax = 11;
         s.tempMin = TEMP_MIN;
         s.tempMax = TEMP_MAX;
+        s.noLo = noLo;
+        s.noHi = noHi;
         s.hasWheel = false;
         s.hasSeats = false;
         return s;
@@ -172,7 +197,12 @@ final class CarAdapterBackend implements HvacClient.Backend {
         if (a == null) throw new IllegalStateException("servizio clima non collegato");
         switch (code) {
             case SET_DRV_TEMP:
-                Rpc.call(a, AC, code, p -> p.writeFloat(tempToCar(arg == null ? 22 : arg)));
+                if (cmd == HvacClient.SET_DRV_TEMP_RAW) {   // 1.4.0: valore grezzo (decimi di grado), solo verifica
+                    final float raw = (arg == null ? 220 : arg) / 10f;
+                    Rpc.call(a, AC, code, p -> p.writeFloat(raw));
+                } else {
+                    Rpc.call(a, AC, code, p -> p.writeFloat(tempToCar(arg == null ? 22 : arg)));
+                }
                 break;
             case SET_DIRECTION:
             case SET_FAN:
@@ -193,7 +223,8 @@ final class CarAdapterBackend implements HvacClient.Backend {
                 s.ignition = 2;   // qui l'accensione non si legge: il clima risponde solo ad auto accesa
                 boolean power = Rpc.callBool(a, AC, GET_POWER);
                 s.power = power ? 1 : 0;
-                s.temp = tempFromCar(Rpc.callFloat(a, AC, GET_DRV_TEMP));
+                s.tempRaw = Rpc.callFloat(a, AC, GET_DRV_TEMP);
+                s.temp = tempFromCar(s.tempRaw);
                 s.fan = Rpc.callInt(a, AC, GET_FAN);
                 s.auto = Rpc.callBool(a, AC, GET_AUTO) ? 1 : 0;
                 if (s.auto == 1 && power && s.fan == 0) s.fan = HvacClient.FAN_AUTO;

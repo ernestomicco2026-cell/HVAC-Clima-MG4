@@ -17,6 +17,16 @@ public final class BuildInfo {
         }
     }
 
+    /** 1.4.0: codice della versione (per il popup "Novità" una volta per versione). */
+    @SuppressWarnings("deprecation")
+    public static int code(Context c) {
+        try {
+            return c.getPackageManager().getPackageInfo(c.getPackageName(), 0).versionCode;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     /** Testo nella lingua del sistema: italiano se l'auto è in italiano, altrimenti inglese. */
     public static String t(String it, String en) {
         return "it".equals(Locale.getDefault().getLanguage()) ? it : en;

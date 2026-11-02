@@ -179,6 +179,15 @@ final class Sheet {
         return b;
     }
 
+    /** 1.4.0: punto di un elenco (popup "Novità"): testo normale su più righe. */
+    void bullet(LinearLayout card, String s, boolean last) {
+        TextView t = tv(s, 21, text, false);
+        t.setEllipsize(null);
+        t.setLineSpacing(0, 1.15f);
+        t.setPadding(dp(28), dp(16), dp(28), last ? dp(20) : dp(4));
+        card.addView(t);
+    }
+
     /** Testo libero dentro una scheda (diagnostica). */
     void body(LinearLayout card, String s) {
         TextView t = tv(s, 17, text, false);

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MG4 Clima · ricircolo interno (aria dell'abitacolo) · simbolo in stile ISO 2575, bianco: il colore lo dà il tint (acceso / spento / non disponibile) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M3,40 L3,30 Q3,27 6,26 L12,24.5 L18,13 Q19.6,10.5 22.6,10.5 L32.4,10.5 Q35.2,10.5 36.8,13 L42,23.8 Q45,25.3 45,28.6 L45,40"/>
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M15.4,37 A8.8,8.6 0 1,1 32.4,37.6"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M31.50,41.00 L30.69,35.26 L35.81,37.12 Z"/>
+</vector>

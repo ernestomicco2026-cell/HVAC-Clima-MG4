@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MG4 Clima · sedile riscaldato · simbolo in stile ISO 2575, bianco: il colore lo dà il tint (acceso / spento / non disponibile) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M9.5,9.5 Q9.5,6 13,6.4 Q15.6,6.8 16.2,9.6 L20,29.4 H37 Q41,29.4 41,33.2 Q41,37.4 37,37.4 H18.6 Q14.8,37.4 14,33.6 Z"/>
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M25.50,24.00 q2.72,-4.25 0,-8.50 q-2.72,-4.25 0,-8.50"/>
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M31.50,24.00 q2.72,-4.25 0,-8.50 q-2.72,-4.25 0,-8.50"/>
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M37.50,24.00 q2.72,-4.25 0,-8.50 q-2.72,-4.25 0,-8.50"/>
+</vector>

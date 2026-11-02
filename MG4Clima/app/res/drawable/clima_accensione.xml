@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MG4 Clima · accensione / spegnimento del clima · simbolo in stile ISO 2575, bianco: il colore lo dà il tint (acceso / spento / non disponibile) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3.8" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M24,6 V22"/>
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3.8" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M15,11.4 A14.6,14.6 0 1,0 33,11.4"/>
+</vector>

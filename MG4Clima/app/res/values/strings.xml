@@ -174,4 +174,19 @@
     <string name="u_apk_missing" formatted="false">APK not found on GitHub</string>
     <string name="u_updated" formatted="false">Updated</string>
     <string name="u_install_failed">Install failed: %1$s</string>
+    <string name="s_joy_on" formatted="false">On</string>
+    <string name="s_joy_shared" formatted="false">On this car the keys also control the music: while you adjust the climate the volume or track may change</string>
+    <string name="s_joy_excl" formatted="false">With MG4 Climate open the keys control only the climate (OK, up/down temperature, left/right fan)</string>
+    <string name="a_joy_shared" formatted="false">On this car the steering-wheel keys also control the music: joystick controls turned off. You can turn them back on in the settings.</string>
+    <string name="s_quick" formatted="false">Quick opening</string>
+    <string name="s_quick_sub" formatted="false">Instantly covers the original climate app with a ready screen while MG4 Climate opens</string>
+    <string name="s_labels" formatted="false">Show labels on buttons</string>
+    <string name="s_labels_sub" formatted="false">Off: larger icons only, like the launcher home</string>
+    <string name="k_factory" formatted="false">factory</string>
+    <string name="k_left_try" formatted="false">Check whether it sends its own codes (usually not)</string>
+    <string name="k_left_none" formatted="false">The left joystick is not available on this car (it sends the same keys as the right one)</string>
+    <string name="b_try" formatted="false">Try</string>
+    <string name="n_title">What\'s new in %1$s</string>
+    <string name="n_sub" formatted="false">What changes in this version</string>
+    <string name="n_body" formatted="false">• New icons, like the symbols on the car\'s buttons. Recirculation has one icon per state: inside, fresh air, automatic\n• The active state is clear at a glance: bright colour, highlighted background, larger icon\n• New option \"Show labels on buttons\": off, larger icons only\n• Steering-wheel joystick ready straight away, no assigning. If the keys also control the music on your car, it stays off (you can turn it on)\n• The left joystick is no longer a choice: it sends the same keys as the right one\n• Faster opening in place of the original climate app\n• SWI131 software recognised; the check picks the LO and HI values by itself</string>
 </resources>

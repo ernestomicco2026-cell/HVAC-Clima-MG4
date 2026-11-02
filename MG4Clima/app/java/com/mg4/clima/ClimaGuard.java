@@ -296,6 +296,10 @@ public final class ClimaGuard extends AccessibilityService {
         instance = this;
         // 1.3.3: se MG4 Clima è già aperta (il servizio si collega dopo), mette subito le strisce sui bordi
         if (wantedEdges != 0) edges(this, wantedEdges);
+        // 1.4.0: il filtro dei tasti si riaccende solo se la schermata lo chiede di nuovo (dopo un crash resta spento)
+        filterOn = false;
+        if (wantFilter) keyFilter(this, true, keyListener);
+        main.postDelayed(this::prepareCover, 25_000);
         if (bg == null) {
             android.os.HandlerThread th = new android.os.HandlerThread("mg4-clima-guard");
             th.start();
@@ -309,6 +313,8 @@ public final class ClimaGuard extends AccessibilityService {
     public void onDestroy() {
         if (instance == this) instance = null;
         edgesOff();
+        hideCover("servizio chiuso");
+        filterOn = false;
         if (bg != null) bg.removeCallbacksAndMessages(null);
         if (hvac != null) hvac.stop();
         super.onDestroy();
@@ -326,6 +332,11 @@ public final class ClimaGuard extends AccessibilityService {
             return;
         }
         if (e.getPackageName() != null) fgPkg = e.getPackageName().toString();
+        // 1.4.0: un'altra app (non la nostra né il clima originale) davanti → via la finestra pronta e il filtro dei tasti
+        if (!getPackageName().equals(fgPkg) && !hvacPkg.equals(fgPkg)) {
+            if (cover != null) hideCover("davanti " + fgPkg);
+            if (filterOn) keyFilter(this, false, null);
+        }
         if (e.getPackageName() == null || !hvacPkg.contentEquals(e.getPackageName())) return;
         CharSequence cls = e.getClassName();
         if (cls == null || !hvacMain.contentEquals(cls)) return;   // solo la schermata principale
@@ -376,6 +387,8 @@ public final class ClimaGuard extends AccessibilityService {
             lastReplaceAt = now;
             Store.event(this, "app clima originale comparsa alle " + Store.ms(shownAt) + " (evento ricevuto dopo "
                     + Math.max(0, System.currentTimeMillis() - shownAt) + " ms)");
+            // 1.4.0: prima la finestra pronta (già disegnata), poi la schermata vera che si apre sotto
+            showCover(shownAt);
             startActivity(new Intent(this, ClimaActivity.class)
                     .putExtra(ClimaActivity.EXTRA_ORIGINAL_AT, shownAt)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION));
@@ -490,6 +503,183 @@ public final class ClimaGuard extends AccessibilityService {
             }
         }
         edgeTop = edgeBottom = null;
+    }
+
+
+    // ---- 1.4.0: tasti del volante in esclusiva (filtro dei tasti dell'accessibilità) ---------------------------------
+    // Acceso solo mentre la schermata di MG4 Clima è in primo piano (onResume → onPause). Il filtro appartiene a questo
+    // servizio: se l'app va in crash o si chiude il sistema lo toglie da solo; se davanti va un'altra app si spegne qui.
+
+    interface KeyListener {
+        /** true = tasto consumato (non arriva al resto del sistema). Thread principale: deve tornare subito. */
+        boolean onFilterKey(int keyCode, int scanCode, boolean down, int repeat);
+    }
+
+    private static volatile KeyListener keyListener;
+    private static volatile boolean wantFilter, filterOn;
+    private static int unknownLogged;
+
+    static boolean keyFilterOn() {
+        return filterOn;
+    }
+
+    /** Accende o spegne il filtro (dal thread principale). Se il servizio non è collegato si accende quando si collega. */
+    static void keyFilter(Context c, boolean on, KeyListener l) {
+        wantFilter = on;
+        keyListener = on ? l : null;
+        ClimaGuard g = instance;
+        if (g == null) return;
+        if (on == filterOn) return;
+        try {
+            android.accessibilityservice.AccessibilityServiceInfo i = g.getServiceInfo();
+            if (i == null) return;
+            if (on) i.flags |= android.accessibilityservice.AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
+            else i.flags &= ~android.accessibilityservice.AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
+            g.setServiceInfo(i);
+            filterOn = on;
+            Store.event(c, "joystick: filtro dei tasti " + (on ? "acceso (schermata in primo piano)" : "spento"));
+        } catch (Throwable t) {
+            filterOn = false;
+            Store.event(c, "joystick: filtro dei tasti non " + (on ? "acceso " : "spento ") + t);
+        }
+    }
+
+    @Override
+    protected boolean onKeyEvent(android.view.KeyEvent e) {
+        KeyListener l = keyListener;
+        if (!filterOn || l == null || e == null) return false;
+        // per sicurezza: mai consumare tasti se in primo piano non c'è la nostra schermata
+        if (!getPackageName().equals(fgPkg) || !ClimaActivity.resumed) return false;
+        int a = e.getAction();
+        if (a != android.view.KeyEvent.ACTION_DOWN && a != android.view.KeyEvent.ACTION_UP) return false;
+        boolean used;
+        try {
+            used = l.onFilterKey(e.getKeyCode(), e.getScanCode(), a == android.view.KeyEvent.ACTION_DOWN, e.getRepeatCount());
+        } catch (Throwable t) {
+            used = false;
+        }
+        if (!used && a == android.view.KeyEvent.ACTION_DOWN && unknownLogged < 15) {
+            unknownLogged++;
+            Store.event(this, "joystick: filtro vede il tasto keycode " + e.getKeyCode() + " scancode " + e.getScanCode()
+                    + " (non associato: lasciato al sistema)");
+        }
+        return used;
+    }
+
+    // ---- 1.4.0: finestra pronta contro il lampeggio dell'app originale ---------------------------------------------
+    // L'avviso arriva ~60 ms dopo la comparsa dell'originale, ma la schermata vera ne impiega 350–1100 per aprirsi.
+    // Il servizio tiene pronta una ClimaView (stesse impostazioni, ultimo stato letto) e la mette subito sopra, come
+    // finestra di accessibilità che non riceve tocchi, nella stessa posizione della schermata. Si toglie appena la
+    // schermata vera è disegnata, se davanti va un'altra app o al più tardi dopo 3 s. L'app originale non si tocca.
+
+    private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
+    private ClimaView coverView;
+    private android.view.View cover;
+    private long coverAt, coverOriginalAt;
+    /** Ultimo stato letto dalla schermata (stesso processo): la finestra pronta parte da qui. */
+    static volatile HvacClient.State lastState;
+
+    private void prepareCover() {
+        if (coverView != null || !Store.quickCover(this)) return;
+        try {
+            L.init(this, Store.language(this));
+            ClimaView v = new ClimaView(this);
+            v.setAnimated(false);
+            // un disegno a vuoto subito: carica immagini e caratteri, così all'apertura il primo disegno è veloce
+            int[] r = Store.screenRect(this);
+            int w = r != null ? r[2] : 1920, h = r != null ? r[3] : 720;
+            v.setDashStyle(Store.dashStyle(this));
+            v.measure(android.view.View.MeasureSpec.makeMeasureSpec(w, android.view.View.MeasureSpec.EXACTLY),
+                    android.view.View.MeasureSpec.makeMeasureSpec(h, android.view.View.MeasureSpec.EXACTLY));
+            v.layout(0, 0, w, h);
+            android.graphics.Bitmap b = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888);
+            v.draw(new android.graphics.Canvas(b));
+            b.recycle();
+            coverView = v;
+        } catch (Throwable t) {
+            Store.event(this, "finestra pronta non preparata: " + t);
+        }
+    }
+
+    private void showCover(long originalAt) {
+        if (!Store.quickCover(this)) return;
+        int[] r = Store.screenRect(this);
+        if (r == null) {
+            Store.event(this, "finestra pronta: misura della schermata non ancora nota (la prossima volta sì)");
+            return;
+        }
+        try {
+            prepareCover();
+            ClimaView v = coverView;
+            if (v == null) return;
+            hideCover(null);
+            v.setRightHand(Store.rightHand(this));
+            v.setDashStyle(Store.dashStyle(this));
+            v.setDefrostTiles(Store.defrostTiles(this));
+            v.setShowLabels(Store.showLabels(this));
+            v.theme();
+            HvacClient.State st = lastState;
+            if (st != null) v.setState(st);
+            android.view.WindowManager wm = (android.view.WindowManager) getSystemService(WINDOW_SERVICE);
+            android.view.WindowManager.LayoutParams lp = new android.view.WindowManager.LayoutParams(r[2], r[3],
+                    android.view.WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+                    android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                            | android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                            | android.view.WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+                            | android.view.WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                            | android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                    android.graphics.PixelFormat.OPAQUE);
+            lp.gravity = android.view.Gravity.TOP | android.view.Gravity.LEFT;
+            lp.x = r[0];
+            lp.y = r[1];
+            lp.windowAnimations = 0;
+            lp.setTitle("MG4 Clima finestra pronta");
+            wm.addView(v, lp);
+            cover = v;
+            coverAt = System.currentTimeMillis();
+            coverOriginalAt = originalAt;
+            Store.event(this, "finestra pronta mostrata alle " + Store.ms(coverAt) + " (+" + Math.max(0, coverAt - originalAt)
+                    + " ms dalla comparsa dell'originale)");
+            main.postDelayed(coverTimeout, 3000);
+            // stato aggiornato appena letto (in background), così la finestra pronta mostra quello attuale
+            if (bg != null && hvac != null) bg.post(() -> {
+                try {
+                    HvacClient.State s2 = hvac.readNow();
+                    if (s2 != null && s2.connected) main.post(() -> {
+                        if (cover != null) coverView.setState(s2);
+                    });
+                } catch (Throwable ignored) {
+                }
+            });
+        } catch (Throwable t) {
+            cover = null;
+            Store.event(this, "finestra pronta non mostrata: " + t);
+        }
+    }
+
+    private final Runnable coverTimeout = () -> hideCover("dopo 3 s");
+
+    /** La schermata vera è sullo schermo: si toglie la finestra pronta (dopo un fotogramma, così non si vede il buco). */
+    static void screenReady() {
+        ClimaGuard g = instance;
+        if (g == null || g.cover == null) return;
+        g.main.postDelayed(() -> g.hideCover("schermata vera aperta"), 60);
+    }
+
+    private void hideCover(String why) {
+        main.removeCallbacks(coverTimeout);
+        android.view.View v = cover;
+        cover = null;
+        if (v == null) return;
+        try {
+            ((android.view.WindowManager) getSystemService(WINDOW_SERVICE)).removeView(v);
+        } catch (Throwable ignored) {
+        }
+        if (why != null) {
+            long now = System.currentTimeMillis();
+            Store.event(this, "finestra pronta tolta (" + why + ") dopo " + (now - coverAt) + " ms · originale coperta da +"
+                    + Math.max(0, coverAt - coverOriginalAt) + " ms");
+        }
     }
 
     @Override

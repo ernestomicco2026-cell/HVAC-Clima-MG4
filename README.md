@@ -46,11 +46,19 @@ Se ti è utile e ti va di contribuire alle ore passate a svilupparlo e provarlo 
 >
 > **By installing the app you declare that you have read and accepted all of this.**
 
+## 🎬 Video recensione · Video review
+
+[![ErnestoMicco2026-HVAC-Clima-MG4 - E il climatizzatore diventa in stile Tesla](https://img.youtube.com/vi/AvaCQh5QNcQ/hqdefault.jpg)](https://www.youtube.com/watch?v=AvaCQh5QNcQ)
+
+**[E il climatizzatore diventa in stile Tesla](https://www.youtube.com/watch?v=AvaCQh5QNcQ)**, la recensione di MG4 Clima di Ciro "Kankunen" Cunato su YouTube (in italiano). Grazie! ·
+
+MG4 Clima review by Ciro "Kankunen" Cunato on YouTube (in Italian). Thank you!
+
 ## Download
 
 | Software dell'auto / Car software | Auto / Car | Versione / Version | Stato / Status | Download |
 |---|---|---|---|---|
-| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.3.3** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.3.3.apk](releases/MG4Clima-1.3.3.apk) |
+| **MG4-Clima** | MG4 MY22 · MY23 · MY24 · Luxury MY24 | **1.4.0** | ⚠️ Sperimentale, a tuo rischio / Experimental, at your own risk | [⬇️ MG4Clima-1.4.0.apk](releases/MG4Clima-1.4.0.apk) |
 
 **Un unico APK per tutti i modelli**: il software dell'auto si riconosce da solo. Dalla 1.0.0 gli aggiornamenti si
 
@@ -67,6 +75,26 @@ model) are still in the [`releases/`](releases/) folder.
 `adb shell getprop ro.build.mt2712.version` → `SWI68-…`, `SWI69-…`, `SWI132-…` o/or `SWI133-…`.
 
 ---
+
+![MG4 Clima 1.4.0 — notte, con le scritte (simulazione / mock-up)](docs/notte-scritte.png)
+
+*1.4.0, notte: icone nuove in stile dei tasti dell'auto, i pulsanti attivi in blu con lo sfondo evidenziato, i riscaldamenti in arancio ·
+
+1.4.0, night: new icons in the style of the car's buttons, active buttons in blue with a highlighted background, heating in orange (mock-up).*
+
+![MG4 Clima 1.4.0 — notte, solo icone (simulazione / mock-up)](docs/notte-icone.png)
+
+*Scritte sui pulsanti spente: solo icone più grandi, come nella home del launcher (qui ricircolo automatico) ·
+
+Button labels off: larger icons only, like the launcher home (here automatic recirculation) (mock-up).*
+
+![MG4 Clima 1.4.0 — giorno, con le scritte (simulazione / mock-up)](docs/giorno-scritte.png)
+
+*Giorno, con le scritte (qui aria esterna) · Day, with labels (here fresh air) (mock-up).*
+
+![MG4 Clima 1.4.0 — giorno, solo icone (simulazione / mock-up)](docs/giorno-icone.png)
+
+*Giorno, solo icone (qui ricircolo interno) · Day, icons only (here inside recirculation) (mock-up).*
 
 ![MG4 Clima — cruscotto disegnato (simulazione / mock-up)](docs/swi68-notte.png)
 
@@ -138,6 +166,18 @@ disinstallata tutto torna come prima.
 
 ### Funzioni
 
+- **Icone in stile dei tasti dell'auto** (dalla 1.4.0): il ricircolo ha un'icona per stato (interno, aria esterna,
+
+  automatico) con la scritta sotto; lo stato attivo si vede subito (colore acceso, sfondo evidenziato, icona più grande).
+
+  Con "Mostra le scritte sui pulsanti" spento restano solo icone più grandi.
+
+- **Joystick del volante** con MG4 Clima aperta: OK accende/spegne, su/giù temperatura, sinistra/destra ventola. Pronto
+
+  subito (codici di fabbrica 297–301). Se il joystick è nella modalità clima dell'auto (tasto ★) il clima lo comanda
+
+  l'auto e MG4 Clima mostra solo lo stato.
+
 - **Comandi completi**: accensione, temperatura un grado alla volta fino a LO e HI, ventola (da AUTO riparte dall'ultima
 
   velocità), AUTO, A/C, ECO, ricircolo (interno → esterno → automatico), direzioni combinabili come nell'originale,
@@ -198,7 +238,7 @@ Scarica l'APK dalla tabella in alto. Poi scegli uno dei due metodi.
 
 Serve poter aprire un file manager sull'infotainment.
 
-1. Copia `MG4Clima-1.3.3.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
+1. Copia `MG4Clima-1.4.0.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
 2. Inserisci la chiavetta nell'auto, apri il file manager e tocca l'APK.
 3. Se Android avvisa che non può installare app da questa fonte: tocca **Impostazioni**, attiva
    **Consenti da questa fonte** per il file manager e torna indietro.
@@ -216,7 +256,7 @@ Il firmware MG può bloccare l'installazione normale delle app: l'opzione `-f` l
 1. Installa:
 
    ```bash
-   adb install -r -f MG4Clima-1.3.3.apk
+   adb install -r -f MG4Clima-1.4.0.apk
    ```
 
 2. Apri il clima come al solito (tasto, barra o launcher): al primo avvio MG4 Clima si attiva da sola.
@@ -247,6 +287,20 @@ Anche solo **2 €** sono un aiuto prezioso per continuare a sviluppare e provar
 [![Offrimi un caffè con PayPal](https://img.shields.io/badge/Offrimi%20un%20caff%C3%A8-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT)
 
 ### Versioni
+
+#### 1.4.0
+- **Icone nuove** per tutti i pulsanti, nello stile dei simboli dei tasti fisici dell'auto: ricircolo, aria esterna, ricircolo automatico, A/C, AUTO, ECO, sbrinamento parabrezza e lunotto, ventola, direzioni dell'aria, sedili e volante riscaldati, accensione.
+- **Ricircolo chiaro a colpo d'occhio**: un'icona per ogni stato (interno, aria esterna, automatico) con la scritta dello stato sotto.
+- **Stato attivo evidente**: icona più grande, colore acceso, sfondo evidenziato e bordo; i riscaldamenti in arancio; con l'auto spenta i pulsanti sono attenuati.
+- Nuova opzione **Mostra le scritte sui pulsanti** (accesa di default): spenta, i pulsanti mostrano solo icone più grandi, come nella home del launcher.
+- **Joystick del volante pronto subito**: associazione di fabbrica (su 297, giù 298, sinistra 299, destra 300, OK 301), senza passare da Prova tasti.
+- **Joystick in esclusiva**: con MG4 Clima in primo piano si prova a tenere i tasti solo per il clima (filtro dei tasti dell'accessibilità), rilasciandoli appena si esce, anche in caso di crash o di un'altra app davanti. Il risultato va nella diagnostica (`joystick.esclusiva`). Se su un'auto non è possibile, i comandi dal joystick restano disponibili ma spenti di default, con la spiegazione nelle impostazioni.
+- **Modalità clima del joystick dell'auto** (tasto ★ impostato su Clima): MG4 Clima la riconosce e non manda comandi doppi, mostra solo lo stato.
+- **Joystick sinistro**: non è più una scelta (manda gli stessi tasti del destro). In Prova tasti si può controllare: se manda codici suoi si salvano, altrimenti compare "il joystick sinistro non è disponibile su questa auto".
+- **Apertura più rapida** al posto dell'app clima originale: una schermata già pronta la copre subito mentre MG4 Clima si apre. Si può spegnere (Impostazioni → Apertura rapida). Nel log restano i tempi in "+N ms".
+- **Software SWI131** riconosciuto come famiglia SWI69. Nella verifica, se LO o HI non tornano, si provano i valori possibili e si tiene quello che l'auto rilegge correttamente; se nessuno va, si nascondono solo LO o HI (temperatura dal minimo al massimo numerico) e la sostituzione resta possibile. Valori provati e scelti nel log.
+- Popup **Novità** dopo l'aggiornamento, in tutte le lingue dell'app.
+- Screenshot rifatti.
 
 #### 1.3.3
 - **Comandi dal joystick del volante** con MG4 Clima aperta: OK accende (in AUTO) o spegne, su/giù temperatura, sinistra/destra ventola; tenendo premuto il comando si ripete, e sulla schermata si illumina il tasto comandato. Si sceglie in Impostazioni → Apertura del clima (spento, joystick destro o sinistro). Fuori dalla schermata i tasti restano alle altre funzioni.
@@ -410,6 +464,18 @@ Clima is uninstalled everything goes back to how it was.
 
 ### Features
 
+- **Icons in the style of the car's buttons** (from 1.4.0): recirculation has one icon per state (inside, fresh air,
+
+  automatic) with the label below; the active state is clear at a glance (bright colour, highlighted background, larger
+
+  icon). With "Show labels on buttons" off only larger icons remain.
+
+- **Steering-wheel joystick** with MG4 Climate open: OK on/off, up/down temperature, left/right fan. Ready straight away
+
+  (factory codes 297–301). If the joystick is in the car's climate mode (★ key) the car controls the climate and MG4
+
+  Climate only shows the state.
+
 - **Full controls**: power, temperature one degree at a time up to LO and HI, fan (from AUTO it restarts from the last
 
   speed), AUTO, A/C, ECO, recirculation (inside → outside → automatic), combinable directions like the original,
@@ -470,7 +536,7 @@ Download the APK from the table at the top. Then pick one of the two methods.
 
 You need to be able to open a file manager on the infotainment.
 
-1. Copy `MG4Clima-1.3.3.apk` to a USB stick formatted as **FAT32** or **exFAT**.
+1. Copy `MG4Clima-1.4.0.apk` to a USB stick formatted as **FAT32** or **exFAT**.
 2. Plug it into the car, open the file manager and tap the APK.
 3. If Android says it cannot install apps from this source: tap **Settings**, enable
    **Allow from this source** for the file manager and go back.
@@ -487,7 +553,7 @@ The MG firmware may block normal app installs; the `-f` option allows it.
 1. Install it:
 
    ```bash
-   adb install -r -f MG4Clima-1.3.3.apk
+   adb install -r -f MG4Clima-1.4.0.apk
    ```
 
 2. Open the climate as usual (button, bar or launcher): MG4 Clima activates itself on first start.
@@ -520,6 +586,20 @@ Even just **€2** is a great help to keep developing and testing new versions i
 
 
 ### Changelog
+
+#### 1.4.0
+- **New icons** for every button, in the style of the symbols on the car's physical buttons: recirculation, fresh air, automatic recirculation, A/C, AUTO, ECO, windscreen and rear window demist, fan, air directions, heated seats and wheel, power.
+- **Recirculation clear at a glance**: one icon per state (inside, fresh air, automatic) with the state written below.
+- **Obvious active state**: larger icon, bright colour, highlighted background and border; heating in orange; with the car off the buttons are dimmed.
+- New option **Show labels on buttons** (on by default): when off, the buttons show only larger icons, like the launcher home.
+- **Steering-wheel joystick ready straight away**: factory assignment (up 297, down 298, left 299, right 300, OK 301), no need to go through Test keys.
+- **Exclusive joystick**: with MG4 Climate in the foreground it tries to keep the keys for the climate only (accessibility key filter), releasing them as soon as you leave, even after a crash or with another app in front. The result goes into the diagnostics (`joystick.esclusiva`). If it isn't possible on a car, the joystick controls stay available but off by default, with the explanation in the settings.
+- **The car's joystick climate mode** (★ key set to Climate): MG4 Climate recognises it and doesn't send double commands, it only shows the state.
+- **Left joystick**: no longer a choice (it sends the same keys as the right one). In Test keys it can be checked: if it sends its own codes they are saved, otherwise "the left joystick is not available on this car" appears.
+- **Faster opening** in place of the original climate app: a ready screen covers it straight away while MG4 Climate opens. It can be turned off (Settings → Quick opening). The log keeps the "+N ms" timings.
+- **SWI131 software** recognised as the SWI69 family. In the check, if LO or HI don't come back, the possible values are tried and the one the car reads back correctly is kept; if none works, only LO or HI are hidden (temperature from the numeric minimum to maximum) and replacement stays possible. Tried and chosen values in the log.
+- **What's new** popup after updating, in every app language.
+- New screenshots.
 
 #### 1.3.3
 - **Steering-wheel joystick controls** with MG4 Climate open: OK turns the climate on (in AUTO) or off, up/down temperature, left/right fan; holding repeats the command, and the screen highlights the button. Choose it in Settings → Opening the climate (off, right or left joystick). Outside the screen the keys keep their usual functions.

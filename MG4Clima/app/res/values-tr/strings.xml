@@ -174,4 +174,19 @@
     <string name="u_apk_missing" formatted="false">APK GitHub\'da bulunamadı</string>
     <string name="u_updated" formatted="false">Güncellendi</string>
     <string name="u_install_failed">Yükleme başarısız: %1$s</string>
+    <string name="s_joy_on" formatted="false">Açık</string>
+    <string name="s_joy_shared" formatted="false">Bu araçta tuşlar müziği de kontrol eder: klimayı ayarlarken ses veya parça değişebilir</string>
+    <string name="s_joy_excl" formatted="false">MG4 Klima açıkken tuşlar sadece klimayı kontrol eder (OK, yukarı/aşağı sıcaklık, sol/sağ fan)</string>
+    <string name="a_joy_shared" formatted="false">Bu araçta direksiyon tuşları müziği de kontrol eder: joystick kontrolü kapatıldı. Ayarlardan yeniden açabilirsin.</string>
+    <string name="s_quick" formatted="false">Hızlı açılış</string>
+    <string name="s_quick_sub" formatted="false">MG4 Klima açılırken orijinal klima uygulamasını hazır bir ekranla hemen kapatır</string>
+    <string name="s_labels" formatted="false">Düğmelerde yazıları göster</string>
+    <string name="s_labels_sub" formatted="false">Kapalı: launcher ana ekranındaki gibi yalnızca daha büyük simgeler</string>
+    <string name="k_factory" formatted="false">fabrika</string>
+    <string name="k_left_try" formatted="false">Kendi kodlarını gönderip göndermediğini dene (genelde hayır)</string>
+    <string name="k_left_none" formatted="false">Sol joystick bu araçta kullanılamıyor (sağ joystick ile aynı tuşları gönderiyor)</string>
+    <string name="b_try" formatted="false">Dene</string>
+    <string name="n_title">%1$s sürümünde yenilikler</string>
+    <string name="n_sub" formatted="false">Bu sürümde neler değişiyor</string>
+    <string name="n_body" formatted="false">• Aracın tuşlarındaki semboller gibi yeni simgeler. İç hava her durum için kendi simgesine sahip: iç hava, dış hava, otomatik\n• Etkin durum hemen görünür: canlı renk, vurgulu arka plan, daha büyük simge\n• Yeni seçenek \"Düğmelerde yazıları göster\": kapalıyken yalnızca daha büyük simgeler\n• Direksiyon joysticki atama yapmadan hemen hazır. Aracında tuşlar müziği de kontrol ediyorsa kapalı kalır (açılabilir)\n• Sol joystick artık bir seçenek değil: sağ joystick ile aynı tuşları gönderiyor\n• Orijinal klima uygulamasının yerine daha hızlı açılış\n• SWI131 yazılımı tanınıyor; doğrulama LO ve HI değerlerini kendisi seçer</string>
 </resources>

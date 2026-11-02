@@ -174,4 +174,19 @@
     <string name="u_apk_missing" formatted="false">APK auf GitHub nicht gefunden</string>
     <string name="u_updated" formatted="false">Aktualisiert</string>
     <string name="u_install_failed">Installation fehlgeschlagen: %1$s</string>
+    <string name="s_joy_on" formatted="false">An</string>
+    <string name="s_joy_shared" formatted="false">In diesem Auto steuern die Tasten auch die Musik: beim Einstellen der Klima können Lautstärke oder Titel wechseln</string>
+    <string name="s_joy_excl" formatted="false">Bei geöffnetem MG4 Klima steuern die Tasten nur die Klima (OK, hoch/runter Temperatur, links/rechts Gebläse)</string>
+    <string name="a_joy_shared" formatted="false">In diesem Auto steuern die Lenkradtasten auch die Musik: Joystick-Steuerung ausgeschaltet. In den Einstellungen wieder einschaltbar.</string>
+    <string name="s_quick" formatted="false">Schnelles Öffnen</string>
+    <string name="s_quick_sub" formatted="false">Deckt die Original-Klima-App sofort mit einem fertigen Bildschirm ab, während MG4 Klima öffnet</string>
+    <string name="s_labels" formatted="false">Beschriftung der Tasten zeigen</string>
+    <string name="s_labels_sub" formatted="false">Aus: nur größere Symbole, wie auf dem Launcher-Startbildschirm</string>
+    <string name="k_factory" formatted="false">Werkseinstellung</string>
+    <string name="k_left_try" formatted="false">Prüfen, ob er eigene Codes sendet (meist nicht)</string>
+    <string name="k_left_none" formatted="false">Der linke Joystick ist in diesem Auto nicht verfügbar (er sendet dieselben Tasten wie der rechte)</string>
+    <string name="b_try" formatted="false">Testen</string>
+    <string name="n_title">Neu in %1$s</string>
+    <string name="n_sub" formatted="false">Was sich in dieser Version ändert</string>
+    <string name="n_body" formatted="false">• Neue Symbole wie auf den Tasten des Autos. Umluft hat ein Symbol je Zustand: Umluft, Frischluft, Automatik\n• Der aktive Zustand ist sofort sichtbar: kräftige Farbe, hervorgehobener Hintergrund, größeres Symbol\n• Neue Option \"Beschriftung der Tasten zeigen\": aus = nur größere Symbole\n• Lenkrad-Joystick sofort bereit, ohne Zuordnen. Steuern die Tasten in deinem Auto auch die Musik, bleibt er aus (einschaltbar)\n• Der linke Joystick ist keine Auswahl mehr: er sendet dieselben Tasten wie der rechte\n• Schnelleres Öffnen anstelle der Original-Klima-App\n• Software SWI131 erkannt; die Prüfung wählt die Werte für LO und HI selbst</string>
 </resources>

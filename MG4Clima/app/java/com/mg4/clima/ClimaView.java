@@ -42,6 +42,8 @@ public final class ClimaView extends View {
     // colori (tema notte/giorno del launcher: nessun accento, attivo = colore del testo)
     int BG, PANEL, CHIP, TRACK, TEXT, SUB;
     private int ONTEXT, HEAT, HEATBG, FLOW, FLOW2;
+    /** 1.4.0: pulsanti attivi: colore acceso, sfondo evidenziato e bordo; non disponibile = spento al 40%. */
+    int ACCENT, ACCENTBG;
     private int GLASS1, GLASS2, TOP1, TOP2, FACE1, FACE2, PILLAR, LINE, DARK, BEZEL;
 
     private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -94,6 +96,14 @@ public final class ClimaView extends View {
     public void setDashStyle(int s) {
         style = s;
         theme();
+        invalidate();
+    }
+
+    /** 1.4.0: scritte sotto le icone (spente = solo icone più grandi, come nella home del launcher). */
+    private boolean labels = true;
+
+    public void setShowLabels(boolean on) {
+        labels = on;
         invalidate();
     }
 
@@ -300,11 +310,13 @@ public final class ClimaView extends View {
         day = night == Configuration.UI_MODE_NIGHT_NO && style != Store.STYLE_PHOTO;
         if (day) {
             BG = 0xFFE6E8EB; PANEL = 0xFFFFFFFF; CHIP = 0xFFF1F3F5; TRACK = 0xFFE1E4E8; TEXT = 0xFF111318; SUB = 0xFF555C66;
+            ACCENT = 0xFF0B6BCB; ACCENTBG = 0xFFDCEBFA;
             ONTEXT = 0xFFFFFFFF; HEAT = 0xFFE1621F; HEATBG = 0xFFFFF1EA; FLOW = 0xFF7D8793; FLOW2 = 0xFFB9C0C8;
             GLASS1 = 0xFFE9EEF4; GLASS2 = 0xFFD5DCE5; TOP1 = 0xFFD9DDE2; TOP2 = 0xFFC9CED4; FACE1 = 0xFFCDD2D8; FACE2 = 0xFFBFC5CC;
             PILLAR = 0xFFB8BEC6; LINE = 0xFFB0B6BE; DARK = 0xFF2A2E35; BEZEL = 0xFF8C939C;
         } else {
             BG = 0xFF080A10; PANEL = 0xFF11151D; CHIP = 0xFF1A202B; TRACK = 0xFF232B38; TEXT = 0xFFF2F5FA; SUB = 0xFF9AA5B5;
+            ACCENT = 0xFF4FB3FF; ACCENTBG = 0xFF13324D;
             ONTEXT = 0xFF0E1218; HEAT = 0xFFFF7A3D; HEATBG = 0xFF2E241F; FLOW = 0xFFD6E2F0; FLOW2 = 0xFF8E9BAE;
             GLASS1 = 0xFF121823; GLASS2 = 0xFF1E2634; TOP1 = 0xFF2A3443; TOP2 = 0xFF1D2431; FACE1 = 0xFF1A212C; FACE2 = 0xFF121821;
             PILLAR = 0xFF243040; LINE = 0xFF2C3746; DARK = 0xFF090C12; BEZEL = 0xFF334055;
@@ -719,7 +731,7 @@ public final class ClimaView extends View {
         }
         fill(on ? TEXT : CHIP);
         c.drawCircle(pcx, pcy, 52, p);
-        icon(c, R.drawable.ic_power, pcx - 22, pcy - 22, 44, 44, on ? ONTEXT : SUB);
+        icon(c, R.drawable.clima_accensione, pcx - 24, pcy - 24, 48, 48, on ? ONTEXT : SUB);
         hit("accensione", cx0, top, 104, 104);
         String title = !usable ? L.s(R.string.v_unavailable) : on ? L.s(R.string.v_on) : L.s(R.string.v_off);
         String sub = !st.connected ? L.s(R.string.v_waiting)
@@ -758,7 +770,7 @@ public final class ClimaView extends View {
         hit("fan+", cx0 + 190, y, 190, 100);
         icon(c, R.drawable.ic_left, cx0 + 16, y + 30, 40, 40, usable ? TEXT : SUB);
         icon(c, R.drawable.ic_right, cx0 + 380 - 56, y + 30, 40, 40, usable ? TEXT : SUB);
-        icon(c, R.drawable.ic_fan, cx0 + 74, y + 30, 40, 40, on ? TEXT : SUB);
+        icon(c, R.drawable.clima_ventola, cx0 + 72, y + 28, 44, 44, on ? TEXT : SUB);
         String f = !on ? "–" : st.fan == HvacClient.FAN_AUTO ? "A" : st.fan <= 0 ? "OFF" : String.valueOf(st.fan);
         text(c, f, cx0 + 122, y + 64, 40, on ? TEXT : SUB, Paint.Align.LEFT, regular);
         int lv = on && st.fan > 0 && st.fan != HvacClient.FAN_AUTO ? st.fan : 0;
@@ -795,60 +807,81 @@ public final class ClimaView extends View {
         for (String id : order) {
             boolean active, hot = false;
             int ic = 0, level = -1;
-            String big = null, label;
+            String label;
             switch (id) {
-                case "auto": active = on && st.auto == 1; big = "AUTO"; label = L.s(R.string.t_auto); break;
-                case "ac": active = on && st.ac == 1; big = "A/C"; label = L.s(R.string.t_ac); break;
-                case "eco": active = on && st.econ == 1; big = "ECO"; label = L.s(R.string.t_eco); break;
-                case "vetro": active = on && dir[0]; ic = R.drawable.ic_screen; label = L.s(R.string.t_glass); break;
-                case "viso": active = on && dir[1]; ic = R.drawable.ic_face; label = L.s(R.string.t_face); break;
-                case "piedi": active = on && dir[2]; ic = R.drawable.ic_feet; label = L.s(R.string.t_feet); break;
+                case "auto": active = on && st.auto == 1; ic = R.drawable.clima_auto; label = L.s(R.string.t_auto); break;
+                case "ac": active = on && st.ac == 1; ic = R.drawable.clima_ac; label = L.s(R.string.t_ac); break;
+                case "eco": active = on && st.econ == 1; ic = R.drawable.clima_eco; label = L.s(R.string.t_eco); break;
+                case "vetro": active = on && dir[0]; ic = R.drawable.clima_aria_parabrezza; label = L.s(R.string.t_glass); break;
+                case "viso": active = on && dir[1]; ic = R.drawable.clima_aria_viso; label = L.s(R.string.t_face); break;
+                case "piedi": active = on && dir[2]; ic = R.drawable.clima_aria_piedi; label = L.s(R.string.t_feet); break;
                 case "ricircolo":
-                    active = on && (st.loop == 0 || st.loop == 2); ic = R.drawable.ic_loop;
+                    // 1.4.0: un'icona per stato (0 interno, 1 esterno, 2 automatico); interno e automatico = acceso
+                    active = on && (st.loop == 0 || st.loop == 2);
+                    ic = recircIcon(st.loop);
                     label = L.s(st.loop == 0 ? R.string.t_recirc : st.loop == 2 ? R.string.t_recirc_auto : R.string.t_fresh);
                     break;
-                case "parabrezza": hot = st.frontDefrost == 1; active = hot; ic = R.drawable.ic_front_def; label = L.s(R.string.t_front); break;
-                case "lunotto": hot = st.rearDefrost == 1; active = hot; ic = R.drawable.ic_rear_def; label = L.s(R.string.t_rear); break;
-                case "volante": hot = st.wheel == 3; active = hot; ic = R.drawable.ic_wheel; label = L.s(R.string.t_wheel); break;
+                case "parabrezza": hot = st.frontDefrost == 1; active = hot; ic = R.drawable.clima_sbrinamento_anteriore; label = L.s(R.string.t_front); break;
+                case "lunotto": hot = st.rearDefrost == 1; active = hot; ic = R.drawable.clima_sbrinamento_posteriore; label = L.s(R.string.t_rear); break;
+                case "volante": hot = st.wheel == 3; active = hot; ic = R.drawable.clima_volante_riscaldato; label = L.s(R.string.t_wheel); break;
                 case "sedileGuida":
-                    level = st.seatDrv >= 0 && st.seatDrv <= 3 ? st.seatDrv : 0; hot = level > 0; active = hot; ic = R.drawable.ic_seat;
-                    label = L.s(R.string.t_driver);
+                    level = st.seatDrv >= 0 && st.seatDrv <= 3 ? st.seatDrv : 0; hot = level > 0; active = hot;
+                    ic = R.drawable.clima_sedile_riscaldato; label = L.s(R.string.t_driver);
                     break;
                 default:
-                    level = st.seatPsg >= 0 && st.seatPsg <= 3 ? st.seatPsg : 0; hot = level > 0; active = hot; ic = R.drawable.ic_seat;
-                    label = L.s(R.string.t_passenger);
+                    level = st.seatPsg >= 0 && st.seatPsg <= 3 ? st.seatPsg : 0; hot = level > 0; active = hot;
+                    ic = R.drawable.clima_sedile_riscaldato; label = L.s(R.string.t_passenger);
                     break;
             }
-            int bg = hot ? HEATBG : active ? TEXT : CHIP;
-            int fg = hot ? HEAT : active ? ONTEXT : SUB;
-            int lab = hot ? TEXT : active ? ONTEXT : SUB;
+            // 1.4.0: stato a colpo d'occhio: acceso = colore acceso + sfondo evidenziato + bordo + icona più grande;
+            // riscaldamenti in arancio; non disponibile (clima non usabile) = spento attenuato
+            boolean na = !usable;
+            int bg = hot ? HEATBG : active ? ACCENTBG : CHIP;
+            int fg = hot ? HEAT : active ? ACCENT : na ? (SUB & 0xFFFFFF) | 0x66000000 : SUB;
+            int lab = hot || active ? TEXT : na ? (SUB & 0xFFFFFF) | 0x66000000 : SUB;
             tile(c, x, top, tw, h, 22, bg);
+            if (hot || active) {
+                stroke(hot ? HEAT : ACCENT, 3);
+                r.set(x + 1.5f, top + 1.5f, x + tw - 1.5f, top + h - 1.5f);
+                c.drawRoundRect(r, 21, 21, p);
+                p.setStyle(Paint.Style.FILL);
+            }
             hit(id, x, top, tw, h);
             float mx = x + tw / 2;
-            if (big != null) {
-                boolean dashes = id.equals("auto") && st.autoLevel >= 0;
-                text(c, big, mx, dashes ? top + 56 : top + 62, 34, fg, Paint.Align.CENTER, bold);
-                text(c, label, mx, dashes ? top + 88 : top + 98, fit(label, 16, tw - 14, regular), lab, Paint.Align.CENTER, regular);
-                if (dashes) {   // 1.2.0: intensità di AUTO (bassa / media / alta), si cambia toccando AUTO
-                    int lit = 3 - st.autoLevel;
-                    for (int i = 0; i < 3; i++)
-                        rr(c, mx - 41 + i * 30, top + 104, 22, 5, 2.5f, i < lit ? fg : (fg & 0xFFFFFF) | 0x40000000, 0, 0);
-                }
-            } else {
-                boolean seat = level >= 0;
-                float iy = seat ? top + 16 : top + 26;
-                boolean flip = seat && (id.equals("sedilePasseggero") != rhd);   // solo i sedili: quello a destra guarda a sinistra
-                if (flip) {
-                    c.save();
-                    c.scale(-1, 1, mx, 0);
-                }
-                icon(c, ic, mx - 27, iy, 54, 40, fg);
-                if (flip) c.restore();
-                if (seat) for (int i = 0; i < 3; i++) rr(c, mx - 33 + i * 26, top + 66, 20, 6, 3, i < level ? HEAT : TRACK, 0, 0);
-                text(c, label, mx, seat ? top + 104 : top + 98, fit(label, 16, tw - 14, regular), lab, Paint.Align.CENTER, regular);
+            boolean text = ic == R.drawable.clima_auto || ic == R.drawable.clima_ac || ic == R.drawable.clima_eco;
+            boolean seat = level >= 0;
+            boolean dashes = id.equals("auto") && st.autoLevel >= 0;
+            boolean marks = seat || dashes;   // tacche sotto l'icona (livelli del sedile, intensità di AUTO)
+            // misura dell'icona: con le scritte 52 (testo 96×48), senza 72 (testo 128×64); attiva +12%
+            float k = active || hot ? 1.12f : 1f;
+            float ih = (labels ? (text ? 44 : 54) : (text ? 58 : 74)) * k, iw = text ? ih * 2 : ih;
+            if (marks && !labels) ih = Math.min(ih, 64 * k);
+            float areaTop = top + 10, areaBot = top + h - (labels ? 38 : 10) - (marks ? 16 : 0);
+            float iy = (areaTop + areaBot) / 2 - ih / 2;
+            if (text) iw = ih * 2;
+            boolean flip = seat && (id.equals("sedilePasseggero") != rhd);   // solo i sedili: quello a destra guarda a sinistra
+            if (flip) {
+                c.save();
+                c.scale(-1, 1, mx, 0);
             }
+            icon(c, ic, mx - iw / 2, iy, iw, ih, fg);
+            if (flip) c.restore();
+            float my = areaBot + 6;
+            if (seat) for (int i = 0; i < 3; i++) rr(c, mx - 33 + i * 26, my, 20, 6, 3, i < level ? HEAT : TRACK, 0, 0);
+            if (dashes) {   // 1.2.0: intensità di AUTO (bassa / media / alta), si cambia toccando AUTO
+                int lit = 3 - st.autoLevel;
+                for (int i = 0; i < 3; i++)
+                    rr(c, mx - 41 + i * 30, my, 22, 5, 2.5f, i < lit ? fg : (fg & 0xFFFFFF) | 0x40000000, 0, 0);
+            }
+            if (labels) text(c, label, mx, top + h - 16, fit(label, 17, tw - 14, active || hot ? bold : regular), lab,
+                    Paint.Align.CENTER, active || hot ? bold : regular);
             x += tw + gap;
         }
+    }
+
+    /** 1.4.0: icona del ricircolo per stato: 0 interno, 1 esterno, 2 automatico (come i tasti fisici). */
+    static int recircIcon(int loop) {
+        return loop == 0 ? R.drawable.clima_ricircolo_interno : loop == 2 ? R.drawable.clima_ricircolo_auto : R.drawable.clima_aria_esterna;
     }
 
     // ---- 1.3.3: riscontro dei comandi dal joystick del volante: bordo luminoso sul tasto per mezzo secondo

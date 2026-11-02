@@ -174,4 +174,19 @@
     <string name="u_apk_missing" formatted="false">APK non trovato su GitHub</string>
     <string name="u_updated" formatted="false">Aggiornata</string>
     <string name="u_install_failed">Installazione non riuscita: %1$s</string>
+    <string name="s_joy_on" formatted="false">Acceso</string>
+    <string name="s_joy_shared" formatted="false">Su questa auto i tasti comandano anche la musica: mentre regoli il clima possono cambiare volume o brano</string>
+    <string name="s_joy_excl" formatted="false">Con MG4 Clima aperta i tasti comandano solo il clima (OK, su/giù temperatura, sinistra/destra ventola)</string>
+    <string name="a_joy_shared" formatted="false">Su questa auto i tasti del volante comandano anche la musica: comandi dal joystick spenti. Puoi riaccenderli nelle impostazioni.</string>
+    <string name="s_quick" formatted="false">Apertura rapida</string>
+    <string name="s_quick_sub" formatted="false">Copre subito l\'app clima originale con una schermata già pronta, mentre MG4 Clima si apre</string>
+    <string name="s_labels" formatted="false">Mostra le scritte sui pulsanti</string>
+    <string name="s_labels_sub" formatted="false">Spento: solo icone più grandi, come nella home del launcher</string>
+    <string name="k_factory" formatted="false">di fabbrica</string>
+    <string name="k_left_try" formatted="false">Prova se manda codici suoi (di solito no)</string>
+    <string name="k_left_none" formatted="false">Il joystick sinistro non è disponibile su questa auto (manda gli stessi tasti del destro)</string>
+    <string name="b_try" formatted="false">Prova</string>
+    <string name="n_title">Novità della %1$s</string>
+    <string name="n_sub" formatted="false">Cosa cambia in questa versione</string>
+    <string name="n_body" formatted="false">• Icone nuove, come i simboli dei tasti dell\'auto. Il ricircolo ha un\'icona per stato: interno, aria esterna, automatico\n• Lo stato attivo si vede subito: colore acceso, sfondo evidenziato, icona più grande\n• Nuova opzione \"Mostra le scritte sui pulsanti\": spenta, solo icone più grandi\n• Joystick del volante pronto subito, senza associazione. Se sull\'auto i tasti comandano anche la musica, resta spento (si può riaccendere)\n• Il joystick sinistro non è più una scelta: manda gli stessi tasti del destro\n• Apertura più rapida al posto dell\'app clima originale\n• Software SWI131 riconosciuto; la verifica sceglie da sola i valori di LO e HI</string>
 </resources>

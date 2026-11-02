@@ -146,20 +146,38 @@ public final class Store {
         sp(c).edit().putString("ripresa_" + kind, json == null ? "" : json).apply();
     }
 
-    /** 1.3.3: comandi dal joystick del volante: 0 spenti, 1 joystick destro, 2 joystick sinistro. */
+    /**
+     * Comandi dal joystick del volante: 0 spenti, 1 accesi (joystick destro). 1.4.0: la scelta "joystick sinistro" non
+     * c'è più (nei log manda gli stessi codici del destro): chi l'aveva scelta passa al destro. Di default accesi, ma
+     * spenti se su questo software i tasti non si possono tenere in esclusiva (arrivano anche alla musica).
+     */
     public static final int JOY_OFF = 0, JOY_RIGHT = 1, JOY_LEFT = 2;
 
     public static int joystick(Context c) {
-        return sp(c).getInt("joystick", JOY_RIGHT);
+        SharedPreferences s = sp(c);
+        if (s.contains("joystick")) return s.getInt("joystick", JOY_RIGHT) == JOY_OFF ? JOY_OFF : JOY_RIGHT;
+        return joyExclusive(c) == 0 ? JOY_OFF : JOY_RIGHT;
     }
 
     public static void setJoystick(Context c, int m) {
-        sp(c).edit().putInt("joystick", m).apply();
+        sp(c).edit().putInt("joystick", m == JOY_OFF ? JOY_OFF : JOY_RIGHT).apply();
     }
+
+    /** 1.4.0: codici di fabbrica del joystick destro (14 associazioni nei log, SWI68 e SWI69: tutte uguali). */
+    static final int[] FACTORY_RIGHT = {297, 298, 299, 300, 301};   // su, giù, sinistra, destra, ok
 
     /** Codice del tasto associato a un'azione del joystick (su, giu, sinistra, destra, ok), -1 se non associato. */
     public static int joyCode(Context c, int side, String action) {
-        return sp(c).getInt("joy" + side + "_" + action, -1);
+        int v = sp(c).getInt("joy" + side + "_" + action, -1);
+        if (v >= 0 || side != JOY_RIGHT) return v;
+        for (int i = 0; i < Joystick.ACTIONS.length; i++) if (Joystick.ACTIONS[i].equals(action)) return FACTORY_RIGHT[i];
+        return -1;
+    }
+
+    /** L'associazione del joystick destro è quella di fabbrica (nessuna associazione salvata a mano). */
+    public static boolean joyFactory(Context c) {
+        for (String a : Joystick.ACTIONS) if (sp(c).contains("joy" + JOY_RIGHT + "_" + a)) return false;
+        return true;
     }
 
     public static void setJoyCode(Context c, int side, String action, int code) {
@@ -170,6 +188,88 @@ public final class Store {
         SharedPreferences.Editor e = sp(c).edit();
         for (String a : Joystick.ACTIONS) e.remove("joy" + side + "_" + a);
         e.apply();
+    }
+
+    /**
+     * 1.4.0: esclusiva dei tasti del volante su questo software dell'auto: -1 non ancora provata, 1 riuscita
+     * (con il filtro attivo le altre app non ricevono più i tasti), 0 non possibile (li ricevono lo stesso).
+     */
+    public static int joyExclusive(Context c) {
+        return sp(c).getInt("joyEsclusiva_" + Model.software(), -1);
+    }
+
+    public static void setJoyExclusive(Context c, int v, String detail) {
+        sp(c).edit().putInt("joyEsclusiva_" + Model.software(), v).putString("joyEsclusivaDettaglio", detail).apply();
+    }
+
+    public static String joyExclusiveDetail(Context c) {
+        return sp(c).getString("joyEsclusivaDettaglio", "");
+    }
+
+    /** 1.4.0: scritte sotto le icone dei pulsanti (accese di default); spente = solo icone più grandi. */
+    public static boolean showLabels(Context c) {
+        return sp(c).getBoolean("scritte", true);
+    }
+
+    public static void setShowLabels(Context c, boolean on) {
+        sp(c).edit().putBoolean("scritte", on).apply();
+    }
+
+    /**
+     * 1.4.0: valore (in decimi di grado) da mandare all'auto per LO e HI sul servizio caradapter, scelto dalla verifica
+     * per quella versione dell'app clima originale. NaN = nessun valore funziona: LO / HI nascosti. null = mai provato.
+     */
+    public static Float tempLimit(Context c, String which, String version) {
+        String k = "limite" + which + "_" + version;
+        SharedPreferences s = sp(c);
+        if (!s.contains(k)) return null;
+        return s.getFloat(k, Float.NaN);
+    }
+
+    public static void setTempLimit(Context c, String which, String version, float v) {
+        sp(c).edit().putFloat("limite" + which + "_" + version, v).apply();
+    }
+
+    /** 1.4.0: posizione e misura della schermata sullo schermo (per la finestra pronta che copre il lampeggio). */
+    public static int[] screenRect(Context c) {
+        String v = sp(c).getString("riquadroSchermata", "");
+        String[] p = v.split(",");
+        if (p.length != 4) return null;
+        try {
+            int[] r = new int[4];
+            for (int i = 0; i < 4; i++) r[i] = Integer.parseInt(p[i]);
+            return r[2] > 100 && r[3] > 100 ? r : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    public static void setScreenRect(Context c, int x, int y, int w, int h) {
+        String v = x + "," + y + "," + w + "," + h;
+        if (!v.equals(sp(c).getString("riquadroSchermata", ""))) sp(c).edit().putString("riquadroSchermata", v).apply();
+    }
+
+    /** 1.4.0: finestra pronta all'apertura al posto dell'app originale (accesa di default). */
+    public static boolean quickCover(Context c) {
+        return sp(c).getBoolean("finestraPronta", true);
+    }
+
+    public static void setQuickCover(Context c, boolean on) {
+        sp(c).edit().putBoolean("finestraPronta", on).apply();
+    }
+
+    /** 1.4.0: ultima versione di cui è stato mostrato il popup "Novità". */
+    public static int newsSeen(Context c) {
+        return sp(c).getInt("novitaViste", 0);
+    }
+
+    public static void setNewsSeen(Context c, int code) {
+        sp(c).edit().putInt("novitaViste", code).apply();
+    }
+
+    /** Prima installazione (nessuna impostazione salvata): niente popup Novità. Da chiamare all'avvio. */
+    public static boolean fresh(Context c) {
+        return sp(c).getAll().isEmpty();
     }
 
     /** Ora con i millisecondi, per misurare il lampeggio (1.3.1). */
@@ -271,9 +371,14 @@ public final class Store {
                 .append(Model.sysUiPanel(c) ? " · interfaccia pannello di sistema: " + SysUiPanel.interfaceName() : "").append('\n');
         sb.append("chiusura con swipe: ").append(swipeName(swipeMode(c))).append('\n');
         int js = joystick(c);
-        sb.append("comandi dal joystick: ").append(js == JOY_OFF ? "spenti" : (js == JOY_RIGHT ? "joystick destro" : "joystick sinistro")
-                + " (" + Joystick.mapText(c, js) + ")").append('\n');
+        sb.append("comandi dal joystick: ").append(js == JOY_OFF ? "spenti" : "joystick destro")
+                .append(" (").append(Joystick.mapText(c, JOY_RIGHT)).append(joyFactory(c) ? ", di fabbrica" : ", associato a mano").append(')')
+                .append(joyCode(c, JOY_LEFT, "su") >= 0 ? " · sinistro: " + Joystick.mapText(c, JOY_LEFT) : "").append('\n');
+        sb.append("joystick.esclusiva = ").append(Joystick.exclusiveLine(c)).append('\n');
+        sb.append("scritte sui pulsanti: ").append(showLabels(c) ? "sì" : "no").append(" · finestra pronta: ")
+                .append(quickCover(c) ? "sì" : "no").append('\n');
         sb.append("app clima originale: ").append(ClimaGuard.originalLine(c)).append('\n');
+        if (!Model.saic(c)) sb.append("temperatura (verifica): ").append(CarAdapterBackend.limitsText()).append('\n');
         sb.append("sostituzione: ").append(replace(c) ? "attiva" : "spenta")
                 .append(bypassed(c) ? " (sospesa: app originale aperta apposta)" : "")
                 .append(" · accessibilità: ").append(ClimaGuard.enabledState(c)).append('\n');

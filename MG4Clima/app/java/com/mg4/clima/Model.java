@@ -108,6 +108,9 @@ public final class Model {
             // 1.3.3: mercato turco (DBI68-29558-1X00RXX-…): app clima com.saicmotor.hmi.hvac EH32_SOP_TUR come la SWI68,
             // test dei comandi come SWI68 riuscito (falliva solo il salto da LO a 32, come sulle altre EH32_SOP)
             {"DBI68", "mercato turco, stessa app clima della SWI68", SWI68},
+            // 1.4.0: SWI131-29958-1100R05 (app clima com.saicmotor.hvac A9_Hvac_V1.0.0.99, servizio caradapter): stessa
+            // famiglia della SWI69; i valori di LO e HI li sceglie la verifica (AutoTest)
+            {"SWI131", "famiglia SWI69 (caradapter)", SWI69},
     };
 
     private static String[] family(String sw) {

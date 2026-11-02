@@ -38,6 +38,7 @@ public final class ClimaActivity extends Activity {
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         overridePendingTransition(0, 0);   // 1.3.1: senza animazione, copre subito l'app originale
+        if (Store.fresh(this)) Store.setNewsSeen(this, BuildInfo.code(this));   // prima installazione: niente "Novità"
         L.init(this, Store.language(this));
         // 1.3.1: modello scelto a mano uguale a quello che dice il nome del software → si torna al riconoscimento automatico
         if (Model.manual(this) && Store.model(this).equals(Model.fromSoftware())) {
@@ -50,6 +51,7 @@ public final class ClimaActivity extends Activity {
         view.setAnimated(Store.animatedAir(this));
         view.setDashStyle(Store.dashStyle(this));
         view.setDefrostTiles(Store.defrostTiles(this));
+        view.setShowLabels(Store.showLabels(this));
         view.setListener(this::onTap);
         root = new FrameLayout(this);
         root.addView(view);
@@ -74,7 +76,23 @@ public final class ClimaActivity extends Activity {
             }
         });
         client = new HvacClient(this);
-        joy = new Joystick(this, (code, down, lp, consumed) -> h.post(() -> onWheelKey(code, down, lp, consumed)));
+        joy = new Joystick(this, new Joystick.Listener() {
+            @Override
+            public void onKey(int code, boolean down, boolean lp, boolean consumed) {
+                h.post(() -> onWheelKey(code, down, lp, consumed));
+            }
+
+            @Override
+            public void onSystemKey(int sysCode, boolean down) {
+                h.post(() -> onSysKey(sysCode, down));
+            }
+        });
+        joy.onDecided = () -> {   // 1.4.0: esclusiva non possibile → comandi spenti (se l'utente non li aveva scelti)
+            if (Store.joystick(this) == Store.JOY_OFF) {
+                stopRepeat();
+                toastLong(L.s(R.string.a_joy_shared));
+            }
+        };
         // al primo avvio dopo l'installazione attiva la sostituzione dell'app clima
         ClimaGuard.ensureEnabled(this);
         if (ClimaGuard.hasOriginalApp(this) && !ClimaGuard.originalKnown(this)) {
@@ -103,6 +121,14 @@ public final class ClimaActivity extends Activity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            // 1.4.0: posizione e misura della schermata (per la finestra pronta) e via la finestra pronta
+            int[] loc = new int[2];
+            View d = getWindow().getDecorView();
+            d.getLocationOnScreen(loc);
+            Store.setScreenRect(this, loc[0], loc[1], d.getWidth(), d.getHeight());
+            ClimaGuard.screenReady();
+        }
         if (!hasFocus || originalAt <= 0) return;
         long now = System.currentTimeMillis();
         Store.event(this, "MG4 Clima aperta alle " + Store.ms(now) + " · originale comparsa alle " + Store.ms(originalAt)
@@ -145,8 +171,16 @@ public final class ClimaActivity extends Activity {
             if (Model.sysUiPanel(this)) SysUiPanel.prepare(this);
         }
         edges();
+        resumed = true;
+        filterCodes.clear();
         joy.register();   // 1.3.3: tasti del volante solo con la schermata aperta e in primo piano
+        // 1.4.0: tasti in esclusiva (filtro dell'accessibilità) solo con la schermata in primo piano e il joystick acceso
+        if (Store.joystick(this) != Store.JOY_OFF) ClimaGuard.keyFilter(this, true, this::onFilterKey);
+        h.postDelayed(this::maybeNews, 1500);
     }
+
+    /** 1.4.0: la schermata è in primo piano (il filtro dei tasti consuma solo in questo caso). */
+    static volatile boolean resumed;
 
     /** Strisce sui bordi per lo swipe dal bordo, solo mentre MG4 Clima è in primo piano (1.3.1). */
     private void edges() {
@@ -200,6 +234,7 @@ public final class ClimaActivity extends Activity {
 
     private void onState(HvacClient.State s) {
         last = s;
+        ClimaGuard.lastState = s;   // 1.4.0: per la finestra pronta
         if (s.fan >= 1 && s.fan <= 11) lastManualFan = s.fan;
         view.setState(s);
     }
@@ -226,7 +261,8 @@ public final class ClimaActivity extends Activity {
             case "temp+": {
                 int base = now - pendTempAt < 1500 && pendTemp > 0 ? pendTemp : s.temp;
                 if (base < s.tempMin || base > s.tempMax) base = 22;
-                int tt = id.equals("temp+") ? Math.min(s.tempMax, base + 1) : Math.max(s.tempMin, base - 1);
+                // 1.4.0: senza LO / HI comandabili (verifica) ci si ferma al minimo / massimo numerico
+                int tt = id.equals("temp+") ? Math.min(s.setMax(), base + 1) : Math.max(s.setMin(), base - 1);
                 if (tt == base) return;
                 pendTemp = tt;
                 pendTempAt = now;
@@ -397,6 +433,12 @@ public final class ClimaActivity extends Activity {
                     view.setAnimated(v);
                     Store.event(this, "aria animata " + (v ? "accesa" : "spenta"));
                 }), false);
+        s.row(c0, L.s(R.string.s_labels), L.s(R.string.s_labels_sub),
+                s.toggle(Store.showLabels(this), v -> {
+                    Store.setShowLabels(this, v);
+                    view.setShowLabels(v);
+                    Store.event(this, "scritte sui pulsanti " + (v ? "mostrate" : "nascoste"));
+                }), false);
         s.row(c0, L.s(R.string.s_defrost_tiles), L.s(R.string.s_defrost_tiles_sub),
                 s.toggle(Store.defrostTiles(this), v -> {
                     Store.setDefrostTiles(this, v);
@@ -462,13 +504,18 @@ public final class ClimaActivity extends Activity {
                     edges();
                 }), false);
         // 1.3.3: comandi dal joystick del volante (solo con la schermata aperta)
-        int js = Store.joystick(this);
-        s.row(c1, L.s(R.string.s_joy), js != Store.JOY_OFF && !Joystick.complete(this, js) ? L.s(R.string.s_joy_unset) : L.s(R.string.s_joy_sub),
-                s.choices(new String[]{L.s(R.string.s_swipe_off), L.s(R.string.s_joy_right), L.s(R.string.s_joy_left)}, js, i -> {
-                    Store.setJoystick(this, i);
-                    Store.event(this, "comandi dal joystick: " + (i == 0 ? "spenti" : i == 1 ? "joystick destro" : "joystick sinistro")
-                            + (i == 0 ? "" : " (" + Joystick.mapText(this, i) + ")"));
+        // 1.4.0: solo spento / acceso (il joystick sinistro non manda codici suoi); spiegazione se non c'è l'esclusiva
+        int js = Store.joystick(this), ex = Store.joyExclusive(this);
+        s.row(c1, L.s(R.string.s_joy), ex == 0 ? L.s(R.string.s_joy_shared) : ex == 1 ? L.s(R.string.s_joy_excl) : L.s(R.string.s_joy_sub),
+                s.choices(new String[]{L.s(R.string.s_swipe_off), L.s(R.string.s_joy_on)}, js == Store.JOY_OFF ? 0 : 1, i -> {
+                    Store.setJoystick(this, i == 0 ? Store.JOY_OFF : Store.JOY_RIGHT);
+                    Store.event(this, "comandi dal joystick: " + (i == 0 ? "spenti" : "accesi (" + Joystick.mapText(this, Store.JOY_RIGHT) + ")"));
                     settings();
+                }), false);
+        s.row(c1, L.s(R.string.s_quick), L.s(R.string.s_quick_sub),
+                s.toggle(Store.quickCover(this), v -> {
+                    Store.setQuickCover(this, v);
+                    Store.event(this, "finestra pronta " + (v ? "accesa" : "spenta"));
                 }), false);
         if (panelModel) {
             int pm = Store.panelMode(this);
@@ -720,11 +767,60 @@ public final class ClimaActivity extends Activity {
         if (!consumeLogged && down) {
             consumeLogged = true;
             Store.event(this, "joystick: tasti del volante " + (consumed ? "consumati da MG4 Clima (le altre app non li ricevono)"
+                    : ClimaGuard.keyFilterOn() ? "ricevuti col broadcast mentre il filtro è attivo (si misura l'esclusiva)"
                     : "ricevuti anche dalle altre app (il sistema non permette di bloccarli)"));
+        }
+        if (ClimaGuard.keyFilterOn() && down && !lp) joy.sawCast(code, h);
+        handleKey(code, down, lp, "broadcast");
+    }
+
+    /**
+     * 1.4.0: tasto visto dal filtro dell'accessibilità (thread principale, deve tornare subito). Si consumano solo i
+     * tasti del joystick associati, e solo con la schermata in primo piano; tutti gli altri restano al sistema.
+     */
+    private boolean onFilterKey(int keyCode, int scanCode, boolean down, int repeat) {
+        boolean keyTest = sheet != null && sheet.showing() && KEYS.equals(currentSheet);
+        boolean mapped = Joystick.actionOf(this, Store.JOY_RIGHT, keyCode) != null
+                || Joystick.actionOf(this, Store.JOY_LEFT, keyCode) != null;
+        if (!mapped && !(keyTest && assignStep >= 0 && keyCode >= 280)) return false;
+        if (repeat > 0) return true;   // ripetizione del sistema: la ripetizione la fa il nostro timer
+        if (down) joy.sawFilter(keyCode, h);
+        h.post(() -> {
+            if (keyTest) Store.event(this, "filtro: keycode " + keyCode + " scancode " + scanCode + (down ? " premuto" : " rilasciato"));
+            handleKey(keyCode, down, false, "filtro");
+        });
+        return true;
+    }
+
+    /** Stesso tasto arrivato dal filtro e dal broadcast: lo si usa una volta sola (il primo che arriva). */
+    private int lastKeyCode = -1;
+    private boolean lastKeyDown;
+    private long lastKeyAt;
+
+    /** 1.4.0: codici visti dal filtro da quando la schermata è in primo piano: per questi si usa solo il filtro. */
+    private final java.util.Set<Integer> filterCodes = new java.util.HashSet<>();
+
+    private void handleKey(int code, boolean down, boolean lp, String from) {
+        long now = android.os.SystemClock.uptimeMillis();
+        // stesso tasto dal filtro e dal broadcast: se il filtro lo vede si usa solo il filtro (niente doppi comandi)
+        if ("filtro".equals(from)) filterCodes.add(code);
+        else if (filterCodes.contains(code) && ClimaGuard.keyFilterOn()) return;
+        // 1.4.0: SWI132/SWI69, joystick nella modalità clima dell'auto: codici 311–315, li gestisce l'auto
+        if (code >= 311 && code <= 315 && !(sheet != null && sheet.showing())) {
+            if (down && !carModeLogged) {
+                carModeLogged = true;
+                Store.event(this, "joystick in modalità clima dell'auto (codice " + code + "): comandi lasciati all'auto");
+            }
+            return;
+        }
+        if (!lp) {
+            lastKeyCode = code;
+            lastKeyDown = down;
+            lastKeyAt = now;
         }
         // schermata Prova tasti: si mostra e si scrive ogni tasto, niente comandi
         if (sheet != null && sheet.showing() && KEYS.equals(currentSheet)) {
-            String line = code + (down ? " premuto" : " rilasciato") + (lp ? " (lungo)" : "");
+            String line = code + (down ? " premuto" : " rilasciato") + (lp ? " (lungo)" : "") + ("filtro".equals(from) ? " · filtro" : "");
             Store.event(this, "tasto volante: codice " + line);
             keysSeen.addFirst(new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ITALY).format(new java.util.Date()) + "  " + line);
             while (keysSeen.size() > 12) keysSeen.removeLast();
@@ -734,26 +830,94 @@ public final class ClimaActivity extends Activity {
                 assignStep++;
                 if (assignStep >= Joystick.ACTIONS.length) {
                     assignStep = -1;
-                    Store.event(this, "joystick " + (assignSide == Store.JOY_RIGHT ? "destro" : "sinistro") + " associato: "
-                            + Joystick.mapText(this, assignSide));
-                    LogSend.send(this, "joystick", null);
+                    assignDone();
                 }
             }
             keyTest();
             return;
         }
         if (sheet != null && sheet.showing()) return;   // impostazioni aperte: i tasti non comandano il clima
-        int side = Store.joystick(this);
-        if (side == Store.JOY_OFF) return;
-        String action = Joystick.actionOf(this, side, code);
+        if (Store.joystick(this) == Store.JOY_OFF) return;
+        String action = Joystick.actionOf(this, Store.JOY_RIGHT, code);
+        if (action == null) action = Joystick.actionOf(this, Store.JOY_LEFT, code);
         if (action == null) return;
         if (!down) {
             stopRepeat();
             return;
         }
         if (lp && repeatAction != null) return;   // già in ripetizione col nostro timer
-        joyAction(code, action, false);
-        if (!"ok".equals(action)) startRepeat(code, action);
+        // 1.4.0: si aspetta un attimo il tasto rigirato dalla SystemUI: se il joystick è nella modalità clima dell'auto
+        // (tasto ★) il clima lo comanda già l'auto, MG4 Clima non manda niente (niente doppi comandi)
+        final String act = action;
+        final long pressAt = now;
+        h.postDelayed(() -> {
+            if (sysAt >= pressAt - 100 && sysMode == 2) {
+                if (!carModeLogged) {
+                    carModeLogged = true;
+                    Store.event(this, "joystick in modalità clima dell'auto (tasto ★): comandi lasciati all'auto, MG4 Clima mostra solo lo stato");
+                }
+                view.flash(flashId(act));
+                return;
+            }
+            joyAction(code, act, false);
+            // ripetizione solo se il tasto è ancora premuto (un tocco breve è già stato rilasciato)
+            if (!"ok".equals(act) && lastKeyCode == code && lastKeyDown) startRepeat(code, act);
+        }, SYS_WAIT_MS);
+    }
+
+    private static final long SYS_WAIT_MS = 150;
+    /** 1.4.0: ultimo tasto rigirato dalla SystemUI e modo del joystick che indica (vedi Joystick.sysMode). */
+    private long sysAt;
+    private int sysMode = -1, sysModeLogged = -2;
+    private boolean carModeLogged;
+
+    private void onSysKey(int sysCode, boolean down) {
+        int m = Joystick.sysMode(sysCode);
+        if (m < 0) return;
+        if (down) {
+            sysAt = android.os.SystemClock.uptimeMillis();
+            sysMode = m;
+            if (m == 2) joy.carClimaMode = true;   // la musica non c'entra: niente misura dell'esclusiva
+            if (m == 0 && ClimaGuard.keyFilterOn()) joy.sawSystemMusic();
+        }
+        if (m != sysModeLogged && Store.joystick(this) != Store.JOY_OFF) {
+            sysModeLogged = m;
+            Store.event(this, "joystick.modo dell'auto = " + Joystick.sysModeName(m) + " (la SystemUI rigira il codice " + sysCode + ")");
+        }
+    }
+
+    private static String flashId(String action) {
+        switch (action) {
+            case "su": return "temp+";
+            case "giu": return "temp-";
+            case "sinistra": return "fan-";
+            case "destra": return "fan+";
+            default: return "accensione";
+        }
+    }
+
+    /**
+     * Fine associazione. 1.4.0: il joystick sinistro si salva solo se manda codici diversi dal destro, altrimenti
+     * "il joystick sinistro non è disponibile su questa auto" (nei log manda gli stessi codici del destro).
+     */
+    private void assignDone() {
+        if (assignSide == Store.JOY_LEFT) {
+            boolean same = true;
+            for (String a : Joystick.ACTIONS) {
+                int k = Store.joyCode(this, Store.JOY_LEFT, a);
+                if (Joystick.actionOf(this, Store.JOY_RIGHT, k) == null) same = false;
+            }
+            if (same) {
+                Store.clearJoy(this, Store.JOY_LEFT);
+                Store.event(this, "joystick sinistro: stessi codici del destro → non disponibile su questa auto");
+                toastLong(L.s(R.string.k_left_none));
+                LogSend.send(this, "joystick", null);
+                return;
+            }
+        }
+        Store.event(this, "joystick " + (assignSide == Store.JOY_RIGHT ? "destro" : "sinistro") + " associato: "
+                + Joystick.mapText(this, assignSide));
+        LogSend.send(this, "joystick", null);
     }
 
     /** Esegue l'azione: OK accende (in AUTO) o spegne, su/giù temperatura, sinistra/destra ventola. */
@@ -768,12 +932,12 @@ public final class ClimaActivity extends Activity {
             case "su":
                 id = "temp+";
                 what = "temperatura +";
-                if (s.temp >= s.tempMax) esito = "già al massimo (HI)";
+                if (s.temp >= s.setMax()) esito = s.noHi ? "già al massimo (HI nascosto)" : "già al massimo (HI)";
                 break;
             case "giu":
                 id = "temp-";
                 what = "temperatura -";
-                if (s.temp <= s.tempMin) esito = "già al minimo (LO)";
+                if (s.temp <= s.setMin()) esito = s.noLo ? "già al minimo (LO nascosto)" : "già al minimo (LO)";
                 break;
             case "sinistra":
                 id = "fan-";
@@ -833,17 +997,25 @@ public final class ClimaActivity extends Activity {
                 L.s(actionName(Joystick.ACTIONS[assignStep]))) : L.s(R.string.k_idle);
         s.row(c, prompt, keysSeen.isEmpty() ? L.s(R.string.k_none) : String.join("\n", keysSeen), null, true);
         LinearLayout c2 = s.card();
-        for (int side : new int[]{Store.JOY_RIGHT, Store.JOY_LEFT}) {
-            final int sd = side;
-            s.row(c2, L.s(side == Store.JOY_RIGHT ? R.string.s_joy_right : R.string.s_joy_left), Joystick.mapText(this, side),
-                    s.button(L.s(R.string.b_assign), v -> {
-                        Store.clearJoy(this, sd);
-                        assignSide = sd;
-                        assignStep = 0;
-                        Store.event(this, "associazione joystick " + (sd == Store.JOY_RIGHT ? "destro" : "sinistro") + " avviata");
-                        keyTest();
-                    }), side == Store.JOY_LEFT);
-        }
+        s.row(c2, L.s(R.string.s_joy_right), Joystick.mapText(this, Store.JOY_RIGHT)
+                        + (Store.joyFactory(this) ? " · " + L.s(R.string.k_factory) : ""),
+                s.button(L.s(R.string.b_assign), v -> {
+                    Store.clearJoy(this, Store.JOY_RIGHT);
+                    assignSide = Store.JOY_RIGHT;
+                    assignStep = 0;
+                    Store.event(this, "associazione joystick destro avviata");
+                    keyTest();
+                }), false);
+        // 1.4.0: il sinistro non è una scelta: si prova se manda codici suoi (di solito no)
+        boolean leftSaved = Store.joyCode(this, Store.JOY_LEFT, "su") >= 0;
+        s.row(c2, L.s(R.string.s_joy_left), leftSaved ? Joystick.mapText(this, Store.JOY_LEFT) : L.s(R.string.k_left_try),
+                s.button(L.s(R.string.b_try), v -> {
+                    Store.clearJoy(this, Store.JOY_LEFT);
+                    assignSide = Store.JOY_LEFT;
+                    assignStep = 0;
+                    Store.event(this, "prova joystick sinistro avviata");
+                    keyTest();
+                }), true);
     }
 
     private static int actionName(String a) {
@@ -854,6 +1026,21 @@ public final class ClimaActivity extends Activity {
             case "destra": return R.string.k_right;
             default: return R.string.k_ok;
         }
+    }
+
+    /** 1.4.0: popup "Novità" una volta per versione (non alla prima installazione). */
+    private void maybeNews() {
+        int code = BuildInfo.code(this);
+        if (Store.newsSeen(this) >= code || isFinishing() || !resumed) return;
+        if (testRunning || (sheet != null && sheet.showing())) return;
+        Store.setNewsSeen(this, code);
+        if (sheet == null) sheet = new Sheet(this, root, view);
+        Sheet s = sheet.open(L.f(R.string.n_title, BuildInfo.version(this)), L.s(R.string.n_sub));
+        currentSheet = "novita";
+        LinearLayout card = s.card();
+        String[] lines = L.s(R.string.n_body).split("\n");
+        for (int i = 0; i < lines.length; i++) s.bullet(card, lines[i], i == lines.length - 1);
+        Store.event(this, "novità della " + BuildInfo.version(this) + " mostrate");
     }
 
     private void diagnostics() {
@@ -881,6 +1068,8 @@ public final class ClimaActivity extends Activity {
 
     @Override
     protected void onPause() {
+        resumed = false;
+        ClimaGuard.keyFilter(this, false, null);   // 1.4.0: i tasti tornano subito alle altre app
         shadeBlock(false);
         ClimaGuard.edges(this, 0);
         joy.unregister();

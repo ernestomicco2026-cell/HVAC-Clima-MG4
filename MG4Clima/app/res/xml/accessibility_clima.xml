@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- cambi di finestra (quale app è in primo piano) ed elenco delle finestre (per riconoscere il pannello clima "hvac page"): nessun contenuto letto -->
+<!-- cambi di finestra (quale app è in primo piano) ed elenco delle finestre (per riconoscere il pannello clima "hvac page"): nessun contenuto letto.
+     1.4.0: canRequestFilterKeyEvents = può chiedere i tasti del volante, ma il filtro si accende solo con la schermata
+     di MG4 Clima in primo piano (ClimaGuard.keyFilter) -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityEventTypes="typeWindowStateChanged|typeWindowsChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows"
     android:canRetrieveWindowContent="true"
+    android:canRequestFilterKeyEvents="true"
     android:notificationTimeout="50"
     android:description="@string/a11y_desc" />

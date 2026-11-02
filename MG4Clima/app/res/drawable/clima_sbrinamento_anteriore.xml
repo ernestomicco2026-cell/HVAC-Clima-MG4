@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MG4 Clima · sbrinamento del parabrezza · simbolo in stile ISO 2575, bianco: il colore lo dà il tint (acceso / spento / non disponibile) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M5.5,39 L10.5,10.5 Q24,5.5 37.5,10.5 L42.5,39 Q24,33.5 5.5,39 Z"/>
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M16.50,32.00 q2.72,-3.50 0,-7.00 q-2.72,-3.50 0,-7.00"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M16.50,14.00 L18.85,18.41 L14.15,18.41 Z"/>
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M24.00,32.00 q2.72,-3.50 0,-7.00 q-2.72,-3.50 0,-7.00"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M24.00,14.00 L26.35,18.41 L21.65,18.41 Z"/>
+    <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M31.50,32.00 q2.72,-3.50 0,-7.00 q-2.72,-3.50 0,-7.00"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M31.50,14.00 L33.85,18.41 L29.15,18.41 Z"/>
+</vector>
