@@ -233,7 +233,8 @@ final class Joystick {
         String d = Store.joyExclusiveDetail(c);
         return "filtro tasti dell'accessibilità · " + (v < 0 ? "non ancora provata" : v == 1 ? "riuscita · alle altre app: no"
                 : "non possibile · alle altre app: sì") + (d.isEmpty() || v < 0 ? "" : " (" + d + ")")
-                + " · filtro ora " + (ClimaGuard.keyFilterOn() ? "attivo" : "spento");
+                + " · filtro ora " + (ClimaGuard.keyFilterOn() ? "attivo (consuma solo con MG4 Clima in primo piano)" : "spento")
+                + ClimaGuard.otherFilters(c);
     }
 
     private static int intOf(Object v) {

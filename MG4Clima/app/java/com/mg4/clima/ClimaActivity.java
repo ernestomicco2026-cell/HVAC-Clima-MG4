@@ -90,6 +90,7 @@ public final class ClimaActivity extends Activity {
         joy.onDecided = () -> {   // 1.4.0: esclusiva non possibile → comandi spenti (se l'utente non li aveva scelti)
             if (Store.joystick(this) == Store.JOY_OFF) {
                 stopRepeat();
+                ClimaGuard.refreshFilter(this);
                 toastLong(L.s(R.string.a_joy_shared));
             }
         };
@@ -175,7 +176,8 @@ public final class ClimaActivity extends Activity {
         filterCodes.clear();
         joy.register();   // 1.3.3: tasti del volante solo con la schermata aperta e in primo piano
         // 1.4.0: tasti in esclusiva (filtro dell'accessibilità) solo con la schermata in primo piano e il joystick acceso
-        if (Store.joystick(this) != Store.JOY_OFF) ClimaGuard.keyFilter(this, true, this::onFilterKey);
+        // 1.4.1: il filtro resta acceso nel servizio; la schermata in primo piano riceve (e fa consumare) i tasti
+        ClimaGuard.keyListener(this::onFilterKey);
         h.postDelayed(this::maybeNews, 1500);
     }
 
@@ -509,6 +511,7 @@ public final class ClimaActivity extends Activity {
         s.row(c1, L.s(R.string.s_joy), ex == 0 ? L.s(R.string.s_joy_shared) : ex == 1 ? L.s(R.string.s_joy_excl) : L.s(R.string.s_joy_sub),
                 s.choices(new String[]{L.s(R.string.s_swipe_off), L.s(R.string.s_joy_on)}, js == Store.JOY_OFF ? 0 : 1, i -> {
                     Store.setJoystick(this, i == 0 ? Store.JOY_OFF : Store.JOY_RIGHT);
+                    ClimaGuard.refreshFilter(this);   // 1.4.1: filtro dei tasti acceso solo con i comandi accesi
                     Store.event(this, "comandi dal joystick: " + (i == 0 ? "spenti" : "accesi (" + Joystick.mapText(this, Store.JOY_RIGHT) + ")"));
                     settings();
                 }), false);
@@ -780,11 +783,12 @@ public final class ClimaActivity extends Activity {
      */
     private boolean onFilterKey(int keyCode, int scanCode, boolean down, int repeat) {
         boolean keyTest = sheet != null && sheet.showing() && KEYS.equals(currentSheet);
-        boolean mapped = Joystick.actionOf(this, Store.JOY_RIGHT, keyCode) != null
-                || Joystick.actionOf(this, Store.JOY_LEFT, keyCode) != null;
-        if (!mapped && !(keyTest && assignStep >= 0 && keyCode >= 280)) return false;
-        if (repeat > 0) return true;   // ripetizione del sistema: la ripetizione la fa il nostro timer
-        if (down) joy.sawFilter(keyCode, h);
+        if (down) {
+            boolean mapped = Store.joystick(this) != Store.JOY_OFF && (Joystick.actionOf(this, Store.JOY_RIGHT, keyCode) != null
+                    || Joystick.actionOf(this, Store.JOY_LEFT, keyCode) != null);
+            if (!mapped && !(keyTest && assignStep >= 0 && keyCode >= 280)) return false;
+            joy.sawFilter(keyCode, h);
+        }
         h.post(() -> {
             if (keyTest) Store.event(this, "filtro: keycode " + keyCode + " scancode " + scanCode + (down ? " premuto" : " rilasciato"));
             handleKey(keyCode, down, false, "filtro");
@@ -850,6 +854,12 @@ public final class ClimaActivity extends Activity {
         // (tasto ★) il clima lo comanda già l'auto, MG4 Clima non manda niente (niente doppi comandi)
         final String act = action;
         final long pressAt = now;
+        // 1.4.1: preso dal filtro → la SystemUI non l'ha visto, niente da aspettare: comando subito
+        if ("filtro".equals(from)) {
+            joyAction(code, act, false);
+            if (!"ok".equals(act)) startRepeat(code, act);
+            return;
+        }
         h.postDelayed(() -> {
             if (sysAt >= pressAt - 100 && sysMode == 2) {
                 if (!carModeLogged) {
@@ -1069,7 +1079,7 @@ public final class ClimaActivity extends Activity {
     @Override
     protected void onPause() {
         resumed = false;
-        ClimaGuard.keyFilter(this, false, null);   // 1.4.0: i tasti tornano subito alle altre app
+        ClimaGuard.keyListener(null);   // i tasti tornano subito alle altre app (un tasto già premuto finisce da noi)
         shadeBlock(false);
         ClimaGuard.edges(this, 0);
         joy.unregister();

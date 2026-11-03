@@ -296,9 +296,9 @@ public final class ClimaGuard extends AccessibilityService {
         instance = this;
         // 1.3.3: se MG4 Clima è già aperta (il servizio si collega dopo), mette subito le strisce sui bordi
         if (wantedEdges != 0) edges(this, wantedEdges);
-        // 1.4.0: il filtro dei tasti si riaccende solo se la schermata lo chiede di nuovo (dopo un crash resta spento)
+        // 1.4.1: filtro dei tasti acceso se i comandi dal joystick sono accesi (consuma solo con la schermata davanti)
         filterOn = false;
-        if (wantFilter) keyFilter(this, true, keyListener);
+        applyFilter(Store.joystick(this) != Store.JOY_OFF);
         main.postDelayed(this::prepareCover, 25_000);
         if (bg == null) {
             android.os.HandlerThread th = new android.os.HandlerThread("mg4-clima-guard");
@@ -332,10 +332,10 @@ public final class ClimaGuard extends AccessibilityService {
             return;
         }
         if (e.getPackageName() != null) fgPkg = e.getPackageName().toString();
-        // 1.4.0: un'altra app (non la nostra né il clima originale) davanti → via la finestra pronta e il filtro dei tasti
+        // 1.4.0: un'altra app (non la nostra né il clima originale) davanti → via la finestra pronta
+        // (1.4.1: il filtro dei tasti resta, ma con un'altra app davanti non consuma niente)
         if (!getPackageName().equals(fgPkg) && !hvacPkg.equals(fgPkg)) {
             if (cover != null) hideCover("davanti " + fgPkg);
-            if (filterOn) keyFilter(this, false, null);
         }
         if (e.getPackageName() == null || !hvacPkg.contentEquals(e.getPackageName())) return;
         CharSequence cls = e.getClassName();
@@ -506,64 +506,122 @@ public final class ClimaGuard extends AccessibilityService {
     }
 
 
-    // ---- 1.4.0: tasti del volante in esclusiva (filtro dei tasti dell'accessibilità) ---------------------------------
-    // Acceso solo mentre la schermata di MG4 Clima è in primo piano (onResume → onPause). Il filtro appartiene a questo
-    // servizio: se l'app va in crash o si chiude il sistema lo toglie da solo; se davanti va un'altra app si spegne qui.
+    // ---- tasti del volante in esclusiva (filtro dei tasti dell'accessibilità) --------------------------------------
+    // 1.4.1 (come MG4 Control, verificato in auto su SWI133): il filtro resta acceso finché i comandi dal joystick sono
+    // accesi, e un tasto si consuma SOLO se la schermata di MG4 Clima è in primo piano e il tasto è uno di quelli
+    // associati. Consumato qui, il broadcast "hardkey.report" non parte e la SystemUI non cambia volume né brano.
+    // Fuori dalla schermata ogni tasto passa. Se l'app va in crash il filtro sparisce con il servizio.
+    // Un tasto preso alla pressione si tiene fino al rilascio (anche se intanto la schermata si chiude): al sistema
+    // non arriva mai un rilascio senza la sua pressione. Ogni errore lascia passare il tasto.
 
     interface KeyListener {
-        /** true = tasto consumato (non arriva al resto del sistema). Thread principale: deve tornare subito. */
+        /**
+         * Pressione (down) o rilascio (up) di un tasto visto dal filtro. Per la pressione: true = tasto da consumare.
+         * Il rilascio di un tasto preso arriva sempre (il valore restituito non conta). Thread principale, subito.
+         */
         boolean onFilterKey(int keyCode, int scanCode, boolean down, int repeat);
     }
 
     private static volatile KeyListener keyListener;
-    private static volatile boolean wantFilter, filterOn;
+    private static volatile boolean filterOn;
     private static int unknownLogged;
+    /** Tasti presi alla pressione, con l'ora: pressione → rilascio restano a noi. */
+    private final java.util.Map<Integer, Long> taken = new java.util.HashMap<>();
+    private static final long TAKEN_MAX_MS = 15_000;   // tasto "bloccato" (rilascio perso): dopo 15 s si lascia
 
     static boolean keyFilterOn() {
         return filterOn;
     }
 
-    /** Accende o spegne il filtro (dal thread principale). Se il servizio non è collegato si accende quando si collega. */
-    static void keyFilter(Context c, boolean on, KeyListener l) {
-        wantFilter = on;
-        keyListener = on ? l : null;
+    /** Chi riceve i tasti: la schermata in onResume, null in onPause. Il filtro non si spegne. */
+    static void keyListener(KeyListener l) {
+        keyListener = l;
+    }
+
+    /** Accende o spegne il filtro secondo l'impostazione "Comandi dal joystick" (all'avvio e quando cambia). */
+    static void refreshFilter(Context c) {
         ClimaGuard g = instance;
-        if (g == null) return;
+        if (g != null) g.applyFilter(Store.joystick(c) != Store.JOY_OFF);
+    }
+
+    private void applyFilter(boolean on) {
         if (on == filterOn) return;
         try {
-            android.accessibilityservice.AccessibilityServiceInfo i = g.getServiceInfo();
+            android.accessibilityservice.AccessibilityServiceInfo i = getServiceInfo();
             if (i == null) return;
             if (on) i.flags |= android.accessibilityservice.AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
             else i.flags &= ~android.accessibilityservice.AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
-            g.setServiceInfo(i);
+            setServiceInfo(i);
             filterOn = on;
-            Store.event(c, "joystick: filtro dei tasti " + (on ? "acceso (schermata in primo piano)" : "spento"));
+            if (!on) taken.clear();
+            Store.event(this, "joystick: filtro dei tasti " + (on ? "acceso (consuma solo con MG4 Clima in primo piano)" : "spento")
+                    + otherFilters(this));
         } catch (Throwable t) {
             filterOn = false;
-            Store.event(c, "joystick: filtro dei tasti non " + (on ? "acceso " : "spento ") + t);
+            Store.event(this, "joystick: filtro dei tasti non " + (on ? "acceso " : "spento ") + t);
+        }
+    }
+
+    /**
+     * Altri servizi di accessibilità attivi che possono filtrare i tasti (es. MG4 Control): se riprogrammano gli stessi
+     * tasti del joystick, quello che li vede prima se li prende. "" se non ce ne sono.
+     */
+    static String otherFilters(Context c) {
+        try {
+            android.view.accessibility.AccessibilityManager am =
+                    (android.view.accessibility.AccessibilityManager) c.getSystemService(ACCESSIBILITY_SERVICE);
+            StringBuilder sb = new StringBuilder();
+            for (android.accessibilityservice.AccessibilityServiceInfo i : am.getEnabledAccessibilityServiceList(
+                    android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK)) {
+                if (i == null || i.getResolveInfo() == null || i.getResolveInfo().serviceInfo == null) continue;
+                String pkg = i.getResolveInfo().serviceInfo.packageName;
+                if (c.getPackageName().equals(pkg)) continue;
+                if ((i.getCapabilities() & android.accessibilityservice.AccessibilityServiceInfo.CAPABILITY_CAN_REQUEST_FILTER_KEY_EVENTS) == 0) continue;
+                if (sb.length() > 0) sb.append(", ");
+                sb.append(pkg);
+            }
+            return sb.length() == 0 ? "" : " · altri servizi che possono prendere i tasti: " + sb;
+        } catch (Throwable t) {
+            return "";
         }
     }
 
     @Override
     protected boolean onKeyEvent(android.view.KeyEvent e) {
-        KeyListener l = keyListener;
-        if (!filterOn || l == null || e == null) return false;
-        // per sicurezza: mai consumare tasti se in primo piano non c'è la nostra schermata
-        if (!getPackageName().equals(fgPkg) || !ClimaActivity.resumed) return false;
-        int a = e.getAction();
-        if (a != android.view.KeyEvent.ACTION_DOWN && a != android.view.KeyEvent.ACTION_UP) return false;
-        boolean used;
         try {
-            used = l.onFilterKey(e.getKeyCode(), e.getScanCode(), a == android.view.KeyEvent.ACTION_DOWN, e.getRepeatCount());
+            if (!filterOn || e == null) return false;
+            int code = e.getKeyCode(), a = e.getAction();
+            long now = SystemClock.uptimeMillis();
+            // seguito di un tasto preso alla pressione: ripetizioni e rilascio restano a noi
+            Long since = taken.get(code);
+            if (since != null && !(a == android.view.KeyEvent.ACTION_DOWN && e.getRepeatCount() == 0)) {
+                if (now - since > TAKEN_MAX_MS) {
+                    taken.remove(code);
+                    return false;
+                }
+                if (a == android.view.KeyEvent.ACTION_UP) {
+                    taken.remove(code);
+                    KeyListener l = keyListener;
+                    if (l != null) l.onFilterKey(code, e.getScanCode(), false, 0);
+                }
+                return true;
+            }
+            taken.remove(code);
+            if (a != android.view.KeyEvent.ACTION_DOWN || e.getRepeatCount() != 0) return false;
+            // la pressione si prende solo con la schermata di MG4 Clima in primo piano
+            KeyListener l = keyListener;
+            if (l == null || !ClimaActivity.resumed || !getPackageName().equals(fgPkg)) return false;
+            boolean used = l.onFilterKey(code, e.getScanCode(), true, 0);
+            if (used) taken.put(code, now);
+            else if (unknownLogged < 15) {
+                unknownLogged++;
+                Store.event(this, "joystick: filtro vede il tasto keycode " + code + " scancode " + e.getScanCode()
+                        + " (non associato: lasciato al sistema)");
+            }
+            return used;
         } catch (Throwable t) {
-            used = false;
+            return false;   // un errore non deve mai prendersi un tasto del volante
         }
-        if (!used && a == android.view.KeyEvent.ACTION_DOWN && unknownLogged < 15) {
-            unknownLogged++;
-            Store.event(this, "joystick: filtro vede il tasto keycode " + e.getKeyCode() + " scancode " + e.getScanCode()
-                    + " (non associato: lasciato al sistema)");
-        }
-        return used;
     }
 
     // ---- 1.4.0: finestra pronta contro il lampeggio dell'app originale ---------------------------------------------
