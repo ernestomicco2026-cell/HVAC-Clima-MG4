@@ -219,6 +219,8 @@ public final class ClimaGuard extends AccessibilityService {
     }
 
     private boolean hvacPageShown;
+    /** 1.4.2: fino a quando (elapsedRealtime) un pannello "hvac page" si considera quello dell'accensione. */
+    private long bootUntil;
 
     /**
      * 1.1.0 (idea di NoHvacPopup): la finestra del pannello clima del SystemUI si chiama "hvac page". Appena compare
@@ -244,11 +246,15 @@ public final class ClimaGuard extends AccessibilityService {
         hvacPageShown = shown;
         if (!shown) return;
         boolean ours = getPackageName().equals(fgPkg);
-        boolean justChanged = SystemClock.elapsedRealtime() - powerChangedAt < 2500;
-        Store.event(this, "finestra \"hvac page\" vista (sopra " + fgPkg + (justChanged ? ", clima appena cambiato" : "") + ")");
-        if (ours || justChanged) {
+        long nowE = SystemClock.elapsedRealtime();
+        boolean justChanged = nowE - powerChangedAt < 2500;
+        boolean atBoot = nowE < bootUntil;   // 1.4.2 (issue #2): pannello che scende all'accensione dell'infotainment
+        Store.event(this, "finestra \"hvac page\" vista (sopra " + fgPkg + (justChanged ? ", clima appena cambiato" : "")
+                + (atBoot ? ", all'accensione, " + (nowE / 1000) + " s dall'avvio" : "") + ")");
+        if (ours || justChanged || (atBoot && Store.panelMode(this) == Store.PANEL_ALWAYS)) {
             lastCollapse = 0;   // subito, anche se c'è appena stata un'altra serie di chiusure
-            collapse(ours ? "finestra vista sopra MG4 Clima" : "finestra vista dopo l'accensione");
+            collapse(ours ? "finestra vista sopra MG4 Clima" : atBoot && !justChanged ? "pannello all'accensione"
+                    : "finestra vista dopo l'accensione");
         }
     }
 
@@ -292,14 +298,27 @@ public final class ClimaGuard extends AccessibilityService {
         panel = Model.sysUiPanel(this);
         hvacPkg = hvacPkg(this);
         hvacMain = hvacMain(this);
-        Store.event(this, "servizio collegato · " + Model.get(this) + " · clima originale " + originalLine(this));
+        long up = SystemClock.elapsedRealtime();
+        Store.event(this, "servizio collegato · " + Model.get(this) + " · clima originale " + originalLine(this)
+                + " · " + (up / 1000) + " s dall'accensione");
         instance = this;
+        // 1.4.2 (issue #2): appena acceso l'infotainment il SystemUI fa scendere il pannello clima. Per 40 s dopo il
+        // collegamento (solo se l'infotainment è acceso da meno di 3 minuti) il pannello si chiude come col clima
+        // appena cambiato; subito il collegamento al SystemUI e il controllo delle finestre già aperte.
+        if (up < 180_000) {
+            bootUntil = up + 40_000;
+            if (panel) SysUiPanel.prepare(this);
+            main.post(this::onWindows);
+            main.postDelayed(this::onWindows, 1500);
+        }
         // 1.3.3: se MG4 Clima è già aperta (il servizio si collega dopo), mette subito le strisce sui bordi
         if (wantedEdges != 0) edges(this, wantedEdges);
         // 1.4.1: filtro dei tasti acceso se i comandi dal joystick sono accesi (consuma solo con la schermata davanti)
         filterOn = false;
         applyFilter(Store.joystick(this) != Store.JOY_OFF);
         main.postDelayed(this::prepareCover, 25_000);
+        Remote.start(this);   // 1.4.2: aggiornamenti e avvisi da remoto (dopo 2 minuti, poi ogni 6 ore)
+        ProjectionZone.attach(this);
         if (bg == null) {
             android.os.HandlerThread th = new android.os.HandlerThread("mg4-clima-guard");
             th.start();
@@ -314,6 +333,7 @@ public final class ClimaGuard extends AccessibilityService {
         if (instance == this) instance = null;
         edgesOff();
         hideCover("servizio chiuso");
+        ProjectionZone.hide(this, "servizio chiuso");
         filterOn = false;
         if (bg != null) bg.removeCallbacksAndMessages(null);
         if (hvac != null) hvac.stop();
@@ -332,6 +352,7 @@ public final class ClimaGuard extends AccessibilityService {
             return;
         }
         if (e.getPackageName() != null) fgPkg = e.getPackageName().toString();
+        ProjectionZone.onForeground(this, fgPkg);   // 1.4.2: zona clima durante Android Auto / CarPlay
         // 1.4.0: un'altra app (non la nostra né il clima originale) davanti → via la finestra pronta
         // (1.4.1: il filtro dei tasti resta, ma con un'altra app davanti non consuma niente)
         if (!getPackageName().equals(fgPkg) && !hvacPkg.equals(fgPkg)) {
@@ -529,8 +550,83 @@ public final class ClimaGuard extends AccessibilityService {
     private final java.util.Map<Integer, Long> taken = new java.util.HashMap<>();
     private static final long TAKEN_MAX_MS = 15_000;   // tasto "bloccato" (rilascio perso): dopo 15 s si lascia
 
+    /** 1.4.2: stato del clima letto ora (thread di sfondo; null se il servizio non è collegato). */
+    static HvacClient.State readState() {
+        ClimaGuard g = instance;
+        if (g == null || g.hvac == null) return null;
+        return g.hvac.readNow();
+    }
+
     static boolean keyFilterOn() {
         return filterOn;
+    }
+
+    // ---- 1.4.2: tasti visti dal filtro (diagnostica) e app che possono prendere gli stessi tasti --------------------
+    private static final java.util.ArrayDeque<String> seenKeys = new java.util.ArrayDeque<>();
+    private static int seenCount;
+
+    /** Ultimi tasti visti dal filtro con la schermata aperta: keycode, scancode, sorgente, dispositivo. */
+    private static void seen(android.view.KeyEvent e) {
+        try {
+            seenCount++;
+            android.view.InputDevice d = e.getDevice();
+            String line = Store.ms(System.currentTimeMillis()) + " keycode " + e.getKeyCode() + " scancode " + e.getScanCode()
+                    + " sorgente 0x" + Integer.toHexString(e.getSource()) + " dispositivo " + e.getDeviceId()
+                    + (d != null ? " \"" + d.getName() + "\"" : "");
+            synchronized (seenKeys) {
+                seenKeys.addFirst(line);
+                while (seenKeys.size() > 12) seenKeys.removeLast();
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** Riga joystick.tasti del filtro per la diagnostica. */
+    static String seenText() {
+        synchronized (seenKeys) {
+            if (seenKeys.isEmpty()) return "nessun tasto visto con la schermata aperta";
+            return seenCount + " tasti visti, ultimi: " + String.join(" | ", seenKeys);
+        }
+    }
+
+    /** App note che possono prendere i tasti del volante prima di noi o insieme a noi. */
+    private static final String[] KNOWN_CONFLICTS = {"com.mg4.control", "com.mg4.control.offline", "com.shihab.diplay"};
+
+    /**
+     * 1.4.2: app che possono prendere gli stessi tasti: le app note (anche solo installate con il servizio attivo) e
+     * gli altri servizi di accessibilità con il filtro dei tasti. Nome visibile e pacchetto; "" se nessuna.
+     */
+    static String conflictApps(Context c) {
+        java.util.LinkedHashSet<String> pk = new java.util.LinkedHashSet<>();
+        try {
+            android.view.accessibility.AccessibilityManager am =
+                    (android.view.accessibility.AccessibilityManager) c.getSystemService(ACCESSIBILITY_SERVICE);
+            for (android.accessibilityservice.AccessibilityServiceInfo i : am.getEnabledAccessibilityServiceList(
+                    android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK)) {
+                if (i == null || i.getResolveInfo() == null || i.getResolveInfo().serviceInfo == null) continue;
+                String p = i.getResolveInfo().serviceInfo.packageName;
+                if (c.getPackageName().equals(p)) continue;
+                boolean known = java.util.Arrays.asList(KNOWN_CONFLICTS).contains(p);
+                boolean filters = (i.getCapabilities() & android.accessibilityservice.AccessibilityServiceInfo.CAPABILITY_CAN_REQUEST_FILTER_KEY_EVENTS) != 0;
+                if (known || filters) pk.add(p);
+            }
+        } catch (Throwable ignored) {
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String p : pk) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(appName(c, p)).append(" (").append(p).append(')');
+        }
+        return sb.toString();
+    }
+
+    static String appName(Context c, String pkg) {
+        try {
+            android.content.pm.PackageManager pm = c.getPackageManager();
+            return pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString();
+        } catch (Throwable t) {
+            return pkg;
+        }
     }
 
     /** Chi riceve i tasti: la schermata in onResume, null in onPause. Il filtro non si spegne. */
@@ -538,14 +634,31 @@ public final class ClimaGuard extends AccessibilityService {
         keyListener = l;
     }
 
-    /** Accende o spegne il filtro secondo l'impostazione "Comandi dal joystick" (all'avvio e quando cambia). */
+    /**
+     * Accende o spegne il filtro secondo l'impostazione "Comandi dal joystick" (all'avvio, quando cambia e a ogni
+     * apertura della schermata). 1.4.2: controlla il flag vero del servizio, non solo la nostra variabile: se il
+     * sistema l'ha perso (riavvio del servizio, aggiornamento) lo rimette e lo scrive nel log.
+     */
     static void refreshFilter(Context c) {
         ClimaGuard g = instance;
         if (g != null) g.applyFilter(Store.joystick(c) != Store.JOY_OFF);
     }
 
+    /** 1.4.2: il flag FLAG_REQUEST_FILTER_KEY_EVENTS è davvero acceso nel servizio collegato (riletto dal sistema). */
+    static boolean filterVerified() {
+        ClimaGuard g = instance;
+        if (g == null) return false;
+        try {
+            android.accessibilityservice.AccessibilityServiceInfo i = g.getServiceInfo();
+            return i != null && (i.flags & android.accessibilityservice.AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS) != 0;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
     private void applyFilter(boolean on) {
-        if (on == filterOn) return;
+        if (on == filterOn && on == filterVerified()) return;
+        if (on == filterOn) Store.event(this, "joystick: flag del filtro dei tasti perso dal sistema, lo rimetto");
         try {
             android.accessibilityservice.AccessibilityServiceInfo i = getServiceInfo();
             if (i == null) return;
@@ -554,8 +667,9 @@ public final class ClimaGuard extends AccessibilityService {
             setServiceInfo(i);
             filterOn = on;
             if (!on) taken.clear();
+            boolean really = filterVerified();
             Store.event(this, "joystick: filtro dei tasti " + (on ? "acceso (consuma solo con MG4 Clima in primo piano)" : "spento")
-                    + otherFilters(this));
+                    + " · flag nel servizio: " + (really ? "sì" : "no") + otherFilters(this));
         } catch (Throwable t) {
             filterOn = false;
             Store.event(this, "joystick: filtro dei tasti non " + (on ? "acceso " : "spento ") + t);
@@ -567,23 +681,8 @@ public final class ClimaGuard extends AccessibilityService {
      * tasti del joystick, quello che li vede prima se li prende. "" se non ce ne sono.
      */
     static String otherFilters(Context c) {
-        try {
-            android.view.accessibility.AccessibilityManager am =
-                    (android.view.accessibility.AccessibilityManager) c.getSystemService(ACCESSIBILITY_SERVICE);
-            StringBuilder sb = new StringBuilder();
-            for (android.accessibilityservice.AccessibilityServiceInfo i : am.getEnabledAccessibilityServiceList(
-                    android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK)) {
-                if (i == null || i.getResolveInfo() == null || i.getResolveInfo().serviceInfo == null) continue;
-                String pkg = i.getResolveInfo().serviceInfo.packageName;
-                if (c.getPackageName().equals(pkg)) continue;
-                if ((i.getCapabilities() & android.accessibilityservice.AccessibilityServiceInfo.CAPABILITY_CAN_REQUEST_FILTER_KEY_EVENTS) == 0) continue;
-                if (sb.length() > 0) sb.append(", ");
-                sb.append(pkg);
-            }
-            return sb.length() == 0 ? "" : " · altri servizi che possono prendere i tasti: " + sb;
-        } catch (Throwable t) {
-            return "";
-        }
+        String o = conflictApps(c);
+        return o.isEmpty() ? "" : " · altri servizi che possono prendere i tasti: " + o;
     }
 
     @Override
@@ -608,9 +707,11 @@ public final class ClimaGuard extends AccessibilityService {
             }
             taken.remove(code);
             if (a != android.view.KeyEvent.ACTION_DOWN || e.getRepeatCount() != 0) return false;
-            // la pressione si prende solo con la schermata di MG4 Clima in primo piano
+            // la pressione si prende solo con la schermata di MG4 Clima in primo piano (1.4.2: basta la schermata
+            // in onResume; l'app in primo piano letta dagli eventi di finestra poteva essere in ritardo)
             KeyListener l = keyListener;
-            if (l == null || !ClimaActivity.resumed || !getPackageName().equals(fgPkg)) return false;
+            if (l == null || !ClimaActivity.resumed) return false;
+            seen(e);
             boolean used = l.onFilterKey(code, e.getScanCode(), true, 0);
             if (used) taken.put(code, now);
             else if (unknownLogged < 15) {

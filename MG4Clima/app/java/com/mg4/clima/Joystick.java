@@ -203,19 +203,23 @@ final class Joystick {
         if (decided || carClimaMode) return;
         String counts = "tasti visti solo dal filtro " + filterOnly + ", anche dal broadcast " + both
                 + ", broadcast senza filtro " + castNoFilter;
+        int prev = Store.joyExclusive(ctx);
         if (filterOnly >= 3 && both == 0) {
             decided = true;
             Store.setJoyExclusive(ctx, 1, counts);
             Store.event(ctx, "joystick.esclusiva = filtro dell'accessibilità · riuscita · le altre app non ricevono i tasti (" + counts + ")");
-            LogSend.send(ctx, "joystick", null);
-        } else if (both >= 3 || (castNoFilter >= 5 && filterOnly == 0 && both == 0)) {
+            if (prev != 1) LogSend.send(ctx, "joystick", null);
+        } else if (both >= 3 || (castNoFilter >= 5 && filterOnly == 0 && both == 0 && ClimaGuard.filterVerified())) {
+            // 1.4.2: "il filtro non riceve" vale solo se il filtro è davvero acceso nel servizio (flag riletto)
             decided = true;
             String why = both >= 3 ? "il broadcast arriva lo stesso: le altre app ricevono i tasti"
                     : "il filtro non riceve i tasti del volante";
-            Store.setJoyExclusive(ctx, 0, why + " (" + counts + ")");
-            Store.event(ctx, "joystick.esclusiva = filtro dell'accessibilità · non possibile · " + why + " (" + counts + ")");
+            String others = ClimaGuard.conflictApps(ctx);
+            Store.setJoyExclusive(ctx, 0, why + " (" + counts + ")" + (others.isEmpty() ? "" : " · altre app: " + others));
+            Store.event(ctx, "joystick.esclusiva = filtro dell'accessibilità · non possibile · " + why + " (" + counts + ")"
+                    + " · i comandi restano attivi col broadcast");
             if (onDecided != null) onDecided.run();
-            LogSend.send(ctx, "joystick", null);
+            if (prev != 0) LogSend.send(ctx, "joystick", null);
         }
     }
 
@@ -231,10 +235,13 @@ final class Joystick {
     static String exclusiveLine(Context c) {
         int v = Store.joyExclusive(c);
         String d = Store.joyExclusiveDetail(c);
+        String others = ClimaGuard.conflictApps(c);
         return "filtro tasti dell'accessibilità · " + (v < 0 ? "non ancora provata" : v == 1 ? "riuscita · alle altre app: no"
-                : "non possibile · alle altre app: sì") + (d.isEmpty() || v < 0 ? "" : " (" + d + ")")
+                : "non possibile · alle altre app: sì · comandi col broadcast") + (d.isEmpty() || v < 0 ? "" : " (" + d + ")")
                 + " · filtro ora " + (ClimaGuard.keyFilterOn() ? "attivo (consuma solo con MG4 Clima in primo piano)" : "spento")
-                + ClimaGuard.otherFilters(c);
+                + " · flag nel servizio " + (ClimaGuard.filterVerified() ? "sì" : "no")
+                + (others.isEmpty() ? "" : " · altri servizi che possono prendere i tasti: " + others
+                + " → disattivare il joystick nell'altra app per usarlo con MG4 Clima");
     }
 
     private static int intOf(Object v) {

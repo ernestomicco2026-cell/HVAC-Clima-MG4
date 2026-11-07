@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-<a href="releases/MG4Clima-1.4.1.apk"><img alt="Scarica / Download 1.4.1" src="https://img.shields.io/badge/Scarica%20%2F%20Download-1.4.1-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
+<a href="releases/MG4Clima-1.4.2.apk"><img alt="Scarica / Download 1.4.2" src="https://img.shields.io/badge/Scarica%20%2F%20Download-1.4.2-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
 <a href="https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT"><img alt="Sostieni il progetto con PayPal · Support the project with PayPal" src="https://img.shields.io/badge/Sostieni%20%2F%20Support-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white"></a>
 </p>
 
@@ -123,7 +123,8 @@ dell'auto e gli stessi comandi dell'app originale: premere un tasto di MG4 Clima
   forte, **arancione** quando riscalda e **azzurra** quando raffresca. Cruscotto **disegnato** o **realistico** (foto di
   una MG4), da scegliere nelle impostazioni.
 - **Dal lato del guidatore**: accensione, temperatura un grado alla volta fino a **LO** e **HI**, ventola (OFF / 1…11 /
-  A = automatica; da AUTO riparte dall'ultima velocità). Con la guida a destra la schermata si specchia.
+  A = automatica; da AUTO riparte dall'ultima velocità; come nell'originale, "ventola −" alla velocità minima spegne il
+  clima e "ventola +" a clima spento lo riaccende). Con la guida a destra la schermata si specchia.
 - **Pulsanti in basso**, con le **icone dei tasti fisici dell'auto** (stile ISO): AUTO (con l'intensità bassa / media /
   alta), A/C, ECO, aria al vetro / al viso / ai piedi (combinabili come nell'originale), **ricircolo** (un'icona per stato:
   interno, aria esterna, automatico), parabrezza e lunotto (facoltativi: l'auto ha già i tasti), volante e sedili
@@ -134,6 +135,8 @@ dell'auto e gli stessi comandi dell'app originale: premere un tasto di MG4 Clima
 - **Joystick del volante**: con MG4 Clima aperta il joystick destro comanda solo il clima (vedi sotto).
 - **Apertura rapida**: quando l'app clima originale si apre, una schermata già pronta la copre subito mentre MG4 Clima si
   apre. Con MG4 Launcher il tasto del clima apre direttamente MG4 Clima.
+- **Clima durante Android Auto e CarPlay** (opzione, spenta di default): con la proiezione davanti, un tocco al centro
+  della barra in alto apre MG4 Clima (durante la proiezione il sistema non apre il suo clima).
 - **Pannello clima di sistema** (SWI68 e SWI133): quando l'auto lo apre all'accensione del clima o col tasto fisico,
   MG4 Clima lo richiude subito (si può lasciare).
 - **Chiusura** col tasto ✕, con uno swipe verticale (anche dal bordo alto o basso dello schermo), toccando fuori dal
@@ -168,13 +171,13 @@ MG4 Control, provato in auto.
 - Appena esci da MG4 Clima, o se davanti va un'altra app, il joystick torna subito alla musica.
 - Un tasto premuto con MG4 Clima aperta resta a MG4 Clima fino al rilascio, anche se intanto la chiudi.
 - Se c'è un errore il tasto passa al sistema; se MG4 Clima va in crash il blocco sparisce con lei.
-- Se su un'auto non si riesce a tenere i tasti, MG4 Clima se ne accorge da sola dopo qualche pressione: spegne i
-  comandi dal joystick e lo spiega nelle impostazioni ("su questa auto i tasti comandano anche la musica"). Si possono
-  riaccendere a mano.
+- Se su un'auto non si riesce a tenere i tasti, MG4 Clima se ne accorge da sola dopo qualche pressione. I comandi dal
+  joystick restano attivi, ma nelle impostazioni c'è scritto che su quel software volume e brano possono cambiare
+  insieme al clima.
 - Se il joystick è nella **modalità clima dell'auto** (tasto ★ impostato su Clima nelle impostazioni del veicolo), il
   clima lo comanda già l'auto: MG4 Clima non manda comandi doppi e mostra solo lo stato.
-- **Con MG4 Control installato**: se lì hai riprogrammato gli stessi tasti del joystick, se li prende chi li vede per
-  primo. La diagnostica lo segnala.
+- **Con un'altra app che usa il joystick** (per esempio MG4 Control): le impostazioni mostrano quale app è e consigliano
+  di disattivare il joystick nell'altra app per usarlo con MG4 Clima.
 
 Si accende e si spegne in **Impostazioni → Apertura del clima → Comandi dal joystick**. In **Strumenti → Prova tasti
 del volante** si vedono i codici dei tasti e si può riassociare il joystick. Il joystick sinistro manda gli stessi
@@ -191,8 +194,10 @@ quando la versione è stata verificata; altrimenti lascia l'originale e il clima
 4. Se riesce, da quel momento MG4 Clima sostituisce l'app originale. Se l'auto si muove la verifica si ferma e si può
    riprendere da dove era arrivata.
 
-Se **LO** o **HI** non rispondono (per esempio sul software SWI131), la verifica prova i valori possibili e tiene quello
-che l'auto legge correttamente; se nessuno va, nasconde solo LO o HI e la sostituzione resta possibile.
+**LO** e **HI** sono quelli della tua auto: sulle SWI68, SWI133 e DBI68 MG4 Clima li legge dall'auto, e la verifica
+controlla fin dove l'auto arriva davvero (il modello turco DBI68, per esempio, si ferma a 31). Sulle SWI69 e SWI132 il
+servizio non li dice: la verifica prova i valori possibili e tiene quelli che l'auto rilegge correttamente. Se per LO o
+HI non va nessun valore, si nasconde solo quello e la sostituzione resta possibile.
 
 **Modalità officina** (Impostazioni → Strumenti): sospende la sostituzione per 1, 3 o 7 giorni, così in officina si vede
 l'app originale. Alla scadenza torna tutto da solo.
@@ -203,7 +208,7 @@ Scarica l'APK dalla cartella [`releases/`](releases/), poi scegli uno dei due me
 
 **Metodo 1 — Da chiavetta USB (senza computer).** Serve poter aprire un file manager sull'infotainment.
 
-1. Copia `MG4Clima-1.4.1.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
+1. Copia `MG4Clima-1.4.2.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
 2. Inserisci la chiavetta, apri il file manager e tocca l'APK.
 3. Se Android dice che non può installare app da questa fonte: tocca **Impostazioni**, attiva **Consenti da questa
    fonte** e torna indietro.
@@ -213,16 +218,21 @@ Scarica l'APK dalla cartella [`releases/`](releases/), poi scegli uno dei due me
 collegato all'auto. Il firmware MG può bloccare l'installazione normale delle app: l'opzione `-f` la permette.
 
 ```bash
-adb install -r -f MG4Clima-1.4.1.apk
+adb install -r -f MG4Clima-1.4.2.apk
 ```
 
 Poi apri il clima come al solito (tasto, barra o launcher): al primo avvio MG4 Clima si attiva da sola.
 
 ### Aggiornamenti
 
-**Impostazioni → Versione e aggiornamenti → Controlla**. Se c'è una versione nuova compare **Aggiorna**: MG4 Clima la
-scarica, controlla che il file sia quello giusto e la installa da sola. Si può aggiornare anche da computer, con lo
-stesso comando dell'installazione.
+MG4 Clima **controlla da sola** se c'è una versione nuova: circa 2 minuti dopo l'accensione e poi ogni 6 ore. Se c'è,
+all'apertura compare un avviso discreto con il pulsante **Aggiorna**. Si può controllare anche a mano da
+**Impostazioni → Versione e aggiornamenti → Controlla**. Prima di installare, MG4 Clima controlla che il file sia quello
+giusto (dimensione, impronta SHA-256 e firma). Si può aggiornare anche da computer, con lo stesso comando
+dell'installazione.
+
+Per problemi seri l'app può anche **aggiornarsi da sola** a una versione minima, solo ad auto ferma, e mostrare
+**avvisi importanti** scritti nel repository (nella lingua dell'app, una volta sola o fino a quando premi OK).
 
 ### Tornare al clima originale
 
@@ -266,6 +276,17 @@ Anche solo **2 €** sono un aiuto prezioso per continuare a sviluppare e provar
 
 ### Versioni
 
+#### 1.4.2
+- **Temperatura con l'intervallo vero dell'auto.** Sulle SWI68, SWI133 e DBI68 minimo e massimo si leggono dall'auto (17 = LO e 33 = HI restano solo come riserva). La verifica sale un grado alla volta fino a dove l'auto arriva davvero e usa quel valore come HI: sul modello turco DBI68, che si ferma a 31, la verifica ora passa.
+- **SWI69 e SWI132:** la verifica prova LO tra 17, 16, 15,5 e 15 e HI tra 30,5, 31, 32 e 33, e tiene quelli che l'auto rilegge correttamente. Un LO che torna come HI viene scartato. Funzionano sia le auto con 15,5 = LO e 30,5 = HI sia quelle con 17 = LO e 33 = HI. Se l'auto si ferma prima (variante 16–28) o la ventola arriva solo a 8, lo si vede nella diagnostica.
+- **Joystick:** l'esclusiva dei tasti si rimisura su ogni auto. Il filtro conta solo con la schermata aperta, anche quando l'app in primo piano viene letta in ritardo. All'apertura si controlla che il filtro sia davvero acceso nel sistema. Se i tasti non si possono tenere, i comandi dal joystick restano attivi e le impostazioni spiegano che volume e brano possono cambiare insieme al clima.
+- **Altre app con il joystick** (es. MG4 Control): le impostazioni dicono quale app è e cosa fare.
+- **Ventola come nell'originale:** "ventola −" alla velocità minima spegne il clima, "ventola +" a clima spento lo riaccende con il comando di accensione (anche dal joystick).
+- **Pannello clima all'accensione dell'infotainment** (SWI68/SWI133): appena il servizio si collega, MG4 Clima controlla se il pannello è già sceso e lo richiude. Per 40 secondi lo richiude anche se scende dopo.
+- **Clima durante Android Auto e CarPlay** (nuova opzione, spenta di default): con la proiezione davanti, un tocco al centro della barra in alto apre MG4 Clima.
+- **Aggiornamenti da soli:** controllo circa 2 minuti dopo l'accensione e poi ogni 6 ore, con avviso discreto e pulsante Aggiorna. Con il campo "minima" in latest.json l'app si aggiorna da sola, solo ad auto ferma, con dimensione, SHA-256 e firma controllati e al massimo 3 tentativi. Avvisi importanti da releases/avvisi.json, nelle 8 lingue.
+- Diagnostica: righe nuove `clima.intervallo`, `joystick.tasti del filtro`, `aggiornamento.stato`, `avvisi.stato`, `clima.proiezione`; la riga `joystick.esclusiva` dice anche se il flag è acceso nel servizio e quali altre app possono prendere i tasti.
+
 #### 1.4.1
 - **Joystick del volante solo per il clima**: con MG4 Clima aperta i tasti del joystick destro vengono presi prima che arrivino alla musica, quindi volume e brano non cambiano più mentre regoli il clima. È lo stesso metodo di MG4 Control, già provato in auto. Fuori da MG4 Clima i tasti passano tutti, come prima.
 - Il filtro dei tasti resta pronto finché i comandi dal joystick sono accesi: anche il primo tasto dopo l'apertura resta al clima. Un tasto premuto con MG4 Clima aperta resta a MG4 Clima fino al rilascio, anche se intanto chiudi la schermata. In caso di errore il tasto passa sempre al sistema.
@@ -286,6 +307,9 @@ Anche solo **2 €** sono un aiuto prezioso per continuare a sviluppare e provar
 - Popup **Novità** dopo l'aggiornamento, in tutte le lingue dell'app.
 - Screenshot rifatti.
 
+<details>
+<summary><b>Versioni precedenti</b></summary>
+
 #### 1.3.3
 - **Comandi dal joystick del volante** con MG4 Clima aperta: OK accende (in AUTO) o spegne, su/giù temperatura, sinistra/destra ventola; tenendo premuto il comando si ripete, e sulla schermata si illumina il tasto comandato. Si sceglie in Impostazioni → Apertura del clima (spento, joystick destro o sinistro). Fuori dalla schermata i tasti restano alle altre funzioni.
 - Nuova schermata **Strumenti → Prova tasti del volante**: mostra il codice di ogni tasto e permette di associare il joystick.
@@ -295,9 +319,6 @@ Anche solo **2 €** sono un aiuto prezioso per continuare a sviluppare e provar
 - Se l'auto si muove durante il test o la verifica, compare un messaggio chiaro e si può riprendere da dove si era fermata.
 - Chiusura con swipe: basta uno swipe più corto (60 px); i tocchi brevi non finiscono più nel log. Se il servizio di accessibilità non è attivo, un avviso spiega come attivarlo.
 - Nel log l'ora in millisecondi ogni volta che compare l'app clima originale, anche quando non viene sostituita.
-
-<details>
-<summary><b>Versioni precedenti</b></summary>
 
 #### 1.3.1
 - Chiusura con swipe più affidabile: nuova scelta **Automatico** (predefinita), swipe verticale sul pannello o dal bordo alto/basso dello schermo, tocco fuori dal pannello e tasto indietro. Ogni chiusura finisce nel log.
@@ -466,7 +487,8 @@ commands as the original app: pressing an MG4 Clima button is like pressing the 
   **orange** when heating and **blue** when cooling. **Drawn** or **realistic** dashboard (photo of an MG4), chosen in
   the settings.
 - **On the driver's side**: power, temperature one degree at a time up to **LO** and **HI**, fan (OFF / 1…11 / A =
-  automatic; from AUTO it restarts from the last speed). With right-hand drive the screen is mirrored.
+  automatic; from AUTO it restarts from the last speed; like the original, "fan −" at the lowest speed switches the
+  climate off and "fan +" with the climate off switches it back on). With right-hand drive the screen is mirrored.
 - **Buttons at the bottom**, with the **icons of the car's physical buttons** (ISO style): AUTO (with low / medium /
   high intensity), A/C, ECO, air to the windscreen / face / feet (combinable like the original), **recirculation** (one
   icon per state: inside, fresh air, automatic), windscreen and rear window demist (optional: the car already has the
@@ -477,6 +499,8 @@ commands as the original app: pressing an MG4 Clima button is like pressing the 
 - **Steering-wheel joystick**: with MG4 Clima open the right joystick controls only the climate (see below).
 - **Quick opening**: when the original climate app opens, a ready screen covers it straight away while MG4 Clima opens.
   With MG4 Launcher the climate button opens MG4 Clima directly.
+- **Climate during Android Auto and CarPlay** (option, off by default): with the projection in front, a tap in the middle
+  of the top bar opens MG4 Clima (during projection the system doesn't open its own climate).
 - **System climate panel** (SWI68 and SWI133): when the car opens it as the climate turns on or from the physical
   button, MG4 Clima closes it straight away (it can be left open).
 - **Closing** with the ✕ button, a vertical swipe (also from the top or bottom edge of the screen), a tap outside the
@@ -511,12 +535,12 @@ MG4 Control, tried in the car.
 - As soon as you leave MG4 Clima, or another app comes to the front, the joystick goes straight back to the music.
 - A key pressed with MG4 Clima open stays with MG4 Clima until it is released, even if you close it in the meantime.
 - On any error the key goes to the system; if MG4 Clima crashes the block goes away with it.
-- If on a car the keys can't be kept, MG4 Clima notices by itself after a few presses: it turns the joystick controls
-  off and explains it in the settings ("on this car the keys also control the music"). They can be turned back on.
+- If on a car the keys can't be kept, MG4 Clima notices by itself after a few presses. The joystick controls stay on,
+  but the settings say that on that software volume and track may change together with the climate.
 - If the joystick is in the **car's climate mode** (★ key set to Climate in the vehicle settings), the car already
   controls the climate: MG4 Clima sends no double commands and only shows the state.
-- **With MG4 Control installed**: if you remapped the same joystick keys there, whichever sees them first takes them.
-  The diagnostics show it.
+- **With another app using the joystick** (for example MG4 Control): the settings show which app it is and suggest
+  turning the joystick off in the other app to use it with MG4 Clima.
 
 It is turned on and off in **Settings → Opening the climate → Steering-wheel joystick**. **Tools → Test steering-wheel
 keys** shows the key codes and lets you reassign the joystick. The left joystick sends the same keys as the right one:
@@ -533,8 +557,10 @@ the version has been verified; otherwise it leaves the original and the climate 
 4. If it succeeds, from then on MG4 Clima replaces the original app. If the car moves the check stops and can be resumed
    where it got to.
 
-If **LO** or **HI** don't respond (for example on SWI131 software), the check tries the possible values and keeps the one
-the car reads back correctly; if none works, it hides only LO or HI and replacement stays possible.
+**LO** and **HI** are your car's own: on SWI68, SWI133 and DBI68 MG4 Clima reads them from the car, and the check
+tests how far the car really goes (the Turkish DBI68 model, for example, stops at 31). On SWI69 and SWI132 the service
+doesn't give them: the check tries the possible values and keeps the ones the car reads back correctly. If no value
+works for LO or HI, only that one is hidden and replacement stays possible.
 
 **Workshop mode** (Settings → Tools): suspends the replacement for 1, 3 or 7 days, so the workshop sees the original app.
 When it expires everything comes back by itself.
@@ -545,7 +571,7 @@ Download the APK from the [`releases/`](releases/) folder, then choose one of th
 
 **Method 1 — From a USB stick (no computer).** You need to be able to open a file manager on the infotainment.
 
-1. Copy `MG4Clima-1.4.1.apk` to a USB stick formatted as **FAT32** or **exFAT**.
+1. Copy `MG4Clima-1.4.2.apk` to a USB stick formatted as **FAT32** or **exFAT**.
 2. Insert the stick, open the file manager and tap the APK.
 3. If Android says it can't install apps from this source: tap **Settings**, enable **Allow from this source** and go back.
 4. Tap **Install**.
@@ -554,16 +580,20 @@ Download the APK from the [`releases/`](releases/) folder, then choose one of th
 connected to the car. The MG firmware may block normal app installation: the `-f` option allows it.
 
 ```bash
-adb install -r -f MG4Clima-1.4.1.apk
+adb install -r -f MG4Clima-1.4.2.apk
 ```
 
 Then open the climate as usual (button, bar or launcher): on first start MG4 Clima activates itself.
 
 ### Updates
 
-**Settings → Version and updates → Check**. If there is a new version **Update** appears: MG4 Clima downloads it, checks
-that the file is the right one and installs it by itself. You can also update from a computer, with the same command as
-the installation.
+MG4 Clima **checks for updates by itself**: about 2 minutes after switching on and then every 6 hours. If there is one,
+a discreet notice with the **Update** button appears when you open it. You can also check by hand in
+**Settings → Version and updates → Check**. Before installing, MG4 Clima checks that the file is the right one (size,
+SHA-256 fingerprint and signature). You can also update from a computer, with the same command as the installation.
+
+For serious problems the app can also **update itself** to a minimum version, only with the car stopped, and show
+**important notices** written in the repository (in the app language, once or until you press OK).
 
 ### Going back to the original climate
 
@@ -605,6 +635,17 @@ Even just **€2** is a precious help to keep developing and testing new version
 
 ### Changelog
 
+#### 1.4.2
+- **Temperature with the car's real range.** On SWI68, SWI133 and DBI68 the minimum and maximum are read from the car (17 = LO and 33 = HI stay only as a fallback). The check goes up one degree at a time to where the car really goes and uses that value as HI: on the Turkish DBI68 model, which stops at 31, the check now passes.
+- **SWI69 and SWI132:** the check tries LO among 17, 16, 15.5 and 15 and HI among 30.5, 31, 32 and 33, and keeps the ones the car reads back correctly. An LO that comes back as HI is discarded. Cars with 15.5 = LO and 30.5 = HI and cars with 17 = LO and 33 = HI both work. If the car stops earlier (16–28 variant) or the fan only goes up to 8, the diagnostics show it.
+- **Joystick:** key exclusivity is measured again on every car. The filter counts only with the screen open, even when the foreground app is read late. When the screen opens it checks that the filter is really on in the system. If the keys can't be kept, the joystick controls stay on and the settings explain that volume and track may change together with the climate.
+- **Other apps using the joystick** (e.g. MG4 Control): the settings say which app it is and what to do.
+- **Fan like the original:** "fan −" at the lowest speed switches the climate off, "fan +" with the climate off switches it back on with the power command (from the joystick too).
+- **Climate panel when the infotainment starts** (SWI68/SWI133): as soon as the service connects, MG4 Clima checks whether the panel has already dropped down and closes it. For 40 seconds it also closes it if it drops down later.
+- **Climate during Android Auto and CarPlay** (new option, off by default): with the projection in front, a tap in the middle of the top bar opens MG4 Clima.
+- **Updates by themselves:** a check about 2 minutes after switching on and then every 6 hours, with a discreet notice and the Update button. With the "minima" field in latest.json the app updates itself, only with the car stopped, with size, SHA-256 and signature checked and at most 3 attempts. Important notices from releases/avvisi.json, in the 8 languages.
+- Diagnostics: new lines `clima.intervallo`, `joystick.tasti del filtro`, `aggiornamento.stato`, `avvisi.stato`, `clima.proiezione`; the `joystick.esclusiva` line also says whether the flag is on in the service and which other apps can take the keys.
+
 #### 1.4.1
 - **Steering-wheel joystick for the climate only**: with MG4 Climate open the right joystick keys are taken before they reach the music, so volume and track no longer change while you adjust the climate. It's the same method as MG4 Control, already tried in the car. Outside MG4 Climate all keys pass through, as before.
 - The key filter stays ready while the joystick controls are on: even the first key after opening stays with the climate. A key pressed with MG4 Climate open stays with MG4 Climate until it is released, even if you close the screen in the meantime. On any error the key always goes back to the system.
@@ -625,6 +666,9 @@ Even just **€2** is a precious help to keep developing and testing new version
 - **What's new** popup after updating, in every app language.
 - New screenshots.
 
+<details>
+<summary><b>Older versions</b></summary>
+
 #### 1.3.3
 - **Steering-wheel joystick controls** with MG4 Climate open: OK turns the climate on (in AUTO) or off, up/down temperature, left/right fan; holding repeats the command, and the screen highlights the button. Choose it in Settings → Opening the climate (off, right or left joystick). Outside the screen the keys keep their usual functions.
 - New **Tools → Test steering-wheel keys** screen: shows the code of each key and lets you assign the joystick.
@@ -634,9 +678,6 @@ Even just **€2** is a precious help to keep developing and testing new version
 - If the car moves during the test or verification, a clear message appears and it can be resumed where it stopped.
 - Swipe to close: a shorter swipe is enough (60 px); short taps no longer go into the log. If the accessibility service isn't active, a notice explains how to enable it.
 - The log shows the time in milliseconds every time the original climate app appears, even when it isn't replaced.
-
-<details>
-<summary><b>Older versions</b></summary>
 
 #### 1.3.1
 - More reliable swipe to close: new **Automatic** option (default), vertical swipe on the panel or from the top/bottom edge of the screen, tap outside the panel and back key. Every close is logged.

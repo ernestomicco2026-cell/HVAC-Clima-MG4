@@ -175,9 +175,9 @@
     <string name="u_updated" formatted="false">Atualizada</string>
     <string name="u_install_failed">Instalação falhou: %1$s</string>
     <string name="s_joy_on" formatted="false">Ligado</string>
-    <string name="s_joy_shared" formatted="false">Neste carro as teclas também controlam a música: ao ajustar a climatização o volume ou a faixa podem mudar</string>
+    <string name="s_joy_shared" formatted="false">Neste software as teclas também chegam à música: os comandos funcionam, mas o volume e a faixa podem mudar junto com a climatização</string>
     <string name="s_joy_excl" formatted="false">Com o MG4 Clima aberto as teclas só controlam a climatização (OK, cima/baixo temperatura, esquerda/direita ventilador)</string>
-    <string name="a_joy_shared" formatted="false">Neste carro as teclas do volante também controlam a música: comandos do joystick desligados. Pode voltar a ligá-los nas definições.</string>
+    <string name="a_joy_shared" formatted="false">Neste carro as teclas do volante também chegam à música: ao ajustar a climatização com o joystick o volume ou a faixa podem mudar.</string>
     <string name="s_quick" formatted="false">Abertura rápida</string>
     <string name="s_quick_sub" formatted="false">Cobre logo a app de climatização original com um ecrã já pronto enquanto o MG4 Clima abre</string>
     <string name="s_labels" formatted="false">Mostrar textos nos botões</string>
@@ -188,5 +188,15 @@
     <string name="b_try" formatted="false">Testar</string>
     <string name="n_title">Novidades da %1$s</string>
     <string name="n_sub" formatted="false">O que muda nesta versão</string>
-    <string name="n_body" formatted="false">• Joystick do volante: com o MG4 Clima aberto as teclas só controlam a climatização, o volume e a faixa já não mudam. Ao sair voltam à música. Comandos imediatos\n• Ícones novos, como os símbolos dos botões do carro. A recirculação tem um ícone por estado: interior, ar exterior, automático\n• O estado ativo vê-se logo: cor viva, fundo realçado, ícone maior\n• Nova opção \"Mostrar textos nos botões\": desligada, só ícones maiores\n• Joystick do volante pronto de imediato, sem associar. Se no seu carro as teclas também controlam a música, fica desligado (pode ligá-lo)\n• O joystick esquerdo deixou de ser uma opção: envia as mesmas teclas do direito\n• Abertura mais rápida no lugar da app de climatização original\n• Software SWI131 reconhecido; a verificação escolhe sozinha os valores de LO e HI</string>
+    <string name="n_body" formatted="false">• Temperatura: LO e HI são os do seu carro, lidos do carro ou medidos pela verificação (agora passa também no modelo turco)\n• Joystick: se outra app usar as mesmas teclas, as definições avisam. Onde as teclas também chegam à música os comandos continuam ativos, com o aviso\n• Ventilador como na app original: − na velocidade mínima desliga a climatização, + com ela desligada volta a ligá-la\n• Nova opção: abrir o MG4 Clima pela barra superior durante o Android Auto e o CarPlay\n• Atualizações verificadas sozinhas, com avisos importantes quando preciso\n• O painel da climatização que desce ao ligar o infotainment fecha mais cedo</string>
+    <string name="s_joy_conflict" formatted="false">Outra app usa o joystick</string>
+    <string name="s_joy_conflict_sub">%1$s pode ficar com as mesmas teclas do volante: desative o joystick na outra app para o usar com o MG4 Clima</string>
+    <string name="s_proj" formatted="false">Clima durante o Android Auto e o CarPlay</string>
+    <string name="s_proj_sub" formatted="false">Com o Android Auto ou o CarPlay à frente, toque no centro da barra superior para abrir o MG4 Clima</string>
+    <string name="r_notice" formatted="false">Aviso</string>
+    <string name="r_update_title">MG4 Clima %1$s disponível</string>
+    <string name="r_update_msg" formatted="false">Há uma versão nova do MG4 Clima.</string>
+    <string name="b_ok" formatted="false">OK</string>
+    <string name="b_later" formatted="false">Mais tarde</string>
+    <string name="u_bad_sign" formatted="false">assinatura diferente: não instalado</string>
 </resources>

@@ -175,9 +175,9 @@
     <string name="u_updated" formatted="false">Aggiornata</string>
     <string name="u_install_failed">Installazione non riuscita: %1$s</string>
     <string name="s_joy_on" formatted="false">Acceso</string>
-    <string name="s_joy_shared" formatted="false">Su questa auto i tasti comandano anche la musica: mentre regoli il clima possono cambiare volume o brano</string>
+    <string name="s_joy_shared" formatted="false">Su questo software i tasti arrivano anche alla musica: i comandi funzionano, ma volume e brano possono cambiare insieme al clima</string>
     <string name="s_joy_excl" formatted="false">Con MG4 Clima aperta i tasti comandano solo il clima (OK, su/giù temperatura, sinistra/destra ventola)</string>
-    <string name="a_joy_shared" formatted="false">Su questa auto i tasti del volante comandano anche la musica: comandi dal joystick spenti. Puoi riaccenderli nelle impostazioni.</string>
+    <string name="a_joy_shared" formatted="false">Su questa auto i tasti del volante arrivano anche alla musica: mentre regoli il clima col joystick possono cambiare volume o brano.</string>
     <string name="s_quick" formatted="false">Apertura rapida</string>
     <string name="s_quick_sub" formatted="false">Copre subito l\'app clima originale con una schermata già pronta, mentre MG4 Clima si apre</string>
     <string name="s_labels" formatted="false">Mostra le scritte sui pulsanti</string>
@@ -188,5 +188,15 @@
     <string name="b_try" formatted="false">Prova</string>
     <string name="n_title">Novità della %1$s</string>
     <string name="n_sub" formatted="false">Cosa cambia in questa versione</string>
-    <string name="n_body" formatted="false">• Joystick del volante: con MG4 Clima aperta i tasti comandano solo il clima, volume e brano non cambiano più. Appena esci tornano alla musica. I comandi partono subito\n• Icone nuove, come i simboli dei tasti dell\'auto. Il ricircolo ha un\'icona per stato: interno, aria esterna, automatico\n• Lo stato attivo si vede subito: colore acceso, sfondo evidenziato, icona più grande\n• Nuova opzione \"Mostra le scritte sui pulsanti\": spenta, solo icone più grandi\n• Joystick del volante pronto subito, senza associazione. Se sull\'auto i tasti comandano anche la musica, resta spento (si può riaccendere)\n• Il joystick sinistro non è più una scelta: manda gli stessi tasti del destro\n• Apertura più rapida al posto dell\'app clima originale\n• Software SWI131 riconosciuto; la verifica sceglie da sola i valori di LO e HI</string>
+    <string name="n_body" formatted="false">• Temperatura: LO e HI sono quelli della tua auto, letti dall\'auto o misurati dalla verifica (ora passa anche sul modello turco)\n• Joystick: se un\'altra app usa gli stessi tasti, le impostazioni te lo dicono. Dove i tasti arrivano anche alla musica i comandi restano attivi, con l\'avviso\n• Ventola come nell\'app originale: − alla velocità minima spegne il clima, + a clima spento lo riaccende\n• Nuova opzione: aprire MG4 Clima dalla barra in alto durante Android Auto e CarPlay\n• Aggiornamenti controllati da soli, con avvisi importanti quando servono\n• Il pannello clima che scende all\'accensione dell\'infotainment si richiude prima</string>
+    <string name="s_joy_conflict" formatted="false">Un\'altra app usa il joystick</string>
+    <string name="s_joy_conflict_sub">%1$s può prendere gli stessi tasti del volante: disattiva il joystick nell\'altra app per usarlo con MG4 Clima</string>
+    <string name="s_proj" formatted="false">Clima durante Android Auto e CarPlay</string>
+    <string name="s_proj_sub" formatted="false">Con Android Auto o CarPlay davanti, tocca il centro della barra in alto per aprire MG4 Clima</string>
+    <string name="r_notice" formatted="false">Avviso</string>
+    <string name="r_update_title">MG4 Clima %1$s disponibile</string>
+    <string name="r_update_msg" formatted="false">C\'è una versione nuova di MG4 Clima.</string>
+    <string name="b_ok" formatted="false">OK</string>
+    <string name="b_later" formatted="false">Più tardi</string>
+    <string name="u_bad_sign" formatted="false">firma diversa: non installato</string>
 </resources>

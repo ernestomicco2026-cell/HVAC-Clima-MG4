@@ -175,9 +175,9 @@
     <string name="u_updated" formatted="false">Mise à jour faite</string>
     <string name="u_install_failed">Installation échouée : %1$s</string>
     <string name="s_joy_on" formatted="false">Activé</string>
-    <string name="s_joy_shared" formatted="false">Sur cette voiture les touches commandent aussi la musique : en réglant la climatisation, le volume ou le titre peuvent changer</string>
+    <string name="s_joy_shared" formatted="false">Sur ce logiciel les touches arrivent aussi à la musique : les commandes marchent, mais le volume et le titre peuvent changer avec la climatisation</string>
     <string name="s_joy_excl" formatted="false">MG4 Climat ouvert, les touches ne commandent que la climatisation (OK, haut/bas température, gauche/droite ventilation)</string>
-    <string name="a_joy_shared" formatted="false">Sur cette voiture les touches du volant commandent aussi la musique : commandes au joystick désactivées. Réactivables dans les réglages.</string>
+    <string name="a_joy_shared" formatted="false">Sur cette voiture les touches du volant arrivent aussi à la musique : en réglant la climatisation au joystick, le volume ou le titre peuvent changer.</string>
     <string name="s_quick" formatted="false">Ouverture rapide</string>
     <string name="s_quick_sub" formatted="false">Couvre aussitôt l\'appli climat d\'origine avec un écran déjà prêt pendant l\'ouverture de MG4 Climat</string>
     <string name="s_labels" formatted="false">Afficher les libellés des boutons</string>
@@ -188,5 +188,15 @@
     <string name="b_try" formatted="false">Tester</string>
     <string name="n_title">Nouveautés de la %1$s</string>
     <string name="n_sub" formatted="false">Ce qui change dans cette version</string>
-    <string name="n_body" formatted="false">• Joystick du volant : MG4 Climat ouvert, les touches ne commandent que la climatisation, le volume et le titre ne changent plus. Dès que tu quittes, elles reviennent à la musique. Commandes immédiates\n• Nouvelles icônes, comme les symboles des boutons de la voiture. Le recyclage a une icône par état : intérieur, air extérieur, automatique\n• L\'état actif se voit tout de suite : couleur vive, fond mis en évidence, icône plus grande\n• Nouvelle option \"Afficher les libellés des boutons\" : désactivée, icônes plus grandes seules\n• Joystick du volant prêt tout de suite, sans association. Si sur ta voiture les touches commandent aussi la musique, il reste désactivé (réactivable)\n• Le joystick gauche n\'est plus un choix : il envoie les mêmes touches que le droit\n• Ouverture plus rapide à la place de l\'appli climat d\'origine\n• Logiciel SWI131 reconnu ; la vérification choisit seule les valeurs LO et HI</string>
+    <string name="n_body" formatted="false">• Température : LO et HI sont ceux de ta voiture, lus dans la voiture ou mesurés par la vérification (elle passe maintenant aussi sur le modèle turc)\n• Joystick : si une autre appli utilise les mêmes touches, les réglages te le disent. Là où les touches arrivent aussi à la musique, les commandes restent actives, avec l\'avis\n• Ventilation comme dans l\'appli d\'origine : − à la vitesse minimale éteint la climatisation, + climatisation éteinte la rallume\n• Nouvelle option : ouvrir MG4 Climat depuis la barre du haut pendant Android Auto et CarPlay\n• Mises à jour vérifiées toutes seules, avec des avis importants si besoin\n• Le panneau climat qui descend au démarrage de l\'infotainment se ferme plus tôt</string>
+    <string name="s_joy_conflict" formatted="false">Une autre appli utilise le joystick</string>
+    <string name="s_joy_conflict_sub">%1$s peut prendre les mêmes touches du volant : désactive le joystick dans l\'autre appli pour l\'utiliser avec MG4 Climat</string>
+    <string name="s_proj" formatted="false">Climat pendant Android Auto et CarPlay</string>
+    <string name="s_proj_sub" formatted="false">Avec Android Auto ou CarPlay devant, touche le centre de la barre du haut pour ouvrir MG4 Climat</string>
+    <string name="r_notice" formatted="false">Avis</string>
+    <string name="r_update_title">MG4 Climat %1$s disponible</string>
+    <string name="r_update_msg" formatted="false">Il y a une nouvelle version de MG4 Climat.</string>
+    <string name="b_ok" formatted="false">OK</string>
+    <string name="b_later" formatted="false">Plus tard</string>
+    <string name="u_bad_sign" formatted="false">signature différente : non installé</string>
 </resources>

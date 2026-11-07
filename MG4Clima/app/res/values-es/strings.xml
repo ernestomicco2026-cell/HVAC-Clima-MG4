@@ -175,9 +175,9 @@
     <string name="u_updated" formatted="false">Actualizada</string>
     <string name="u_install_failed">Instalación fallida: %1$s</string>
     <string name="s_joy_on" formatted="false">Encendido</string>
-    <string name="s_joy_shared" formatted="false">En este coche las teclas también controlan la música: al ajustar el clima pueden cambiar el volumen o la canción</string>
+    <string name="s_joy_shared" formatted="false">En este software las teclas también llegan a la música: los mandos funcionan, pero el volumen y la canción pueden cambiar junto con el clima</string>
     <string name="s_joy_excl" formatted="false">Con MG4 Clima abierta las teclas solo controlan el clima (OK, arriba/abajo temperatura, izquierda/derecha ventilador)</string>
-    <string name="a_joy_shared" formatted="false">En este coche las teclas del volante también controlan la música: mandos del joystick apagados. Puedes volver a encenderlos en los ajustes.</string>
+    <string name="a_joy_shared" formatted="false">En este coche las teclas del volante también llegan a la música: al ajustar el clima con el joystick pueden cambiar el volumen o la canción.</string>
     <string name="s_quick" formatted="false">Apertura rápida</string>
     <string name="s_quick_sub" formatted="false">Cubre al instante la app de clima original con una pantalla ya lista mientras se abre MG4 Clima</string>
     <string name="s_labels" formatted="false">Mostrar textos en los botones</string>
@@ -188,5 +188,15 @@
     <string name="b_try" formatted="false">Probar</string>
     <string name="n_title">Novedades de la %1$s</string>
     <string name="n_sub" formatted="false">Qué cambia en esta versión</string>
-    <string name="n_body" formatted="false">• Joystick del volante: con MG4 Clima abierta las teclas solo controlan el clima, el volumen y la canción ya no cambian. Al salir vuelven a la música. Los mandos son inmediatos\n• Iconos nuevos, como los símbolos de los botones del coche. La recirculación tiene un icono por estado: interior, aire exterior, automático\n• El estado activo se ve enseguida: color vivo, fondo resaltado, icono más grande\n• Nueva opción \"Mostrar textos en los botones\": apagada, solo iconos más grandes\n• Joystick del volante listo al momento, sin asignar. Si en tu coche las teclas también controlan la música, queda apagado (se puede encender)\n• El joystick izquierdo ya no es una opción: envía las mismas teclas que el derecho\n• Apertura más rápida en lugar de la app de clima original\n• Software SWI131 reconocido; la verificación elige sola los valores de LO y HI</string>
+    <string name="n_body" formatted="false">• Temperatura: LO y HI son los de tu coche, leídos del coche o medidos por la verificación (ahora pasa también en el modelo turco)\n• Joystick: si otra app usa las mismas teclas, los ajustes te lo dicen. Donde las teclas también llegan a la música los mandos siguen activos, con el aviso\n• Ventilador como en la app original: − a la velocidad mínima apaga el clima, + con el clima apagado lo vuelve a encender\n• Nueva opción: abrir MG4 Clima desde la barra superior durante Android Auto y CarPlay\n• Actualizaciones comprobadas solas, con avisos importantes cuando hace falta\n• El panel del clima que baja al encender el infotainment se cierra antes</string>
+    <string name="s_joy_conflict" formatted="false">Otra app usa el joystick</string>
+    <string name="s_joy_conflict_sub">%1$s puede tomar las mismas teclas del volante: desactiva el joystick en la otra app para usarlo con MG4 Clima</string>
+    <string name="s_proj" formatted="false">Clima durante Android Auto y CarPlay</string>
+    <string name="s_proj_sub" formatted="false">Con Android Auto o CarPlay delante, toca el centro de la barra superior para abrir MG4 Clima</string>
+    <string name="r_notice" formatted="false">Aviso</string>
+    <string name="r_update_title">MG4 Clima %1$s disponible</string>
+    <string name="r_update_msg" formatted="false">Hay una versión nueva de MG4 Clima.</string>
+    <string name="b_ok" formatted="false">OK</string>
+    <string name="b_later" formatted="false">Más tarde</string>
+    <string name="u_bad_sign" formatted="false">firma distinta: no instalado</string>
 </resources>

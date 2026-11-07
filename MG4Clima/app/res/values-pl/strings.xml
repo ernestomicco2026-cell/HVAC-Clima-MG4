@@ -175,9 +175,9 @@
     <string name="u_updated" formatted="false">Zaktualizowano</string>
     <string name="u_install_failed">Instalacja nie powiodła się: %1$s</string>
     <string name="s_joy_on" formatted="false">Wł.</string>
-    <string name="s_joy_shared" formatted="false">W tym aucie klawisze sterują też muzyką: podczas regulacji klimatyzacji może zmienić się głośność lub utwór</string>
+    <string name="s_joy_shared" formatted="false">W tym oprogramowaniu klawisze trafiają też do muzyki: sterowanie działa, ale głośność i utwór mogą zmieniać się razem z klimatyzacją</string>
     <string name="s_joy_excl" formatted="false">Przy otwartej MG4 Klimatyzacji klawisze sterują tylko klimatyzacją (OK, góra/dół temperatura, lewo/prawo nawiew)</string>
-    <string name="a_joy_shared" formatted="false">W tym aucie klawisze kierownicy sterują też muzyką: sterowanie joystickiem wyłączone. Możesz je włączyć w ustawieniach.</string>
+    <string name="a_joy_shared" formatted="false">W tym aucie klawisze kierownicy trafiają też do muzyki: podczas regulacji klimatyzacji joystickiem może zmienić się głośność lub utwór.</string>
     <string name="s_quick" formatted="false">Szybkie otwieranie</string>
     <string name="s_quick_sub" formatted="false">Od razu zakrywa oryginalną aplikację klimatyzacji gotowym ekranem, gdy otwiera się MG4 Klimatyzacja</string>
     <string name="s_labels" formatted="false">Pokaż napisy na przyciskach</string>
@@ -188,5 +188,15 @@
     <string name="b_try" formatted="false">Sprawdź</string>
     <string name="n_title">Nowości w wersji %1$s</string>
     <string name="n_sub" formatted="false">Co się zmienia w tej wersji</string>
-    <string name="n_body" formatted="false">• Joystick kierownicy: przy otwartej MG4 Klimatyzacji klawisze sterują tylko klimatyzacją, głośność i utwór już się nie zmieniają. Po wyjściu wracają do muzyki. Polecenia od razu\n• Nowe ikony, jak symbole na przyciskach auta. Recyrkulacja ma ikonę dla każdego stanu: wewnętrzna, powietrze zewnętrzne, automatyczna\n• Stan aktywny widać od razu: żywy kolor, wyróżnione tło, większa ikona\n• Nowa opcja \"Pokaż napisy na przyciskach\": wyłączona = tylko większe ikony\n• Joystick kierownicy gotowy od razu, bez przypisywania. Jeśli w Twoim aucie klawisze sterują też muzyką, pozostaje wyłączony (można go włączyć)\n• Lewy joystick nie jest już do wyboru: wysyła te same klawisze co prawy\n• Szybsze otwieranie zamiast oryginalnej aplikacji klimatyzacji\n• Rozpoznawane oprogramowanie SWI131; weryfikacja sama wybiera wartości LO i HI</string>
+    <string name="n_body" formatted="false">• Temperatura: LO i HI są Twojego auta, odczytane z auta lub zmierzone przez weryfikację (teraz przechodzi też w modelu tureckim)\n• Joystick: jeśli inna aplikacja używa tych samych klawiszy, ustawienia o tym powiedzą. Gdzie klawisze trafiają też do muzyki, sterowanie zostaje włączone, z komunikatem\n• Nawiew jak w oryginalnej aplikacji: − przy najmniejszej prędkości wyłącza klimatyzację, + przy wyłączonej ją włącza\n• Nowa opcja: otwieranie MG4 Klimatyzacji z górnego paska podczas Android Auto i CarPlay\n• Aktualizacje sprawdzane same, z ważnymi komunikatami, gdy trzeba\n• Panel klimatyzacji, który zjeżdża przy starcie multimediów, zamyka się wcześniej</string>
+    <string name="s_joy_conflict" formatted="false">Inna aplikacja używa joysticka</string>
+    <string name="s_joy_conflict_sub">%1$s może przejmować te same klawisze kierownicy: wyłącz joystick w drugiej aplikacji, aby używać go z MG4 Klimatyzacją</string>
+    <string name="s_proj" formatted="false">Klimatyzacja podczas Android Auto i CarPlay</string>
+    <string name="s_proj_sub" formatted="false">Gdy z przodu jest Android Auto lub CarPlay, dotknij środka górnego paska, aby otworzyć MG4 Klimatyzację</string>
+    <string name="r_notice" formatted="false">Komunikat</string>
+    <string name="r_update_title">MG4 Klimatyzacja %1$s dostępna</string>
+    <string name="r_update_msg" formatted="false">Jest nowa wersja MG4 Klimatyzacji.</string>
+    <string name="b_ok" formatted="false">OK</string>
+    <string name="b_later" formatted="false">Później</string>
+    <string name="u_bad_sign" formatted="false">inny podpis: nie zainstalowano</string>
 </resources>

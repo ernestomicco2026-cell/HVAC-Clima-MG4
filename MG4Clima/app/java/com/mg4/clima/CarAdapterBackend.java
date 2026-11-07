@@ -46,42 +46,82 @@ final class CarAdapterBackend implements HvacClient.Backend {
         }
     }
 
-    /** MG4 EU/UK: 16..30 °C, l'auto usa 15,5 = LO e 30,5 = HI. Qui: 15 = LO, 31 = HI. */
+    /**
+     * MG4 EU/UK: 16..30 °C, l'auto usa 15,5 = LO e 30,5 = HI. Qui: 15 = LO, 31 = HI (riserva).
+     * 1.4.2: il servizio non dice i limiti, li misura la verifica (alcune auto SWI69/SWI132 usano 17 = LO e 33 = HI,
+     * e su SWI69 R33 / SWI132 R25 15,5 torna come 31). Vedi AutoTest.calibrateLow/High.
+     */
     private static final int TEMP_MIN = 15, TEMP_MAX = 31;
     private static final float CAR_LO = 15.5f, CAR_HI = 30.5f;
 
+    /** Intervallo in uso: LO e HI come si mandano e come l'auto li rilegge; tMin/tMax = LO/HI nella schermata. */
+    private static volatile float loSend = CAR_LO, loRead = CAR_LO, hiSend = CAR_HI, hiRead = CAR_HI;
+    private static volatile int tMin = TEMP_MIN, tMax = TEMP_MAX, fanMaxCal = -1;
+    private static volatile boolean noLo, noHi;
+    private static volatile String source = "riserva";
+
     static int tempFromCar(float f) {
         if (Float.isNaN(f) || f <= 0) return -1;
-        if (f <= CAR_LO + 0.01f) return TEMP_MIN;
-        if (f >= CAR_HI - 0.01f) return TEMP_MAX;
-        return Math.max(TEMP_MIN + 1, Math.min(TEMP_MAX - 1, Math.round(f)));
+        if (f <= loRead + 0.01f) return tMin;
+        if (f >= hiRead - 0.01f) return tMax;
+        return Math.max(tMin + 1, Math.min(tMax - 1, Math.round(f)));
     }
 
     static float tempToCar(int v) {
-        if (v <= TEMP_MIN) return loSend;
-        if (v >= TEMP_MAX) return hiSend;
+        if (v <= tMin) return loSend;
+        if (v >= tMax) return hiSend;
         return v;
     }
 
-    // ---- 1.4.0: LO e HI scelti dalla verifica (SWI131: 15,5 torna come HI, 30,5 resta a 30) ------------------------
-    /** Valori mandati all'auto per LO e HI; noLo/noHi = nessun valore funziona, LO/HI nascosti. */
-    private static volatile float loSend = CAR_LO, hiSend = CAR_HI;
-    private static volatile boolean noLo, noHi;
-    /** Valori da provare nella verifica, nell'ordine (il primo è quello di sempre). Solo vicino al campo 16–30. */
-    static final float[] LO_TRY = {15.5f, 15f, 14.5f, 14f}, HI_TRY = {30.5f, 31f, 31.5f, 32f};
+    /** Valori da provare nella verifica (1.4.2): LO scendendo, HI salendo; ci si ferma al primo che l'auto rifiuta. */
+    static final float[] LO_TRY = {17f, 16f, 15.5f, 15f}, HI_TRY = {30.5f, 31f, 32f, 33f};
 
-    /** Legge dalle impostazioni i valori scelti per questa versione dell'app clima originale. */
+    /** Legge dalle impostazioni l'intervallo misurato per questa versione dell'app clima originale. */
     static void loadLimits(Context c) {
         String ver = ClimaGuard.originalVersion(c);
-        Float lo = Store.tempLimit(c, "LO", ver), hi = Store.tempLimit(c, "HI", ver);
-        noLo = lo != null && Float.isNaN(lo);
-        noHi = hi != null && Float.isNaN(hi);
-        loSend = lo == null || noLo ? CAR_LO : lo;
-        hiSend = hi == null || noHi ? CAR_HI : hi;
+        float[] r = Store.tempRange(c, ver);
+        if (r != null) {
+            noLo = Float.isNaN(r[0]);
+            noHi = Float.isNaN(r[2]);
+            loSend = noLo ? CAR_LO : r[0];
+            loRead = noLo ? CAR_LO : r[1];
+            hiSend = noHi ? CAR_HI : r[2];
+            hiRead = noHi ? CAR_HI : r[3];
+            fanMaxCal = (int) r[4];
+            source = "verifica";
+        } else {   // 1.4.0 / 1.4.1: solo i valori da mandare (letti come LO ≤ 15,5 e HI ≥ 30,5)
+            Float lo = Store.tempLimit(c, "LO", ver), hi = Store.tempLimit(c, "HI", ver);
+            noLo = lo != null && Float.isNaN(lo);
+            noHi = hi != null && Float.isNaN(hi);
+            loSend = lo == null || noLo ? CAR_LO : lo;
+            hiSend = hi == null || noHi ? CAR_HI : hi;
+            loRead = Math.min(loSend, CAR_LO);
+            hiRead = Math.max(hiSend, CAR_HI);
+            fanMaxCal = -1;
+            source = lo != null || hi != null ? "verifica 1.4.0" : "riserva";
+        }
+        tMin = noLo ? TEMP_MIN : (int) Math.floor(loRead + 0.001f);
+        tMax = noHi ? TEMP_MAX : (int) Math.ceil(hiRead - 0.001f);
+        if (tMax - tMin < 6) {   // valori assurdi: riserva
+            tMin = TEMP_MIN;
+            tMax = TEMP_MAX;
+            loSend = loRead = CAR_LO;
+            hiSend = hiRead = CAR_HI;
+            source = "riserva (misura non valida)";
+        }
     }
 
     static String limitsText() {
         return "LO " + (noLo ? "nascosto" : String.valueOf(loSend)) + " · HI " + (noHi ? "nascosto" : String.valueOf(hiSend));
+    }
+
+    /** Riga clima.intervallo: minimo e massimo numerici, LO, HI (mandato → riletto) e da dove vengono. */
+    static String rangeText() {
+        return "minimo " + (tMin + 1) + " · massimo " + (tMax - 1)
+                + " · LO " + (noLo ? "nascosto" : tMin + " (" + loSend + " → " + loRead + ")")
+                + " · HI " + (noHi ? "nascosto" : tMax + " (" + hiSend + " → " + hiRead + ")")
+                + (fanMaxCal > 0 ? " · ventola 1–" + fanMaxCal : "")
+                + " · fonte " + source + " (il servizio non dà i limiti)";
     }
 
     private final Context ctx;
@@ -160,9 +200,9 @@ final class CarAdapterBackend implements HvacClient.Backend {
         s.caradapter = true;
         s.seatConfig = 2;
         s.fanMin = 1;
-        s.fanMax = 11;
-        s.tempMin = TEMP_MIN;
-        s.tempMax = TEMP_MAX;
+        s.fanMax = fanMaxCal >= 4 && fanMaxCal <= 11 ? fanMaxCal : 11;   // 1.4.2: auto con ventola 1–8
+        s.tempMin = tMin;
+        s.tempMax = tMax;
         s.noLo = noLo;
         s.noHi = noHi;
         s.hasWheel = false;

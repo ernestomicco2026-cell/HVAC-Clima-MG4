@@ -16,6 +16,8 @@
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
     <!-- bloccare il menù a tendina mentre MG4 Clima è aperta (firma di sistema) -->
     <uses-permission android:name="android.permission.STATUS_BAR" />
+    <!-- 1.4.2: zona sopra la barra in alto durante Android Auto / CarPlay (finestra di sistema, chiave di piattaforma) -->
+    <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW" />
     <!-- aggiornamenti di MG4 Clima dalle impostazioni (firma di sistema) -->
     <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.DELETE_PACKAGES" />

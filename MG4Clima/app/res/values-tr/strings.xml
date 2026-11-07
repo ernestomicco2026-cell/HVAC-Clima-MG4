@@ -175,9 +175,9 @@
     <string name="u_updated" formatted="false">Güncellendi</string>
     <string name="u_install_failed">Yükleme başarısız: %1$s</string>
     <string name="s_joy_on" formatted="false">Açık</string>
-    <string name="s_joy_shared" formatted="false">Bu araçta tuşlar müziği de kontrol eder: klimayı ayarlarken ses veya parça değişebilir</string>
+    <string name="s_joy_shared" formatted="false">Bu yazılımda tuşlar müziğe de ulaşır: komutlar çalışır ama ses ve parça klimayla birlikte değişebilir</string>
     <string name="s_joy_excl" formatted="false">MG4 Klima açıkken tuşlar sadece klimayı kontrol eder (OK, yukarı/aşağı sıcaklık, sol/sağ fan)</string>
-    <string name="a_joy_shared" formatted="false">Bu araçta direksiyon tuşları müziği de kontrol eder: joystick kontrolü kapatıldı. Ayarlardan yeniden açabilirsin.</string>
+    <string name="a_joy_shared" formatted="false">Bu araçta direksiyon tuşları müziğe de ulaşıyor: klimayı joystick ile ayarlarken ses veya parça değişebilir.</string>
     <string name="s_quick" formatted="false">Hızlı açılış</string>
     <string name="s_quick_sub" formatted="false">MG4 Klima açılırken orijinal klima uygulamasını hazır bir ekranla hemen kapatır</string>
     <string name="s_labels" formatted="false">Düğmelerde yazıları göster</string>
@@ -188,5 +188,15 @@
     <string name="b_try" formatted="false">Dene</string>
     <string name="n_title">%1$s sürümünde yenilikler</string>
     <string name="n_sub" formatted="false">Bu sürümde neler değişiyor</string>
-    <string name="n_body" formatted="false">• Direksiyon joysticki: MG4 Klima açıkken tuşlar sadece klimayı kontrol eder, ses ve parça artık değişmez. Çıkınca tekrar müziği kontrol eder. Komutlar anında\n• Aracın tuşlarındaki semboller gibi yeni simgeler. İç hava her durum için kendi simgesine sahip: iç hava, dış hava, otomatik\n• Etkin durum hemen görünür: canlı renk, vurgulu arka plan, daha büyük simge\n• Yeni seçenek \"Düğmelerde yazıları göster\": kapalıyken yalnızca daha büyük simgeler\n• Direksiyon joysticki atama yapmadan hemen hazır. Aracında tuşlar müziği de kontrol ediyorsa kapalı kalır (açılabilir)\n• Sol joystick artık bir seçenek değil: sağ joystick ile aynı tuşları gönderiyor\n• Orijinal klima uygulamasının yerine daha hızlı açılış\n• SWI131 yazılımı tanınıyor; doğrulama LO ve HI değerlerini kendisi seçer</string>
+    <string name="n_body" formatted="false">• Sıcaklık: LO ve HI aracından okunur ya da doğrulama ile ölçülür (doğrulama artık Türk modelinde de geçiyor)\n• Joystick: başka bir uygulama aynı tuşları kullanıyorsa ayarlar söyler. Tuşların müziğe de ulaştığı yerde komutlar uyarıyla birlikte açık kalır\n• Fan orijinal uygulamadaki gibi: en düşük hızda − klimayı kapatır, klima kapalıyken + tekrar açar\n• Yeni seçenek: Android Auto ve CarPlay sırasında MG4 Klima\'yı üst çubuktan açmak\n• Güncellemeler kendiliğinden denetlenir, gerektiğinde önemli duyurular\n• Multimedya açılırken inen klima paneli daha erken kapanır</string>
+    <string name="s_joy_conflict" formatted="false">Başka bir uygulama joysticki kullanıyor</string>
+    <string name="s_joy_conflict_sub">%1$s aynı direksiyon tuşlarını alabilir: MG4 Klima ile kullanmak için diğer uygulamada joysticki kapat</string>
+    <string name="s_proj" formatted="false">Android Auto ve CarPlay sırasında klima</string>
+    <string name="s_proj_sub" formatted="false">Android Auto veya CarPlay öndeyken MG4 Klima\'yı açmak için üst çubuğun ortasına dokun</string>
+    <string name="r_notice" formatted="false">Duyuru</string>
+    <string name="r_update_title">MG4 Klima %1$s mevcut</string>
+    <string name="r_update_msg" formatted="false">MG4 Klima\'nın yeni bir sürümü var.</string>
+    <string name="b_ok" formatted="false">Tamam</string>
+    <string name="b_later" formatted="false">Sonra</string>
+    <string name="u_bad_sign" formatted="false">farklı imza: yüklenmedi</string>
 </resources>

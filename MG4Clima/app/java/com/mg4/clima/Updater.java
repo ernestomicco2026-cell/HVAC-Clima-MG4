@@ -35,7 +35,8 @@ final class Updater {
     private static final String ACTION_RESULT = "com.mg4.clima.UPDATE_RESULT";
 
     static final class Release {
-        String version = "", notes = "", apk = "", sha256 = "";
+        /** minima (1.4.2): versione più vecchia ammessa; sotto si aggiorna da soli ad auto ferma (vedi Remote). */
+        String version = "", notes = "", apk = "", sha256 = "", minima = "";
         long size;
         boolean newer;
     }
@@ -125,6 +126,7 @@ final class Updater {
                 if (!good(f, r)) throw new Exception(L.s(R.string.u_bad_file));
                 PackageInfo pi = ctx.getPackageManager().getPackageArchiveInfo(f.getPath(), 0);
                 if (pi == null || !ctx.getPackageName().equals(pi.packageName)) throw new Exception(L.s(R.string.u_not_app));
+                if (!sameSignature(f)) throw new Exception(L.s(R.string.u_bad_sign));   // 1.4.2
                 status(L.f(R.string.u_installing, pi.versionName), r, true);
                 Store.event(ctx, "aggiornamenti: installo " + pi.versionName);
                 installApk(f);
@@ -169,15 +171,35 @@ final class Updater {
             json = text(RAW + "releases/latest.json", "application/json");
         }
         JSONObject o = new JSONObject(json).optJSONObject(KEY);
+        if (o == null) return new Release();
+        return parse(ctx, o);
+    }
+
+    /** Voce "MG4Clima" di latest.json (anche da Remote). Campi in più sono ignorati dalle versioni vecchie. */
+    static Release parse(Context ctx, JSONObject o) {
         Release r = new Release();
-        if (o == null) return r;
         r.version = o.optString("version", "");
         r.notes = o.optString("notes", "");
         r.apk = o.optString("apk", "");
         r.sha256 = o.optString("sha256", "");
+        r.minima = o.optString("minima", "");
         r.size = o.optLong("size", 0);
         r.newer = !r.apk.isEmpty() && compare(r.version, BuildInfo.version(ctx)) > 0;
         return r;
+    }
+
+    /** 1.4.2: il file scaricato è firmato con la stessa chiave dell'app installata. */
+    @SuppressWarnings("deprecation")
+    private boolean sameSignature(File f) {
+        try {
+            android.content.pm.PackageManager pm = ctx.getPackageManager();
+            PackageInfo a = pm.getPackageArchiveInfo(f.getPath(), android.content.pm.PackageManager.GET_SIGNATURES);
+            PackageInfo b = pm.getPackageInfo(ctx.getPackageName(), android.content.pm.PackageManager.GET_SIGNATURES);
+            if (a == null || b == null || a.signatures == null || b.signatures == null || a.signatures.length == 0) return false;
+            return java.util.Arrays.equals(a.signatures, b.signatures);
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     private static HttpURLConnection open(String url, String accept) throws Exception {

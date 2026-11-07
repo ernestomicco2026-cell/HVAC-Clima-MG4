@@ -26,7 +26,7 @@ final class SaicBackend implements HvacClient.Backend {
     private static final String AC = "com.saicmotor.sdk.vehiclesettings.IAirConditionService";
     private static final int GET_POWER = 53, GET_AUTO = 54, GET_AC = 55, GET_LOOP = 56, GET_ECON = 57,
             GET_BLOWER_MODE = 58, GET_AIR_VOLUME = 59, GET_MAX_AIR = 60, GET_MIN_AIR = 61,
-            GET_DRV_SEAT = 77, GET_PSG_SEAT = 79, GET_DRV_TEMP = 81, GET_OUT_TEMP = 88,
+            GET_DRV_SEAT = 77, GET_PSG_SEAT = 79, GET_DRV_TEMP = 81, GET_MAX_TEMP = 83, GET_MIN_TEMP = 84, GET_OUT_TEMP = 88,
             GET_FRONT_DEFROST = 92, GET_REAR_DEFROST = 93, GET_WHEEL_HEAT = 94;
 
     /** Impostazioni dell'app clima originale (finestra impostazioni): stessi codici su SWI68 e SWI133. */
@@ -117,6 +117,47 @@ final class SaicBackend implements HvacClient.Backend {
     SaicBackend(Context c, boolean swi133) {
         ctx = c;
         condAcAvailable = swi133 ? 45 : 49;
+        loadLimits(c);
+    }
+
+    // ---- 1.4.2: intervallo di temperatura dall'auto -----------------------------------------------------------------
+    // Prima: 17 = LO e 33 = HI fissi. Ora: getMinTemp/getMaxTemp del servizio clima (transazioni 84/83, come l'SDK
+    // dell'app originale), poi corretti dalla verifica con quello che l'auto accetta davvero (DBI68: si ferma a 31).
+    // 17/33 restano solo come riserva se la lettura non è valida.
+    private static final int RES_MIN = 17, RES_MAX = 33;
+    private static volatile int svcMin = Integer.MIN_VALUE, svcMax = Integer.MIN_VALUE;
+    private static volatile int calMin = -1, calMax = -1;
+
+    /** Lettura del servizio plausibile (LO tra 10 e 20, HI tra 26 e 40, almeno 8 gradi di differenza). */
+    private static boolean svcValid() {
+        return svcMin >= 10 && svcMin <= 20 && svcMax >= 26 && svcMax <= 40 && svcMax - svcMin >= 8;
+    }
+
+    static int lo() {
+        return calMin > 0 ? calMin : svcValid() ? svcMin : RES_MIN;
+    }
+
+    static int hi() {
+        return calMax > 0 ? calMax : svcValid() ? svcMax : RES_MAX;
+    }
+
+    /** Intervallo misurato dalla verifica per questa versione dell'app clima originale (se c'è). */
+    static void loadLimits(Context c) {
+        float[] r = Store.tempRange(c, ClimaGuard.originalVersion(c));
+        if (r != null && !Float.isNaN(r[1]) && !Float.isNaN(r[3]) && r[3] - r[1] >= 8) {
+            calMin = Math.round(r[1]);
+            calMax = Math.round(r[3]);
+        } else {
+            calMin = calMax = -1;
+        }
+    }
+
+    /** Riga clima.intervallo. */
+    static String rangeText() {
+        String svc = svcMin == Integer.MIN_VALUE ? "non letto" : svcMin + "–" + svcMax + (svcValid() ? "" : " (non valido)");
+        String src = calMin > 0 ? "verifica" : svcValid() ? "letto dall'auto" : "riserva";
+        return "minimo " + (lo() + 1) + " · massimo " + (hi() - 1) + " · LO " + lo() + " · HI " + hi() + " · fonte " + src
+                + " (l'auto dichiara " + svc + ")";
     }
 
     private final ServiceConnection conn = new ServiceConnection() {
@@ -189,8 +230,8 @@ final class SaicBackend implements HvacClient.Backend {
     @Override
     public HvacClient.State empty() {
         HvacClient.State s = new HvacClient.State();
-        s.tempMin = 17;   // come l'app originale: 17 = LO, 33 = HI
-        s.tempMax = 33;
+        s.tempMin = lo();   // 1.4.2: dall'auto (riserva 17 = LO, 33 = HI)
+        s.tempMax = hi();
         s.hasWheel = true;
         s.hasSeats = true;
         return s;
@@ -269,6 +310,18 @@ final class SaicBackend implements HvacClient.Backend {
             }
             s.fanMin = fanMin;
             s.fanMax = fanMax;
+            if (svcMin == Integer.MIN_VALUE) {   // 1.4.2: una volta sola
+                try {
+                    svcMin = Rpc.callInt(a, AC, GET_MIN_TEMP);
+                    svcMax = Rpc.callInt(a, AC, GET_MAX_TEMP);
+                } catch (Throwable t) {
+                    svcMin = svcMax = -1;
+                }
+                Store.event(ctx, "clima.intervallo letto dall'auto: min " + svcMin + " · max " + svcMax
+                        + (svcValid() ? "" : " (non valido: uso la riserva " + RES_MIN + "–" + RES_MAX + ")"));
+            }
+            s.tempMin = lo();
+            s.tempMax = hi();
             s.power = Rpc.callInt(a, AC, GET_POWER);
             s.temp = Rpc.callInt(a, AC, GET_DRV_TEMP);
             s.fan = Rpc.callInt(a, AC, GET_AIR_VOLUME);

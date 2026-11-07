@@ -24,6 +24,11 @@ public final class L {
     private L() {}
 
     /** Lingua di sistema dell'auto (quella che "auto" seguirebbe). */
+    /** 1.4.2: lingua in uso nell'app (codice a due lettere: it, en, es, de, pt, fr, tr, pl). */
+    public static String lang() {
+        return locale.getLanguage();
+    }
+
     public static Locale systemLocale() {
         Configuration sys = Resources.getSystem().getConfiguration();
         return sys.getLocales().isEmpty() ? Locale.getDefault() : sys.getLocales().get(0);

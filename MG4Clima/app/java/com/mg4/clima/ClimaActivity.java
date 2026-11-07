@@ -87,12 +87,8 @@ public final class ClimaActivity extends Activity {
                 h.post(() -> onSysKey(sysCode, down));
             }
         });
-        joy.onDecided = () -> {   // 1.4.0: esclusiva non possibile → comandi spenti (se l'utente non li aveva scelti)
-            if (Store.joystick(this) == Store.JOY_OFF) {
-                stopRepeat();
-                ClimaGuard.refreshFilter(this);
-                toastLong(L.s(R.string.a_joy_shared));
-            }
+        joy.onDecided = () -> {   // 1.4.2: esclusiva non possibile → i comandi restano (col broadcast), con l'avviso
+            if (Store.joystick(this) != Store.JOY_OFF) toastLong(L.s(R.string.a_joy_shared));
         };
         // al primo avvio dopo l'installazione attiva la sostituzione dell'app clima
         ClimaGuard.ensureEnabled(this);
@@ -178,7 +174,9 @@ public final class ClimaActivity extends Activity {
         // 1.4.0: tasti in esclusiva (filtro dell'accessibilità) solo con la schermata in primo piano e il joystick acceso
         // 1.4.1: il filtro resta acceso nel servizio; la schermata in primo piano riceve (e fa consumare) i tasti
         ClimaGuard.keyListener(this::onFilterKey);
+        ClimaGuard.refreshFilter(this);   // 1.4.2: controlla che il flag del filtro sia davvero acceso
         h.postDelayed(this::maybeNews, 1500);
+        h.postDelayed(this::maybeRemote, 3000);   // 1.4.2: avvisi da remoto e versione nuova
     }
 
     /** 1.4.0: la schermata è in primo piano (il filtro dei tasti consuma solo in questo caso). */
@@ -274,9 +272,23 @@ public final class ClimaActivity extends Activity {
             case "fan-":
             case "fan+": {
                 int min = Math.max(1, s.fanMin), max = Math.min(11, s.fanMax);
+                // 1.4.2, come l'app originale: "ventola +" a clima spento lo riaccende col comando di accensione (l'auto
+                // torna com'era), "ventola −" alla velocità minima spegne il clima
+                if (!s.on()) {
+                    if (id.equals("fan+")) {
+                        press("accensione (ventola +)", HvacClient.SET_POWER_PRESS);
+                        if (Model.sysUiPanel(this) && Store.closeShade(this))
+                            SysUiPanel.closeSoon(this, "accensione da MG4 Clima");
+                    }
+                    break;
+                }
                 int base = now - pendFanAt < 1500 && pendFan > 0 ? pendFan
                         : s.fan >= min && s.fan <= max ? s.fan : lastManualFan;   // da AUTO si parte dall'ultimo livello
                 boolean fromAuto = s.fan == HvacClient.FAN_AUTO && now - pendFanAt >= 1500;
+                if (!fromAuto && id.equals("fan-") && base <= min && now - pendFanAt >= 1500) {
+                    press("spegnimento (ventola − al minimo)", HvacClient.SET_POWER_PRESS);
+                    break;
+                }
                 int f = fromAuto ? base : id.equals("fan+") ? Math.min(max, base + 1) : Math.max(min, base - 1);
                 if (f == base && !fromAuto) return;
                 pendFan = f;
@@ -515,10 +527,23 @@ public final class ClimaActivity extends Activity {
                     Store.event(this, "comandi dal joystick: " + (i == 0 ? "spenti" : "accesi (" + Joystick.mapText(this, Store.JOY_RIGHT) + ")"));
                     settings();
                 }), false);
+        // 1.4.2: un'altra app con il filtro dei tasti (es. MG4 Control) può prendere gli stessi tasti
+        String others = ClimaGuard.conflictApps(this);
+        if (!others.isEmpty()) {
+            Store.event(this, "joystick: altre app che possono prendere i tasti: " + others);
+            s.row(c1, L.s(R.string.s_joy_conflict), L.f(R.string.s_joy_conflict_sub, others.replaceAll(" \\([a-z0-9_.]+\\)", "")), null, false);
+        }
         s.row(c1, L.s(R.string.s_quick), L.s(R.string.s_quick_sub),
                 s.toggle(Store.quickCover(this), v -> {
                     Store.setQuickCover(this, v);
                     Store.event(this, "finestra pronta " + (v ? "accesa" : "spenta"));
+                }), false);
+        // 1.4.2: clima durante Android Auto e CarPlay (spento di default)
+        s.row(c1, L.s(R.string.s_proj), L.s(R.string.s_proj_sub),
+                s.toggle(Store.projectionZone(this), v -> {
+                    Store.setProjectionZone(this, v);
+                    ProjectionZone.refresh(this);
+                    Store.event(this, "clima.proiezione: opzione " + (v ? "accesa" : "spenta"));
                 }), false);
         if (panelModel) {
             int pm = Store.panelMode(this);
@@ -542,7 +567,7 @@ public final class ClimaActivity extends Activity {
         s.label(L.s(R.string.s_updates));
         LinearLayout c3 = s.card();
         Updater up = Updater.get(this);
-        Updater.Release rel = up.last();
+        Updater.Release rel = up.last() != null ? up.last() : Remote.latest();   // 1.4.2: anche dal controllo automatico
         String ut = up.lastText().isEmpty() ? L.f(R.string.s_installed, BuildInfo.version(this)) : up.lastText();
         if (rel != null && rel.newer && !rel.notes.isEmpty() && !up.busy()) ut += "\n" + rel.notes;
         View ub = up.busy() ? s.busyButton("…")
@@ -951,13 +976,16 @@ public final class ClimaActivity extends Activity {
                 break;
             case "sinistra":
                 id = "fan-";
-                what = "ventola -";
-                if (s.fan >= 1 && s.fan <= 11 && s.fan <= Math.max(1, s.fanMin)) esito = "già al minimo";
+                what = !s.on() ? "ventola - (clima spento)" : s.fan >= 1 && s.fan <= 11 && s.fan <= Math.max(1, s.fanMin)
+                        ? "ventola - al minimo → spegni clima" : "ventola -";
+                if (!s.on()) esito = "clima spento";
+                else if (repeat && s.fan >= 1 && s.fan <= Math.max(1, s.fanMin)) esito = "già al minimo";   // tenendo premuto non si spegne
                 break;
             default:
                 id = "fan+";
-                what = "ventola +";
-                if (s.fan >= 1 && s.fan <= 11 && s.fan >= Math.min(11, s.fanMax)) esito = "già al massimo";
+                what = s.on() ? "ventola +" : "ventola + → accendi clima";
+                if (s.on() && s.fan >= 1 && s.fan <= 11 && s.fan >= Math.min(11, s.fanMax)) esito = "già al massimo";
+                if (!s.on() && repeat) esito = "già acceso";
                 break;
         }
         if (!s.connected) esito = "servizio clima non collegato";
@@ -1035,6 +1063,40 @@ public final class ClimaActivity extends Activity {
             case "sinistra": return R.string.k_left;
             case "destra": return R.string.k_right;
             default: return R.string.k_ok;
+        }
+    }
+
+    /** 1.4.2: versione nuova già avvisata in questa accensione (avviso discreto, una volta). */
+    private static String updateNoticed = "";
+
+    /**
+     * 1.4.2: avviso da remoto (releases/avvisi.json) oppure, se non c'è, avviso discreto di una versione nuova con
+     * il pulsante Aggiorna. Mai durante test/verifica o con un pannello aperto.
+     */
+    private void maybeRemote() {
+        if (isFinishing() || !resumed || testRunning || (sheet != null && sheet.showing())) return;
+        if (sheet == null) sheet = new Sheet(this, root, view);
+        Remote.Notice n = Remote.pending();
+        Updater.Release r = Remote.latest();
+        boolean canUpdate = r != null && r.newer && !r.apk.isEmpty();
+        if (n != null) {
+            Remote.shown(this, n);
+            Runnable ok = () -> Remote.confirmed(this, n);
+            if (n.updateButton && canUpdate) {
+                sheet.confirm(L.s(R.string.r_notice), n.text, L.s(R.string.b_later), L.s(R.string.b_update), () -> {
+                    Remote.confirmed(this, n);
+                    confirmUpdate(r);
+                });
+            } else {
+                sheet.confirm(L.s(R.string.r_notice), n.text, L.s(R.string.b_later), L.s(R.string.b_ok), ok);
+            }
+            return;
+        }
+        if (canUpdate && !r.version.equals(updateNoticed)) {
+            updateNoticed = r.version;
+            Store.event(this, "aggiornamento " + r.version + " disponibile: avviso mostrato");
+            sheet.confirm(L.f(R.string.r_update_title, r.version), r.notes.isEmpty() ? L.s(R.string.r_update_msg) : r.notes,
+                    L.s(R.string.b_later), L.s(R.string.b_update), () -> confirmUpdate(r));
         }
     }
 

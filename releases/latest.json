@@ -1,9 +1,9 @@
 {
   "MG4Clima": {
-    "version": "1.4.1",
-    "apk": "releases/MG4Clima-1.4.1.apk",
-    "size": 490263,
-    "sha256": "095a692f06bcafbc5546cfb3d6981b5babf8e50d1e23e12fec6c76210416b3bf",
-    "notes": "Joystick del volante solo per il clima: con MG4 Clima aperta volume e brano non cambiano più; appena esci i tasti tornano alla musica. Comandi dal joystick più rapidi."
+    "version": "1.4.2",
+    "apk": "releases/MG4Clima-1.4.2.apk",
+    "size": 506647,
+    "sha256": "c4bb87d79e3aa94c1b8d2b5c532ea1dce9d7715c9fdf8471542edf7b0786d6ee",
+    "notes": "Temperatura con LO e HI della propria auto (la verifica passa anche sul DBI68). Joystick: esclusiva rimisurata, avviso se un'altra app usa gli stessi tasti. Ventola come l'originale. Pannello clima chiuso prima all'accensione. Opzione clima durante Android Auto e CarPlay. Aggiornamenti controllati da soli e avvisi importanti."
   }
 }

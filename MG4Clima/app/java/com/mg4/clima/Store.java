@@ -156,7 +156,9 @@ public final class Store {
     public static int joystick(Context c) {
         SharedPreferences s = sp(c);
         if (s.contains("joystick")) return s.getInt("joystick", JOY_RIGHT) == JOY_OFF ? JOY_OFF : JOY_RIGHT;
-        return joyExclusive(c) == 0 ? JOY_OFF : JOY_RIGHT;
+        // 1.4.2: acceso di default anche dove l'esclusiva non è possibile (i comandi vanno col broadcast; nelle
+        // impostazioni c'è la spiegazione che volume e brano possono cambiare insieme al clima)
+        return JOY_RIGHT;
     }
 
     public static void setJoystick(Context c, int m) {
@@ -194,12 +196,15 @@ public final class Store {
      * 1.4.0: esclusiva dei tasti del volante su questo software dell'auto: -1 non ancora provata, 1 riuscita
      * (con il filtro attivo le altre app non ricevono più i tasti), 0 non possibile (li ricevono lo stesso).
      */
+    // 1.4.2: chiave nuova ("joyEsclusiva2_"): le misure della 1.4.0/1.4.1 non contano più (la 1.4.0 accendeva il
+    // filtro solo all'apertura e la 1.4.1 poteva non consultare la schermata se l'app in primo piano era letta male),
+    // quindi su ogni auto l'esclusiva si rimisura.
     public static int joyExclusive(Context c) {
-        return sp(c).getInt("joyEsclusiva_" + Model.software(), -1);
+        return sp(c).getInt("joyEsclusiva2_" + Model.software(), -1);
     }
 
     public static void setJoyExclusive(Context c, int v, String detail) {
-        sp(c).edit().putInt("joyEsclusiva_" + Model.software(), v).putString("joyEsclusivaDettaglio", detail).apply();
+        sp(c).edit().putInt("joyEsclusiva2_" + Model.software(), v).putString("joyEsclusivaDettaglio", detail).apply();
     }
 
     public static String joyExclusiveDetail(Context c) {
@@ -228,6 +233,78 @@ public final class Store {
 
     public static void setTempLimit(Context c, String which, String version, float v) {
         sp(c).edit().putFloat("limite" + which + "_" + version, v).apply();
+    }
+
+    /**
+     * 1.4.2: intervallo di temperatura misurato dalla verifica per questa versione dell'app clima originale:
+     * {LO da mandare, LO come lo rilegge l'auto, HI da mandare, HI come lo rilegge l'auto, ventola massima (-1 = non
+     * misurata)}. NaN in LO/HI = nessun valore funziona (nascosto). null = mai misurato con la 1.4.2.
+     */
+    public static float[] tempRange(Context c, String version) {
+        String v = sp(c).getString("intervallo_" + version, null);
+        if (v == null) return null;
+        String[] p = v.split(";");
+        if (p.length != 5) return null;
+        float[] r = new float[5];
+        try {
+            for (int i = 0; i < 5; i++) r[i] = "nan".equals(p[i]) ? Float.NaN : Float.parseFloat(p[i]);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        return r;
+    }
+
+    public static void setTempRange(Context c, String version, float loSend, float loRead, float hiSend, float hiRead, int fanMax) {
+        float[] r = {loSend, loRead, hiSend, hiRead, fanMax};
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            if (i > 0) b.append(';');
+            b.append(Float.isNaN(r[i]) ? "nan" : String.valueOf(r[i]));
+        }
+        sp(c).edit().putString("intervallo_" + version, b.toString()).apply();
+    }
+
+    /** 1.4.2: zona per aprire MG4 Clima dalla barra in alto durante Android Auto / CarPlay (spenta di default). */
+    public static boolean projectionZone(Context c) {
+        return sp(c).getBoolean("zonaProiezione", false);
+    }
+
+    public static void setProjectionZone(Context c, boolean on) {
+        sp(c).edit().putBoolean("zonaProiezione", on).apply();
+    }
+
+    // ---- 1.4.2: aggiornamento forzato e avvisi da remoto -----------------------------------------------------------
+    public static int forcedTries(Context c, String version) {
+        return sp(c).getInt("forzatoTentativi_" + version, 0);
+    }
+
+    public static void setForcedTries(Context c, String version, int n) {
+        sp(c).edit().putInt("forzatoTentativi_" + version, n).apply();
+    }
+
+    public static boolean noticeShown(Context c, String id) {
+        return sp(c).getStringSet("avvisiMostrati", java.util.Collections.emptySet()).contains(id);
+    }
+
+    public static void setNoticeShown(Context c, String id) {
+        java.util.Set<String> s = new java.util.HashSet<>(sp(c).getStringSet("avvisiMostrati", java.util.Collections.emptySet()));
+        s.add(id);
+        sp(c).edit().putStringSet("avvisiMostrati", s).apply();
+    }
+
+    public static boolean noticeConfirmed(Context c, String id) {
+        return sp(c).getStringSet("avvisiOk", java.util.Collections.emptySet()).contains(id);
+    }
+
+    public static void setNoticeConfirmed(Context c, String id) {
+        java.util.Set<String> s = new java.util.HashSet<>(sp(c).getStringSet("avvisiOk", java.util.Collections.emptySet()));
+        s.add(id);
+        sp(c).edit().putStringSet("avvisiOk", s).apply();
+    }
+
+    public static String noticesSeen(Context c) {
+        java.util.Set<String> s = sp(c).getStringSet("avvisiMostrati", java.util.Collections.emptySet());
+        return s.isEmpty() ? "nessuno" : String.join(", ", new java.util.TreeSet<>(s));
     }
 
     /** 1.4.0: posizione e misura della schermata sullo schermo (per la finestra pronta che copre il lampeggio). */
@@ -375,10 +452,15 @@ public final class Store {
                 .append(" (").append(Joystick.mapText(c, JOY_RIGHT)).append(joyFactory(c) ? ", di fabbrica" : ", associato a mano").append(')')
                 .append(joyCode(c, JOY_LEFT, "su") >= 0 ? " · sinistro: " + Joystick.mapText(c, JOY_LEFT) : "").append('\n');
         sb.append("joystick.esclusiva = ").append(Joystick.exclusiveLine(c)).append('\n');
+        sb.append("joystick.tasti del filtro = ").append(ClimaGuard.seenText()).append('\n');
+        sb.append("aggiornamento.stato = ").append(Remote.updateState()).append('\n');
+        sb.append("avvisi.stato = ").append(Remote.noticeState()).append('\n');
+        sb.append("clima.proiezione = ").append(ProjectionZone.stateText(c)).append('\n');
         sb.append("scritte sui pulsanti: ").append(showLabels(c) ? "sì" : "no").append(" · finestra pronta: ")
                 .append(quickCover(c) ? "sì" : "no").append('\n');
         sb.append("app clima originale: ").append(ClimaGuard.originalLine(c)).append('\n');
         if (!Model.saic(c)) sb.append("temperatura (verifica): ").append(CarAdapterBackend.limitsText()).append('\n');
+        sb.append("clima.intervallo = ").append(Model.saic(c) ? SaicBackend.rangeText() : CarAdapterBackend.rangeText()).append('\n');
         sb.append("sostituzione: ").append(replace(c) ? "attiva" : "spenta")
                 .append(bypassed(c) ? " (sospesa: app originale aperta apposta)" : "")
                 .append(" · accessibilità: ").append(ClimaGuard.enabledState(c)).append('\n');

@@ -41,6 +41,13 @@ public final class AutoTest {
     /** Messaggio di interruzione per auto in movimento (riconosciuto dalla schermata). */
     static final String MOVING = "auto in movimento";
 
+    private static volatile boolean running;
+
+    /** 1.4.2: test o verifica in corso (niente aggiornamento forzato nel frattempo). */
+    static boolean running() {
+        return running;
+    }
+
     /** Avvia il test su un thread a parte; done riceve il riassunto. kind: "test" o "verifica" (per la ripresa). */
     public static void start(android.content.Context c, HvacClient h, Progress p, String kind,
                              java.util.function.Consumer<String> done) {
@@ -48,6 +55,7 @@ public final class AutoTest {
             AutoTest t = new AutoTest(c, h, p, kind);
             String r;
             h.testing = true;
+            running = true;
             try {
                 t.load();
                 r = t.run();
@@ -60,6 +68,7 @@ public final class AutoTest {
                 Store.event(c, "TEST " + r);
             } finally {
                 h.testing = false;
+                running = false;
             }
             done.accept(r);
         }, "mg4-clima-test").start();
@@ -241,53 +250,173 @@ public final class AutoTest {
         }
     }
 
-    /**
-     * 1.4.0 (caradapter, es. SWI131): LO / HI. Si provano i valori possibili (LO 15,5 · 15 · 14,5 · 14; HI 30,5 · 31 ·
-     * 31,5 · 32) e si tiene il primo che l'auto rilegge davvero come LO (≤ 15,5) o come HI (≥ 30,5): un "LO" che torna
-     * come HI non va mai bene. Prima di ogni nuova prova si torna a un valore normale. Se nessuno va, LO / HI si
-     * nascondono (temperatura dal minimo al massimo numerico) e la sostituzione resta possibile: non conta come errore.
-     * Nel log i valori provati, il valore grezzo riletto e quello scelto.
-     */
-    private void probeLimit(boolean isLo, int target, int back) {
-        String name = isLo ? "LO" : "HI";
-        float[] tries = isLo ? CarAdapterBackend.LO_TRY : CarAdapterBackend.HI_TRY;
-        StringBuilder tried = new StringBuilder();
-        float chosen = Float.NaN;
-        for (int i = 0; i < tries.length; i++) {
-            if (i > 0) {   // di nuovo a un valore normale, così si vede se la prova cambia qualcosa
-                send("temperatura " + back + " (prima della prova " + name + ")", HvacClient.SET_DRV_TEMP, back);
-                waitFor(s -> s.temp, x -> x == back);
-                SystemClock.sleep(600);
-            }
-            float t = tries[i];
-            send("temperatura " + name + " prova " + t, HvacClient.SET_DRV_TEMP_RAW, Math.round(t * 10));
-            int v = waitFor(s -> s.temp, x -> x == target);
-            float raw = safe().tempRaw;
-            boolean good = v == target;
-            if (tried.length() > 0) tried.append(", ");
-            tried.append(t).append(" → ").append(raw);
-            log("· prova " + name + " = " + t + " → riletto " + raw + " (" + (v == target ? name : v == hiOf(isLo, target) ? "letto come " + (isLo ? "HI" : "LO") : String.valueOf(v)) + ")"
-                    + (good ? " ✓" : " ✗"));
-            if (good) {
-                chosen = t;
-                break;
-            }
-            SystemClock.sleep(600);
+    // ---- 1.4.2: intervallo di temperatura reale dell'auto ------------------------------------------------------------
+    // LO = il valore più basso che l'auto accetta, HI = il più alto. Si prova scendendo (LO) e salendo (HI) e ci si
+    // ferma al primo valore che l'auto rifiuta: un "LO" che torna come HI (SWI69 R33, SWI132 R25: 15,5 → 31) non va
+    // mai bene. SWI68/SWI133/DBI68: si parte da getMinTemp/getMaxTemp dell'auto (DBI68 si ferma a 31).
+    // SWI69/SWI132: il servizio non dà i limiti; LO tra 17, 16, 15,5 e 15, HI tra 30,5, 31, 32 e 33.
+    // Il risultato si salva per versione dell'app clima (Store.setTempRange) e lo usano i backend.
+    private float calLoSend = Float.NaN, calLoRead = Float.NaN, calHiSend = Float.NaN, calHiRead = Float.NaN;
+    private int calFanMax = -1;
+
+    /** Temperatura come la manda l'auto: grezza (caradapter, decimali) o intera (SAIC). */
+    private float raw(HvacClient.State s) {
+        return s.caradapter ? s.tempRaw : s.temp;
+    }
+
+    private float waitRaw(java.util.function.DoublePredicate cond) {
+        long end = SystemClock.elapsedRealtime() + 5000;
+        float v;
+        do {
+            SystemClock.sleep(400);
+            v = raw(safe());
+            if (cond.test(v)) return v;
+        } while (SystemClock.elapsedRealtime() < end);
+        return v;
+    }
+
+    private static boolean same(float a, float b) {
+        return Math.abs(a - b) < 0.05f;
+    }
+
+    /** LO: dal più alto al più basso dei valori possibili; si tiene l'ultimo che l'auto rilegge uguale. */
+    private void calibrateLow(boolean car, int lo, int mid) {
+        float[] tries;
+        if (car) tries = CarAdapterBackend.LO_TRY;
+        else {   // SAIC: interi, dal più basso tra 17 e il minimo dichiarato fino a 2 gradi sopra
+            int from = Math.min(lo, 17), to = lo + 2;
+            tries = new float[to - from + 1];
+            for (int i = 0; i < tries.length; i++) tries[i] = from + i;
         }
-        Store.setTempLimit(ctx, name, version(), chosen);
-        CarAdapterBackend.loadLimits(ctx);
-        if (!Float.isNaN(chosen)) {
-            check("temperatura " + name, true, "valore scelto " + chosen + " (provati: " + tried + ")");
+        StringBuilder tried = new StringBuilder();
+        if (car) {   // caradapter: si scende, ci si ferma al primo rifiutato
+            float okSend = Float.NaN, okRead = Float.NaN;
+            boolean minProved = false;   // l'auto ha "bloccato" il valore più basso su quello accettato: è il suo minimo
+            boolean all = true;
+            for (float t : tries) {
+                send("temperatura LO prova " + t, HvacClient.SET_DRV_TEMP_RAW, Math.round(t * 10));
+                final float tt = t;
+                float r = waitRaw(x -> same((float) x, tt) || (tt < 16 && x <= tt + 0.01 && x >= 10));
+                boolean good = same(r, t) || (t < 16 && r <= t + 0.01f && r >= 10);
+                tried.append(tried.length() > 0 ? ", " : "").append(t).append(" → ").append(r);
+                log("· prova LO = " + t + " → riletto " + r + (good ? " ✓" : r >= 29 ? " (letto come HI) ✗" : " ✗"));
+                if (!good) {
+                    all = false;
+                    minProved = !Float.isNaN(okRead) && same(r, okRead);
+                    break;
+                }
+                okSend = t;
+                okRead = r;
+                SystemClock.sleep(500);
+            }
+            // LO vero: un valore sotto 16 (15,5 / 15, il LO delle auto UE), oppure l'ultimo accettato se l'auto si è
+            // fermata lì. Se invece il valore dopo è "saltato" altrove (15,5 → 31) LO resta nascosto, minimo numerico.
+            if (!Float.isNaN(okSend) && (okRead < 16 || minProved || all)) {
+                calLoSend = okSend;
+                calLoRead = okRead;
+            }
+        } else {   // SAIC: si sale, il primo che l'auto rilegge uguale è LO
+            for (float t : tries) {
+                send("temperatura LO prova " + (int) t, HvacClient.SET_DRV_TEMP, (int) t);
+                final float tt = t;
+                float r = waitRaw(x -> same((float) x, tt));
+                tried.append(tried.length() > 0 ? ", " : "").append((int) t).append(" → ").append((int) r);
+                log("· prova LO = " + (int) t + " → riletto " + (int) r + (same(r, t) ? " ✓" : " ✗"));
+                if (same(r, t)) {
+                    calLoSend = calLoRead = t;
+                    break;
+                }
+                SystemClock.sleep(500);
+            }
+        }
+        if (!Float.isNaN(calLoSend)) {
+            check("temperatura LO", true, "LO dell'auto " + calLoSend + " (riletto " + calLoRead + ") · provati: " + tried);
+        } else if (car) {
+            log("· temperatura LO NASCOSTO: nessun valore riletto come LO (provati: " + tried
+                    + ") · temperatura fino al minimo numerico, la sostituzione resta possibile");
         } else {
-            log("· temperatura " + name + " NASCOSTO: nessun valore riletto come " + name + " (provati: " + tried
-                    + ") · temperatura fino al " + (isLo ? "minimo" : "massimo") + " numerico, la sostituzione resta possibile");
+            check("temperatura LO", false, "nessun valore accettato (provati: " + tried + ")");
         }
         SystemClock.sleep(600);
     }
 
-    /** Il valore "opposto" (per scrivere nel log se un LO è tornato come HI o viceversa). */
-    private static int hiOf(boolean isLo, int target) {
-        return isLo ? target + 16 : target - 16;
+    /**
+     * HI: si sale un grado alla volta (le app EH32_SOP non accettano i salti) fino al massimo numerico che l'auto
+     * accetta, poi si provano i valori di HI. Se l'auto si ferma prima (DBI68 a 31, varianti 16–28) quel valore è HI.
+     */
+    private void calibrateHigh(boolean car, int hi) {
+        int top = car ? 30 : Math.max(hi, 33);
+        int cur = Math.round(raw(safe()));
+        int last = cur;
+        boolean clamped = true;   // l'auto si è fermata sull'ultimo valore accettato (non è "saltata" altrove)
+        while (cur < top) {
+            int next = cur + 1;
+            send("temperatura " + next + " (un grado alla volta)", HvacClient.SET_DRV_TEMP, next);
+            final int n = next;
+            float r = waitRaw(x -> same((float) x, n));
+            if (!same(r, n)) {
+                clamped = same(r, last);
+                log("· temperatura " + n + " (un grado alla volta) → letto " + r
+                        + (clamped ? ": l'auto si ferma a " + last : ": valore inatteso"));
+                break;
+            }
+            last = cur = n;
+            SystemClock.sleep(300);
+        }
+        StringBuilder tried = new StringBuilder();
+        if (car && last >= 30) {   // HI della SWI69/SWI132: 30,5 / 31 / 32 / 33, ci si ferma al primo intero rifiutato
+            float okSend = Float.NaN, okRead = Float.NaN;
+            boolean maxProved = false, stopped = false;
+            for (float t : CarAdapterBackend.HI_TRY) {
+                send("temperatura HI prova " + t, HvacClient.SET_DRV_TEMP_RAW, Math.round(t * 10));
+                final float tt = t;
+                float r = waitRaw(x -> same((float) x, tt) || (tt < 31 && x >= tt - 0.01 && x <= 34));
+                boolean good = same(r, t) || (t < 31 && r >= t - 0.01f && r <= 34);
+                tried.append(tried.length() > 0 ? ", " : "").append(t).append(" → ").append(r);
+                log("· prova HI = " + t + " → riletto " + r + (good ? " ✓" : " ✗"));
+                if (good) {
+                    okSend = t;
+                    okRead = r;
+                } else if (t >= 31) {   // 30,5 può non andare e 31 sì (SWI69 R33)
+                    maxProved = !Float.isNaN(okRead) && same(r, okRead);
+                    stopped = true;
+                    break;
+                }
+                SystemClock.sleep(500);
+            }
+            // HI vero: 30,5 (HI delle auto UE), l'ultimo della lista (33), o l'ultimo accettato se l'auto si è
+            // fermata lì. Se il valore dopo è "saltato" altrove, HI resta nascosto.
+            if (!Float.isNaN(okSend) && (okSend < 31 || maxProved || !stopped)) {
+                calHiSend = okSend;
+                calHiRead = okRead;
+            }
+        } else if (!car && last >= 28 && clamped) {   // SAIC: HI = il valore più alto accettato
+            calHiSend = calHiRead = last;
+            tried.append("salito fino a ").append(last);
+        } else if (car && last >= 26 && clamped) {   // variante con temperatura più bassa (es. 16–28)
+            calHiSend = calHiRead = last;
+            tried.append("salito fino a ").append(last);
+            log("· l'auto non accetta più di " + last + "°: intervallo più piccolo (variante 16–28?)");
+        }
+        if (!Float.isNaN(calHiSend)) {
+            boolean exp = car || (int) calHiRead == hi;
+            check("temperatura HI", true, "HI dell'auto " + calHiSend + " (riletto " + calHiRead + ")"
+                    + (exp ? "" : " · l'auto dichiarava " + hi) + " · " + tried);
+        } else if (car) {
+            log("· temperatura HI NASCOSTO: nessun valore riletto come HI (provati: " + tried
+                    + ") · temperatura fino al massimo numerico, la sostituzione resta possibile");
+        } else {
+            check("temperatura HI", false, "l'auto si ferma a " + last);
+        }
+        SystemClock.sleep(600);
+    }
+
+    /** Salva l'intervallo misurato e lo fa usare subito al backend. */
+    private void saveRange(boolean car) {
+        Store.setTempRange(ctx, version(), calLoSend, calLoRead, calHiSend, calHiRead, calFanMax);
+        if (car) CarAdapterBackend.loadLimits(ctx);
+        else SaicBackend.loadLimits(ctx);
+        log("· clima.intervallo = " + (car ? CarAdapterBackend.rangeText() : SaicBackend.rangeText()));
     }
 
     private String run() {
@@ -320,22 +449,37 @@ public final class AutoTest {
         // temperatura: +2, LO, poi (1.3.3) di nuovo a metà e fino a HI un grado alla volta: da LO a 32 diretto le
         // app EH32_SOP non lo accettano (SWI68 R63/R69, mercato turco), dalla metà sì
         if (todo("temperatura")) {
+            boolean car = s1.caradapter;
             int t1 = mid + 2;
             setValue("temperatura", HvacClient.SET_DRV_TEMP, t1, s -> s.temp);
-            if (s1.caradapter) probeLimit(true, lo, mid);   // 1.4.0: prova i valori possibili di LO
-            else setValue("temperatura LO", HvacClient.SET_DRV_TEMP, lo, s -> s.temp);
+            calibrateLow(car, lo, mid);   // 1.4.2: LO reale dell'auto
             setValue("temperatura (dopo LO)", HvacClient.SET_DRV_TEMP, mid, s -> s.temp);
-            stepTemp(hi - 2);
-            setValue("temperatura " + (hi - 1), HvacClient.SET_DRV_TEMP, hi - 1, s -> s.temp);
-            if (s1.caradapter) probeLimit(false, hi, hi - 1);   // 1.4.0: prova i valori possibili di HI
-            else setValue("temperatura HI", HvacClient.SET_DRV_TEMP, hi, s -> s.temp);
-            if (t0 >= lo && t0 <= hi) setValue("temperatura (ripristino)", HvacClient.SET_DRV_TEMP, t0, s -> s.temp);
+            calibrateHigh(car, hi);       // 1.4.2: HI reale dell'auto (un grado alla volta)
+            saveRange(car);
+            HvacClient.State s2 = safe();
+            if (t0 >= s2.tempMin && t0 <= s2.tempMax) setValue("temperatura (ripristino)", HvacClient.SET_DRV_TEMP, t0, s -> s.temp);
+            else setValue("temperatura (ripristino)", HvacClient.SET_DRV_TEMP, mid, s -> s.temp);
             did("temperatura");
         }
 
         if (todo("ventola")) {
             setValue("ventola", HvacClient.SET_AIR_VOLUME, 3, s -> s.fan);
             setValue("ventola", HvacClient.SET_AIR_VOLUME, 6, s -> s.fan);
+            if (s1.caradapter) {   // 1.4.2: ventola fino a 11 o fino a 8 (variante)?
+                send("ventola = 11 (massimo)", HvacClient.SET_AIR_VOLUME, 11);
+                int v = waitFor(s -> s.fan, x -> x == 11);
+                if (v == 11) log("· ventola massima 11 ✓");
+                else if (v >= 6 && v <= 10) {
+                    calFanMax = v;
+                    log("· ventola massima: l'auto si ferma a " + v + " (auto con ventola 1–" + v + ")");
+                } else log("· ventola 11 → letto " + v + ": massimo non misurato");
+                float[] r0 = Store.tempRange(ctx, version());   // alla ripresa la temperatura è già misurata
+                if (Float.isNaN(calLoSend) && Float.isNaN(calHiSend) && r0 != null)
+                    Store.setTempRange(ctx, version(), r0[0], r0[1], r0[2], r0[3], calFanMax);
+                else Store.setTempRange(ctx, version(), calLoSend, calLoRead, calHiSend, calHiRead, calFanMax);
+                CarAdapterBackend.loadLimits(ctx);
+                SystemClock.sleep(600);
+            }
             did("ventola");
         }
 

@@ -175,9 +175,9 @@
     <string name="u_updated" formatted="false">Updated</string>
     <string name="u_install_failed">Install failed: %1$s</string>
     <string name="s_joy_on" formatted="false">On</string>
-    <string name="s_joy_shared" formatted="false">On this car the keys also control the music: while you adjust the climate the volume or track may change</string>
+    <string name="s_joy_shared" formatted="false">On this software the keys also reach the music: the controls work, but volume and track may change together with the climate</string>
     <string name="s_joy_excl" formatted="false">With MG4 Climate open the keys control only the climate (OK, up/down temperature, left/right fan)</string>
-    <string name="a_joy_shared" formatted="false">On this car the steering-wheel keys also control the music: joystick controls turned off. You can turn them back on in the settings.</string>
+    <string name="a_joy_shared" formatted="false">On this car the steering-wheel keys also reach the music: while you adjust the climate with the joystick the volume or track may change.</string>
     <string name="s_quick" formatted="false">Quick opening</string>
     <string name="s_quick_sub" formatted="false">Instantly covers the original climate app with a ready screen while MG4 Climate opens</string>
     <string name="s_labels" formatted="false">Show labels on buttons</string>
@@ -188,5 +188,15 @@
     <string name="b_try" formatted="false">Try</string>
     <string name="n_title">What\'s new in %1$s</string>
     <string name="n_sub" formatted="false">What changes in this version</string>
-    <string name="n_body" formatted="false">• Steering-wheel joystick: with MG4 Climate open the keys control only the climate, volume and track no longer change. As soon as you leave they go back to the music. Commands are instant\n• New icons, like the symbols on the car\'s buttons. Recirculation has one icon per state: inside, fresh air, automatic\n• The active state is clear at a glance: bright colour, highlighted background, larger icon\n• New option \"Show labels on buttons\": off, larger icons only\n• Steering-wheel joystick ready straight away, no assigning. If the keys also control the music on your car, it stays off (you can turn it on)\n• The left joystick is no longer a choice: it sends the same keys as the right one\n• Faster opening in place of the original climate app\n• SWI131 software recognised; the check picks the LO and HI values by itself</string>
+    <string name="n_body" formatted="false">• Temperature: LO and HI are your car\'s own, read from the car or measured by the check (it now passes on the Turkish model too)\n• Joystick: if another app uses the same keys, the settings tell you. Where the keys also reach the music the controls stay on, with a notice\n• Fan like the original app: − at the lowest speed switches the climate off, + with the climate off switches it back on\n• New option: open MG4 Climate from the top bar during Android Auto and CarPlay\n• Updates are checked by themselves, with important notices when needed\n• The climate panel that drops down when the infotainment starts closes sooner</string>
+    <string name="s_joy_conflict" formatted="false">Another app uses the joystick</string>
+    <string name="s_joy_conflict_sub">%1$s can take the same steering-wheel keys: turn the joystick off in the other app to use it with MG4 Climate</string>
+    <string name="s_proj" formatted="false">Climate during Android Auto and CarPlay</string>
+    <string name="s_proj_sub" formatted="false">With Android Auto or CarPlay in front, tap the centre of the top bar to open MG4 Climate</string>
+    <string name="r_notice" formatted="false">Notice</string>
+    <string name="r_update_title">MG4 Climate %1$s available</string>
+    <string name="r_update_msg" formatted="false">There is a new version of MG4 Climate.</string>
+    <string name="b_ok" formatted="false">OK</string>
+    <string name="b_later" formatted="false">Later</string>
+    <string name="u_bad_sign" formatted="false">different signature: not installed</string>
 </resources>
