@@ -5,3 +5,6 @@ tools/d8.jar
 tools/log-token.txt
 __pycache__/
 tools/sysui-token.txt
+tools/apksig.jar
+.env
+tools/*token*
