@@ -188,7 +188,7 @@
     <string name="b_try" formatted="false">Dene</string>
     <string name="n_title">%1$s sürümünde yenilikler</string>
     <string name="n_sub" formatted="false">Bu sürümde neler değişiyor</string>
-    <string name="n_body" formatted="false">• Sıcaklık: LO ve HI aracından okunur ya da doğrulama ile ölçülür (doğrulama artık Türk modelinde de geçiyor)\n• Joystick: başka bir uygulama aynı tuşları kullanıyorsa ayarlar söyler. Tuşların müziğe de ulaştığı yerde komutlar uyarıyla birlikte açık kalır\n• Fan orijinal uygulamadaki gibi: en düşük hızda − klimayı kapatır, klima kapalıyken + tekrar açar\n• Yeni seçenek: Android Auto ve CarPlay sırasında MG4 Klima\'yı üst çubuktan açmak\n• Güncellemeler kendiliğinden denetlenir, gerektiğinde önemli duyurular\n• Multimedya açılırken inen klima paneli daha erken kapanır</string>
+    <string name="n_body" formatted="false">• Renkler MG4 launcher ile aynı: gece mavi tonsuz nötr griler, etkin düğmeler ana ekrandaki gibi\n• Mavi yalnızca A/C ve soğuk hava için kalıyor; ısıtma gündüz ve gece aynı turuncu\n• Gündüz/gece teması launcher ile uyumlu: artık açık launcher ve koyu klima yok</string>
     <string name="s_joy_conflict" formatted="false">Başka bir uygulama joysticki kullanıyor</string>
     <string name="s_joy_conflict_sub">%1$s aynı direksiyon tuşlarını alabilir: MG4 Klima ile kullanmak için diğer uygulamada joysticki kapat</string>
     <string name="s_proj" formatted="false">Android Auto ve CarPlay sırasında klima</string>

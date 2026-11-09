@@ -188,7 +188,7 @@
     <string name="b_try" formatted="false">Try</string>
     <string name="n_title">What\'s new in %1$s</string>
     <string name="n_sub" formatted="false">What changes in this version</string>
-    <string name="n_body" formatted="false">• Temperature: LO and HI are your car\'s own, read from the car or measured by the check (it now passes on the Turkish model too)\n• Joystick: if another app uses the same keys, the settings tell you. Where the keys also reach the music the controls stay on, with a notice\n• Fan like the original app: − at the lowest speed switches the climate off, + with the climate off switches it back on\n• New option: open MG4 Climate from the top bar during Android Auto and CarPlay\n• Updates are checked by themselves, with important notices when needed\n• The climate panel that drops down when the infotainment starts closes sooner</string>
+    <string name="n_body" formatted="false">• Colours match the MG4 launcher: neutral greys at night with no blue tint, active buttons as on the home screen\n• Blue is kept only for A/C and cold air; heat has the same orange by day and by night\n• Day/night theme aligned with the launcher: no more light launcher with a dark climate screen</string>
     <string name="s_joy_conflict" formatted="false">Another app uses the joystick</string>
     <string name="s_joy_conflict_sub">%1$s can take the same steering-wheel keys: turn the joystick off in the other app to use it with MG4 Climate</string>
     <string name="s_proj" formatted="false">Climate during Android Auto and CarPlay</string>

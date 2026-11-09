@@ -455,6 +455,7 @@ public final class Store {
         sb.append("joystick.tasti del filtro = ").append(ClimaGuard.seenText()).append('\n');
         sb.append("aggiornamento.stato = ").append(Remote.updateState()).append('\n');
         sb.append("avvisi.stato = ").append(Remote.noticeState()).append('\n');
+        sb.append("tema = ").append(Tema.stateText(c)).append('\n');
         sb.append("clima.proiezione = ").append(ProjectionZone.stateText(c)).append('\n');
         sb.append("scritte sui pulsanti: ").append(showLabels(c) ? "sì" : "no").append(" · finestra pronta: ")
                 .append(quickCover(c) ? "sì" : "no").append('\n');

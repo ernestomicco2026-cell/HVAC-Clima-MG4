@@ -9,6 +9,9 @@
     <uses-permission android:name="android.permission.REAL_GET_TASKS" />
     <!-- attiva il proprio servizio di accessibilità senza toccare gli altri (firma platform) -->
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <!-- 1.4.3: alba e tramonto per il tema giorno/notte (stessa regola del launcher); permesso dato da sé con la chiave di piattaforma -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.GRANT_RUNTIME_PERMISSIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- invio della diagnostica nel repository privato dei log -->
     <uses-permission android:name="android.permission.INTERNET" />

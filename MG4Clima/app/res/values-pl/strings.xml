@@ -188,7 +188,7 @@
     <string name="b_try" formatted="false">Sprawdź</string>
     <string name="n_title">Nowości w wersji %1$s</string>
     <string name="n_sub" formatted="false">Co się zmienia w tej wersji</string>
-    <string name="n_body" formatted="false">• Temperatura: LO i HI są Twojego auta, odczytane z auta lub zmierzone przez weryfikację (teraz przechodzi też w modelu tureckim)\n• Joystick: jeśli inna aplikacja używa tych samych klawiszy, ustawienia o tym powiedzą. Gdzie klawisze trafiają też do muzyki, sterowanie zostaje włączone, z komunikatem\n• Nawiew jak w oryginalnej aplikacji: − przy najmniejszej prędkości wyłącza klimatyzację, + przy wyłączonej ją włącza\n• Nowa opcja: otwieranie MG4 Klimatyzacji z górnego paska podczas Android Auto i CarPlay\n• Aktualizacje sprawdzane same, z ważnymi komunikatami, gdy trzeba\n• Panel klimatyzacji, który zjeżdża przy starcie multimediów, zamyka się wcześniej</string>
+    <string name="n_body" formatted="false">• Kolory takie jak w launcherze MG4: nocą neutralne szarości bez niebieskiego odcienia, aktywne przyciski jak na ekranie głównym\n• Niebieski zostaje tylko dla A/C i zimnego powietrza; ciepło ma ten sam pomarańczowy w dzień i w nocy\n• Motyw dzień/noc zgodny z launcherem: koniec z jasnym launcherem i ciemną klimatyzacją</string>
     <string name="s_joy_conflict" formatted="false">Inna aplikacja używa joysticka</string>
     <string name="s_joy_conflict_sub">%1$s może przejmować te same klawisze kierownicy: wyłącz joystick w drugiej aplikacji, aby używać go z MG4 Klimatyzacją</string>
     <string name="s_proj" formatted="false">Klimatyzacja podczas Android Auto i CarPlay</string>

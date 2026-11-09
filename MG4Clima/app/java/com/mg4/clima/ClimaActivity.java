@@ -57,8 +57,7 @@ public final class ClimaActivity extends Activity {
         root.addView(view);
         banner = new TextView(this);
         banner.setTextSize(22);
-        banner.setTextColor(0xFFFFFFFF);
-        banner.setBackgroundColor(0xE0123A6B);
+        bannerColors();   // 1.4.3: panel/text della palette (prima blu fisso)
         banner.setPadding(40, 18, 40, 18);
         banner.setVisibility(View.GONE);
         root.addView(banner, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -168,6 +167,8 @@ public final class ClimaActivity extends Activity {
             if (Model.sysUiPanel(this)) SysUiPanel.prepare(this);
         }
         edges();
+        Tema.listener = this::applyTheme;   // 1.4.3: il tema cambia anche con la schermata aperta
+        applyTheme();
         resumed = true;
         filterCodes.clear();
         joy.register();   // 1.3.3: tasti del volante solo con la schermata aperta e in primo piano
@@ -1141,6 +1142,7 @@ public final class ClimaActivity extends Activity {
     @Override
     protected void onPause() {
         resumed = false;
+        Tema.listener = null;
         ClimaGuard.keyListener(null);   // i tasti tornano subito alle altre app (un tasto già premuto finisce da noi)
         shadeBlock(false);
         ClimaGuard.edges(this, 0);
@@ -1153,7 +1155,22 @@ public final class ClimaActivity extends Activity {
     @Override
     public void onConfigurationChanged(android.content.res.Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if (view != null) view.theme();
+        Tema.onConfigurationChanged(this);
+        applyTheme();
+    }
+
+    /** 1.4.3: ridisegna con il tema attuale (giorno/notte come il launcher). */
+    private void applyTheme() {
+        if (view == null) return;
+        view.theme();
+        bannerColors();
+        getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(view.BG));
+    }
+
+    private void bannerColors() {
+        if (banner == null || view == null) return;
+        banner.setTextColor(view.TEXT);
+        banner.setBackgroundColor((view.PANEL & 0xFFFFFF) | 0xE0000000);
     }
 
     private android.view.GestureDetector swipe;

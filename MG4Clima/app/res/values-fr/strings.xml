@@ -188,7 +188,7 @@
     <string name="b_try" formatted="false">Tester</string>
     <string name="n_title">Nouveautés de la %1$s</string>
     <string name="n_sub" formatted="false">Ce qui change dans cette version</string>
-    <string name="n_body" formatted="false">• Température : LO et HI sont ceux de ta voiture, lus dans la voiture ou mesurés par la vérification (elle passe maintenant aussi sur le modèle turc)\n• Joystick : si une autre appli utilise les mêmes touches, les réglages te le disent. Là où les touches arrivent aussi à la musique, les commandes restent actives, avec l\'avis\n• Ventilation comme dans l\'appli d\'origine : − à la vitesse minimale éteint la climatisation, + climatisation éteinte la rallume\n• Nouvelle option : ouvrir MG4 Climat depuis la barre du haut pendant Android Auto et CarPlay\n• Mises à jour vérifiées toutes seules, avec des avis importants si besoin\n• Le panneau climat qui descend au démarrage de l\'infotainment se ferme plus tôt</string>
+    <string name="n_body" formatted="false">• Couleurs identiques au launcher MG4 : la nuit, gris neutres sans teinte bleue, boutons actifs comme sur l\'écran d\'accueil\n• Le bleu reste seulement pour l\'A/C et l\'air froid ; la chaleur a le même orange de jour comme de nuit\n• Thème jour/nuit aligné sur le launcher : fini le launcher clair avec le climat sombre</string>
     <string name="s_joy_conflict" formatted="false">Une autre appli utilise le joystick</string>
     <string name="s_joy_conflict_sub">%1$s peut prendre les mêmes touches du volant : désactive le joystick dans l\'autre appli pour l\'utiliser avec MG4 Climat</string>
     <string name="s_proj" formatted="false">Climat pendant Android Auto et CarPlay</string>

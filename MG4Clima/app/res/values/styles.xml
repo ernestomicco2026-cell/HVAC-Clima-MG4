@@ -7,5 +7,5 @@
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowDisablePreview">false</item>
     </style>
-    <color name="clima_bg">#FF080A10</color>
+    <color name="clima_bg">#FF0A0B0D</color>
 </resources>

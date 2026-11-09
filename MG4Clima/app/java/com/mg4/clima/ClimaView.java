@@ -39,12 +39,12 @@ public final class ClimaView extends View {
     private boolean rhd, day;
     private Listener listener;
 
-    // colori (tema notte/giorno del launcher: nessun accento, attivo = colore del testo)
+    // colori: PALETTE MG4 (1.4.3), uguale al launcher; nessun accento, attivo = colore del testo
     int BG, PANEL, CHIP, TRACK, TEXT, SUB;
     private int ONTEXT, HEAT, HEATBG, FLOW, FLOW2;
-    /** 1.4.0: pulsanti attivi: colore acceso, sfondo evidenziato e bordo; non disponibile = spento al 40%. */
-    int ACCENT, ACCENTBG;
-    private int GLASS1, GLASS2, TOP1, TOP2, FACE1, FACE2, PILLAR, LINE, DARK, BEZEL;
+    /** Pulsante attivo: ACCENTBG = sfondo (colore del testo), ACCENT = icona e scritta in contrasto. FREDDO solo per A/C. */
+    int ACCENT, ACCENTBG, FREDDO;
+    private int GLASS1, GLASS2, TOP1, TOP2, FACE1, FACE2, PILLAR, LINE, DARK, BEZEL, COLUMN, CONSOLE, CONSOLE_LINE;
 
     private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path path = new Path();
@@ -171,7 +171,7 @@ public final class ClimaView extends View {
 
     /** Aria: riscalda (impostata oltre 3° sopra l'esterna), raffresca (oltre 3° sotto) o mantiene. */
     static final int MODE_KEEP = 0, MODE_HEAT = 1, MODE_COOL = 2;
-    static final int C_HEAT = 0xFFFF8A4D, C_COOL = 0xFF7CC4FF, C_KEEP = 0xFFE8EDF3;
+    static final int C_HEAT = 0xFFFF7A3D, C_COOL = 0xFF4FB3FF, C_KEEP = 0xFFECECEC;   // 1.4.3: caldo e freddo della palette
 
     /** Temperatura impostata → intensità del colore: -1 blu pieno (16 °), 0 neutro (21 °), +1 arancio pieno (26 °). Graduale. */
     static float heatFactor(HvacClient.State s) {
@@ -247,7 +247,7 @@ public final class ClimaView extends View {
         // schermi: solo le nostre indicazioni
         rr(c, g.barX, g.barY, g.barW, 7, 3.5f, 0xFF34C77B, 0, 0);
         String time = new SimpleDateFormat("HH:mm", Locale.ITALY).format(new Date());
-        int scr = day ? 0xFF111318 : 0xFFF2F5FA;
+        int scr = TEXT;
         flatText(c, time, g.clockX, g.clockY, g.clockSize, scr, Paint.Align.CENTER);
         flatText(c, tempText(), g.tempX, g.tempY, g.tempSize, scr, Paint.Align.LEFT);
         if (!Float.isNaN(st.outTemp)) flatText(c, L.f(R.string.v_out_short, Math.round(st.outTemp)), g.outX, g.outY, g.outSize, 0xFF9BA1A9, Paint.Align.LEFT);
@@ -303,30 +303,48 @@ public final class ClimaView extends View {
         invalidate();
     }
 
-    /** Tema giorno/notte come il launcher: giorno = colori chiari del launcher, notte = tinte blu. */
+    /**
+     * 1.4.3: PALETTE MG4 (fonte unica Theme.java del launcher SWI68). Tema giorno/notte deciso da {@link Tema} come nel
+     * launcher, non più solo da uiMode. Nessun colore d'accento: un pulsante attivo ha lo sfondo del colore del testo e
+     * icona/scritta in contrasto (ONACCENT). Il blu (FREDDO) resta solo per A/C e per l'aria fredda; il caldo è FF7A3D
+     * in entrambi i temi.
+     */
     public void theme() {
-        int night = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         // lo stile realistico è una foto scura: resta sempre con la palette notte (1.3.0)
-        day = night == Configuration.UI_MODE_NIGHT_NO && style != Store.STYLE_PHOTO;
+        day = style != Store.STYLE_PHOTO && Tema.isDay(getContext());
         if (day) {
             BG = 0xFFE6E8EB; PANEL = 0xFFFFFFFF; CHIP = 0xFFF1F3F5; TRACK = 0xFFE1E4E8; TEXT = 0xFF111318; SUB = 0xFF555C66;
-            ACCENT = 0xFF0B6BCB; ACCENTBG = 0xFFDCEBFA;
-            ONTEXT = 0xFFFFFFFF; HEAT = 0xFFE1621F; HEATBG = 0xFFFFF1EA; FLOW = 0xFF7D8793; FLOW2 = 0xFFB9C0C8;
+            HEAT = 0xFFFF7A3D; HEATBG = 0xFFFFF1EA; FREDDO = 0xFF0B6BCB; FLOW = 0xFF7D8793; FLOW2 = 0xFFB9C0C8;
             GLASS1 = 0xFFE9EEF4; GLASS2 = 0xFFD5DCE5; TOP1 = 0xFFD9DDE2; TOP2 = 0xFFC9CED4; FACE1 = 0xFFCDD2D8; FACE2 = 0xFFBFC5CC;
             PILLAR = 0xFFB8BEC6; LINE = 0xFFB0B6BE; DARK = 0xFF2A2E35; BEZEL = 0xFF8C939C;
+            COLUMN = 0xFF8C939C; CONSOLE = 0xFFB4BAC1; CONSOLE_LINE = 0xFF9AA1A9;
         } else {
-            BG = 0xFF080A10; PANEL = 0xFF11151D; CHIP = 0xFF1A202B; TRACK = 0xFF232B38; TEXT = 0xFFF2F5FA; SUB = 0xFF9AA5B5;
-            ACCENT = 0xFF4FB3FF; ACCENTBG = 0xFF13324D;
-            ONTEXT = 0xFF0E1218; HEAT = 0xFFFF7A3D; HEATBG = 0xFF2E241F; FLOW = 0xFFD6E2F0; FLOW2 = 0xFF8E9BAE;
-            GLASS1 = 0xFF121823; GLASS2 = 0xFF1E2634; TOP1 = 0xFF2A3443; TOP2 = 0xFF1D2431; FACE1 = 0xFF1A212C; FACE2 = 0xFF121821;
-            PILLAR = 0xFF243040; LINE = 0xFF2C3746; DARK = 0xFF090C12; BEZEL = 0xFF334055;
+            BG = 0xFF0A0B0D; PANEL = 0xFF15171B; CHIP = 0xFF1E2126; TRACK = 0xFF262A30; TEXT = 0xFFF2F3F5; SUB = 0xFF9BA1A9;
+            HEAT = 0xFFFF7A3D; HEATBG = 0xFF2E241F; FREDDO = 0xFF4FB3FF; FLOW = 0xFFE0E0E0; FLOW2 = 0xFF999999;
+            // abitacolo: grigi neutri tra bg 0A0B0D e road 2A2E35, stessi rapporti di chiaro/scuro della 1.4.2
+            GLASS1 = 0xFF111316; GLASS2 = 0xFF1A1D21; TOP1 = 0xFF23262C; TOP2 = 0xFF191B20; FACE1 = 0xFF17191D; FACE2 = 0xFF111316;
+            PILLAR = 0xFF202328; LINE = 0xFF24282E; DARK = 0xFF0A0B0D; BEZEL = 0xFF2A2E35;
+            COLUMN = 0xFF16181C; CONSOLE = 0xFF101215; CONSOLE_LINE = 0xFF22252B;
         }
+        // come Theme.java del launcher: accent = text, sopra 111318 se il testo è chiaro, FFFFFF se è scuro
+        ACCENTBG = TEXT;
+        ACCENT = luminance(TEXT) > 0.6 ? 0xFF111318 : 0xFFFFFFFF;
+        ONTEXT = ACCENT;
         invalidate();
+    }
+
+    private static double luminance(int c) {
+        return (0.299 * ((c >> 16) & 0xFF) + 0.587 * ((c >> 8) & 0xFF) + 0.114 * (c & 0xFF)) / 255.0;
+    }
+
+    boolean isDayTheme() {
+        return day;
     }
 
     @Override
     protected void onConfigurationChanged(Configuration c) {
         super.onConfigurationChanged(c);
+        Tema.onConfigurationChanged(getContext());
         theme();
     }
 
@@ -560,7 +578,7 @@ public final class ClimaView extends View {
             }
         }
         // piantone e volante
-        rr(c, wx - 34, wy + 70, 68, 90, 12, day ? 0xFF8C939C : 0xFF1A1F29, 0, 0);
+        rr(c, wx - 34, wy + 70, 68, 90, 12, COLUMN, 0, 0);
         drawWheel(c, wx, wy, wheelHot);
     }
 
@@ -622,9 +640,9 @@ public final class ClimaView extends View {
         p.setShader(null);
         path.reset();
         path.moveTo(mid - tw - 6, yP + 8); path.lineTo(mid + tw + 6, yP + 8); path.lineTo(mid + bw, yB); path.lineTo(mid - bw, yB); path.close();
-        fill(day ? 0xFFB4BAC1 : 0xFF111620);
+        fill(CONSOLE);
         c.drawPath(path, p);
-        stroke(day ? 0xFF9AA1A9 : 0xFF2A3342, 3);
+        stroke(CONSOLE_LINE, 3);
         c.drawLine(mid - tw + 4, yP + 44, mid + tw - 4, yP + 44, p);
         stroke(0xFF2C3036, 3);
         c.drawLine(mid - tw - 4, yP + 8, mid - bw + 2, yB, p);
@@ -835,13 +853,17 @@ public final class ClimaView extends View {
             }
             // 1.4.0: stato a colpo d'occhio: acceso = colore acceso + sfondo evidenziato + bordo + icona più grande;
             // riscaldamenti in arancio; non disponibile (clima non usabile) = spento attenuato
+            // 1.4.3: attivo come nel launcher (sfondo del colore del testo, icona e scritta in contrasto);
+            // A/C acceso in FREDDO (icona e bordo), riscaldamenti in caldo
             boolean na = !usable;
-            int bg = hot ? HEATBG : active ? ACCENTBG : CHIP;
-            int fg = hot ? HEAT : active ? ACCENT : na ? (SUB & 0xFFFFFF) | 0x66000000 : SUB;
-            int lab = hot || active ? TEXT : na ? (SUB & 0xFFFFFF) | 0x66000000 : SUB;
+            boolean cool = active && !hot && id.equals("ac");
+            boolean filled = active && !hot && !cool;
+            int bg = hot ? HEATBG : filled ? ACCENTBG : CHIP;
+            int fg = hot ? HEAT : cool ? FREDDO : filled ? ACCENT : na ? (SUB & 0xFFFFFF) | 0x66000000 : SUB;
+            int lab = filled ? ACCENT : hot || cool ? TEXT : na ? (SUB & 0xFFFFFF) | 0x66000000 : SUB;
             tile(c, x, top, tw, h, 22, bg);
-            if (hot || active) {
-                stroke(hot ? HEAT : ACCENT, 3);
+            if (hot || cool) {
+                stroke(hot ? HEAT : FREDDO, 3);
                 r.set(x + 1.5f, top + 1.5f, x + tw - 1.5f, top + h - 1.5f);
                 c.drawRoundRect(r, 21, 21, p);
                 p.setStyle(Paint.Style.FILL);

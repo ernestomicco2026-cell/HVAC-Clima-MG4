@@ -317,6 +317,7 @@ public final class ClimaGuard extends AccessibilityService {
         filterOn = false;
         applyFilter(Store.joystick(this) != Store.JOY_OFF);
         main.postDelayed(this::prepareCover, 25_000);
+        Tema.start(this);     // 1.4.3: tema giorno/notte come il launcher (controllo ogni 20 s)
         Remote.start(this);   // 1.4.2: aggiornamenti e avvisi da remoto (dopo 2 minuti, poi ogni 6 ore)
         ProjectionZone.attach(this);
         if (bg == null) {
