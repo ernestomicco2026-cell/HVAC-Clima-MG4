@@ -188,11 +188,14 @@
     <string name="b_try" formatted="false">Testen</string>
     <string name="n_title">Neu in %1$s</string>
     <string name="n_sub" formatted="false">Was sich in dieser Version ändert</string>
-    <string name="n_body" formatted="false">• Farben wie im MG4 Launcher: nachts neutrale Grautöne ohne Blaustich, aktive Tasten wie auf dem Startbildschirm\n• Blau nur noch für A/C und kalte Luft; Wärme hat tags und nachts dasselbe Orange\n• Tag/Nacht-Design wie im Launcher: kein heller Launcher mehr mit dunkler Klima-Ansicht</string>
+    <string name="n_body" formatted="false">• Die Prüfung stellt Sitze, Lenkrad und Umluft immer wieder her, auch wenn sie abbricht\n• Klima über die obere Leiste mit Android Auto und CarPlay: Fenster korrigiert\n• Beim Schließen von MG4 Klima kommst du zu Android Auto oder CarPlay zurück, wenn du es von dort geöffnet hast\n• Neue Option: automatisch schließen nach 10, 20, 30 oder 60 Sekunden ohne Berührung\n• Tag/Nacht-Design aus dem, was der Launcher ins System schreibt</string>
     <string name="s_joy_conflict" formatted="false">Eine andere App nutzt den Joystick</string>
     <string name="s_joy_conflict_sub">%1$s kann dieselben Lenkradtasten übernehmen: schalte den Joystick in der anderen App aus, um ihn mit MG4 Klima zu nutzen</string>
     <string name="s_proj" formatted="false">Klima während Android Auto und CarPlay</string>
     <string name="s_proj_sub" formatted="false">Mit Android Auto oder CarPlay im Vordergrund tippe auf die Mitte der oberen Leiste, um MG4 Klima zu öffnen</string>
+    <string name="s_autoclose" formatted="false">Automatisch schließen nach</string>
+    <string name="s_autoclose_sub" formatted="false">Sekunden ohne Berührung oder Joystick-Tasten; danach geht es dorthin zurück, wo du es geöffnet hast</string>
+    <string name="s_never" formatted="false">Nie</string>
     <string name="r_notice" formatted="false">Hinweis</string>
     <string name="r_update_title">MG4 Klima %1$s verfügbar</string>
     <string name="r_update_msg" formatted="false">Es gibt eine neue Version von MG4 Klima.</string>

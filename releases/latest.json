@@ -1,9 +1,9 @@
 {
   "MG4Clima": {
-    "version": "1.4.3",
-    "apk": "releases/MG4Clima-1.4.3.apk",
-    "size": 510743,
-    "sha256": "7ea58b125ccb6353de0136d10b6387504a59e66b6a7e1367c7575efbdc753a74",
-    "notes": "Colori uguali al launcher MG4: di notte grigi neutri, pulsanti accesi come nella home, blu solo per A/C e aria fredda. Tema giorno/notte allineato al launcher."
+    "version": "1.4.4",
+    "apk": "releases/MG4Clima-1.4.4.apk",
+    "size": 518935,
+    "sha256": "1cfe94ad796c8bbaf73283b71e882cb76138c1a05193a1b54c886914f83f0ae9",
+    "notes": "La verifica rimette sempre com'erano sedili, volante e ricircolo. Clima dalla barra con Android Auto e CarPlay, ritorno alla proiezione alla chiusura. Nuova opzione: chiudi da solo dopo N secondi. Tema giorno/notte letto dal sistema."
   }
 }

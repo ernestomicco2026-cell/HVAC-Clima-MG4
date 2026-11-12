@@ -188,11 +188,14 @@
     <string name="b_try" formatted="false">Tester</string>
     <string name="n_title">Nouveautés de la %1$s</string>
     <string name="n_sub" formatted="false">Ce qui change dans cette version</string>
-    <string name="n_body" formatted="false">• Couleurs identiques au launcher MG4 : la nuit, gris neutres sans teinte bleue, boutons actifs comme sur l\'écran d\'accueil\n• Le bleu reste seulement pour l\'A/C et l\'air froid ; la chaleur a le même orange de jour comme de nuit\n• Thème jour/nuit aligné sur le launcher : fini le launcher clair avec le climat sombre</string>
+    <string name="n_body" formatted="false">• La vérification remet toujours sièges, volant et recyclage comme avant, même si elle s\'arrête\n• Climat depuis la barre du haut avec Android Auto et CarPlay : fenêtre corrigée\n• En fermant MG4 Climat tu reviens à Android Auto ou CarPlay si tu l\'as ouvert de là\n• Nouvelle option : fermeture automatique après 10, 20, 30 ou 60 secondes sans toucher\n• Thème jour/nuit lu dans ce que le launcher écrit dans le système</string>
     <string name="s_joy_conflict" formatted="false">Une autre appli utilise le joystick</string>
     <string name="s_joy_conflict_sub">%1$s peut prendre les mêmes touches du volant : désactive le joystick dans l\'autre appli pour l\'utiliser avec MG4 Climat</string>
     <string name="s_proj" formatted="false">Climat pendant Android Auto et CarPlay</string>
     <string name="s_proj_sub" formatted="false">Avec Android Auto ou CarPlay devant, touche le centre de la barre du haut pour ouvrir MG4 Climat</string>
+    <string name="s_autoclose" formatted="false">Fermer automatiquement après</string>
+    <string name="s_autoclose_sub" formatted="false">Secondes sans toucher ni touche du joystick ; puis retour là où tu l\'as ouvert</string>
+    <string name="s_never" formatted="false">Jamais</string>
     <string name="r_notice" formatted="false">Avis</string>
     <string name="r_update_title">MG4 Climat %1$s disponible</string>
     <string name="r_update_msg" formatted="false">Il y a une nouvelle version de MG4 Climat.</string>

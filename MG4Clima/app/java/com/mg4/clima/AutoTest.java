@@ -134,35 +134,175 @@ public final class AutoTest {
         SystemClock.sleep(600);
     }
 
-    /** Tasto acceso/spento: premuto due volte, deve cambiare e poi tornare com'era. */
+    /** Tasto acceso/spento: premuto due volte, deve cambiare e poi tornare com'era. 1.4.4: ripristino sempre. */
     private void toggle(String what, int code, ToIntFunction<HvacClient.State> f) {
         int v0 = f.applyAsInt(safe());
-        send(what + " (premuto)", code, 1);
-        int v1 = waitFor(f, x -> x != v0);
-        check(what + " premuto", v1 != v0, v0 + " → " + v1);
-        SystemClock.sleep(800);
-        send(what + " (di nuovo)", code, 1);
-        int v2 = waitFor(f, x -> x == v0);
-        check(what + " ripremuto", v2 == v0, v1 + " → " + v2);
-        SystemClock.sleep(600);
+        try {
+            send(what + " (premuto)", code, 1);
+            int v1 = waitFor(f, x -> x != v0);
+            check(what + " premuto", v1 != v0, v0 + " → " + v1);
+            SystemClock.sleep(READBACK_MS);
+            send(what + " (di nuovo)", code, 1);
+            int v2 = waitFor(f, x -> x == v0);
+            check(what + " ripremuto", v2 == v0, v1 + " → " + v2);
+            SystemClock.sleep(600);
+        } finally {
+            restore(what, f, v0, code, -1, -1);
+        }
     }
 
-    /** Tasto a più livelli (sedili, ricircolo): premuto finché torna com'era, registra la sequenza. */
-    private void cycle(String what, int code, ToIntFunction<HvacClient.State> f, int maxPress) {
+    /** 1.4.4: l'auto rilegge sedili, volante e ricircolo con circa 2 s di ritardo; prima si ripremeva troppo presto. */
+    static final int READBACK_MS = 2000;
+
+    /**
+     * Tasto a più livelli (sedili, ricircolo): premuto finché torna com'era, registra la sequenza.
+     * 1.4.4: dopo ogni pressione si aspetta che il valore riletto si fermi (READBACK_MS) prima di premere di nuovo;
+     * alla fine, anche se il test si interrompe, si rimette il valore di partenza ({@link #restore}).
+     */
+    private void cycle(String what, int code, ToIntFunction<HvacClient.State> f, int maxPress, int offCode, int[] direct) {
         int v0 = f.applyAsInt(safe()), v = v0;
-        StringBuilder seq = new StringBuilder().append(v0);
-        boolean changed = false;
-        for (int i = 0; i < maxPress; i++) {
-            send(what + " (pressione " + (i + 1) + ")", code, 1);
-            final int before = v;
-            v = waitFor(f, x -> x != before);
-            seq.append(" → ").append(v);
-            if (v != before) changed = true;
-            else break;   // non cambia: inutile insistere
-            SystemClock.sleep(800);
-            if (v == v0) break;
+        try {
+            StringBuilder seq = new StringBuilder().append(v0);
+            boolean changed = false;
+            for (int i = 0; i < maxPress; i++) {
+                send(what + " (pressione " + (i + 1) + ")", code, 1);
+                final int before = v;
+                waitFor(f, x -> x != before);
+                SystemClock.sleep(READBACK_MS);          // valore stabile, non quello di passaggio
+                v = f.applyAsInt(safe());
+                seq.append(" → ").append(v);
+                if (v != before) changed = true;
+                else break;   // non cambia: inutile insistere
+                if (v == v0) break;
+                SystemClock.sleep(600);
+            }
+            check(what + " a livelli", changed && v == v0, seq + (v == v0 ? "" : " (non è tornato a " + v0 + ")"));
+        } finally {
+            restore(what, f, v0, code, offCode, direct == null || v0 < 0 || v0 >= direct.length ? -1 : direct[v0]);
         }
-        check(what + " a livelli", changed && v == v0, seq + (v == v0 ? "" : " (non è tornato a " + v0 + ")"));
+    }
+
+    /** Lettura per il ripristino: vale anche con la schermata chiusa o l'auto in movimento (null = auto non leggibile). */
+    private HvacClient.State readForRestore() {
+        try {
+            HvacClient.State s = h.readNow();
+            if (!s.connected || !(s.ignition == 2 || s.ignition == 3)) return null;
+            return s;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private static boolean moving(HvacClient.State s) {
+        return !Float.isNaN(s.speed) && s.speed >= 1f;
+    }
+
+    private int waitRestore(ToIntFunction<HvacClient.State> f, int want, long ms) {
+        long end = SystemClock.elapsedRealtime() + ms;
+        int v = Integer.MIN_VALUE;
+        do {
+            SystemClock.sleep(400);
+            HvacClient.State s = readForRestore();
+            if (s == null) return Integer.MIN_VALUE;
+            v = f.applyAsInt(s);
+            if (v == want) return v;
+        } while (SystemClock.elapsedRealtime() < end);
+        return v;
+    }
+
+    /**
+     * 1.4.4: rimette il valore di partenza v0. Prima il comando diretto (directCode, che porta proprio a v0; per i sedili
+     * offCode = spento), poi, se serve, le pressioni (mai con l'auto in movimento), aspettando il valore stabile.
+     * Fino a 3 tentativi; se non riesce è un errore grave nel log.
+     */
+    private void restore(String what, ToIntFunction<HvacClient.State> f, int v0, int pressCode, int offCode, int directCode) {
+        if (v0 < 0) return;
+        HvacClient.State s = readForRestore();
+        if (s == null) {
+            log("✗✗ ERRORE GRAVE: " + what + " NON ripristinato a " + v0 + " (auto spenta o servizio non collegato)");
+            return;
+        }
+        if (s.caradapter) {
+            directCode = -1;   // comandi diretti solo sulle SAIC
+            offCode = -1;
+        }
+        int v = f.applyAsInt(s);
+        if (v == v0) return;   // già com'era
+        String how = "";
+        boolean stopMoving = false;
+        for (int attempt = 1; attempt <= 3 && v != v0 && !stopMoving; attempt++) {
+            try {
+                if (directCode >= 0) {                       // ricircolo 0/1: porta proprio a v0
+                    h.send(directCode, null);
+                    how = "comando diretto";
+                    v = waitRestore(f, v0, 4000);
+                } else if (offCode >= 0) {                   // sedile: spento diretto, poi giù da 3 se serve
+                    h.send(offCode, null);
+                    how = "comando diretto";
+                    v = waitRestore(f, 0, 4000);
+                    if (v0 > 0 && v == 0) {
+                        how = "comando diretto e pressioni";
+                        for (int k = 0; k < 4 - v0; k++) {   // spento → 3 → 2 → 1
+                            HvacClient.State m = readForRestore();
+                            if (m == null) break;
+                            if (moving(m)) {
+                                stopMoving = true;
+                                break;
+                            }
+                            h.send(pressCode, 1);
+                            SystemClock.sleep(READBACK_MS);
+                        }
+                        HvacClient.State r = readForRestore();
+                        v = r == null ? Integer.MIN_VALUE : f.applyAsInt(r);
+                    }
+                } else {                                      // solo pressioni (volante, A/C, ECO, ricircolo automatico)
+                    how = "pressione";
+                    for (int k = 0; k < 3 && v != v0; k++) {
+                        HvacClient.State m = readForRestore();
+                        if (m == null) break;
+                        if (moving(m)) {
+                            stopMoving = true;
+                            break;
+                        }
+                        h.send(pressCode, 1);
+                        SystemClock.sleep(READBACK_MS);
+                        HvacClient.State r = readForRestore();
+                        if (r == null) break;
+                        v = f.applyAsInt(r);
+                    }
+                }
+            } catch (Throwable e) {
+                how = "errore " + e.getClass().getSimpleName();
+            }
+            if (v != v0 && !stopMoving) SystemClock.sleep(800);
+        }
+        if (v == v0) log("✓ " + what + " ripristinato a " + v0 + " (" + how + ")");
+        else {
+            log("✗✗ ERRORE GRAVE: " + what + " NON ripristinato a " + v0 + " (letto " + (v == Integer.MIN_VALUE ? "—" : v)
+                    + (stopMoving ? ", auto in movimento: niente pressioni" : "") + (how.isEmpty() ? "" : ", " + how) + ")");
+            bad++;
+            fails.add("ripristino " + what);
+        }
+    }
+
+    // ---- 1.4.4: prove fallite non ripetute -----------------------------------------------------------------------
+    // Sedili, volante e ricircolo: se una prova non riesce, per la stessa versione di MG4 Clima e dell'app clima
+    // originale non si rifà (niente pressioni a ogni verifica); si usa il risultato salvato.
+
+    private boolean tryPart(String part) {
+        String saved = Store.partFailed(ctx, BuildInfo.version(ctx), version(), part);
+        if (saved.isEmpty()) return true;
+        bad++;
+        fails.add(part);
+        log("✗ " + part + " → non riprovato: già fallito con MG4 Clima " + BuildInfo.version(ctx) + " e app clima "
+                + version() + " (risultato salvato: " + saved + ")");
+        return false;
+    }
+
+    private void partDone(String part, int failsBefore) {
+        if (fails.size() > failsBefore)
+            Store.setPartFailed(ctx, BuildInfo.version(ctx), version(), part,
+                    String.join(", ", fails.subList(failsBefore, fails.size())));
     }
 
     // ---- 1.3.3: ripresa da dove si era fermato ------------------------------------------------------------------
@@ -502,7 +642,13 @@ public final class AutoTest {
             did("ECO");
         }
         if (todo("ricircolo")) {
-            cycle("ricircolo", HvacClient.SET_LOOP_PRESS, s -> s.loop, 3);
+            if (tryPart("ricircolo")) {
+                int fb = fails.size();
+                // ripristino diretto: 0 = ricircolo interno, 1 = aria esterna (2 = automatico: solo pressioni)
+                cycle("ricircolo", HvacClient.SET_LOOP_PRESS, s -> s.loop, 3, -1,
+                        new int[]{HvacClient.LOOP_INNER, HvacClient.LOOP_OUTSIDE, -1});
+                partDone("ricircolo", fb);
+            }
             did("ricircolo");
         }
         // AUTO non si spegne ripremendolo: si esce cambiando la ventola (ripristino alla fine)
@@ -514,12 +660,20 @@ public final class AutoTest {
             did("AUTO");
         }
         if (s1.hasSeatHeat() && todo("sedili")) {
-            cycle("sedile guida", HvacClient.SET_DRV_SEAT_PRESS, s -> s.seatDrv, 4);
-            cycle("sedile passeggero", HvacClient.SET_PSG_SEAT_PRESS, s -> s.seatPsg, 4);
+            if (tryPart("sedili")) {
+                int fb = fails.size();
+                cycle("sedile guida", HvacClient.SET_DRV_SEAT_PRESS, s -> s.seatDrv, 4, HvacClient.DRV_SEAT_OFF, null);
+                cycle("sedile passeggero", HvacClient.SET_PSG_SEAT_PRESS, s -> s.seatPsg, 4, HvacClient.PSG_SEAT_OFF, null);
+                partDone("sedili", fb);
+            }
             did("sedili");
         }
         if (s1.hasWheel && todo("volante")) {
-            toggle("volante", HvacClient.SET_WHEEL_PRESS, s -> s.wheel);
+            if (tryPart("volante")) {
+                int fb = fails.size();
+                toggle("volante", HvacClient.SET_WHEEL_PRESS, s -> s.wheel);
+                partDone("volante", fb);
+            }
             did("volante");
         }
 

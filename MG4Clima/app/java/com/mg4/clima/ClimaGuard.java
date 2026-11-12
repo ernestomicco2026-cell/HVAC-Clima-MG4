@@ -194,6 +194,8 @@ public final class ClimaGuard extends AccessibilityService {
 
     /** App in primo piano (dall'ultimo cambio di finestra che non è del SystemUI). */
     private volatile String fgPkg = "";
+    /** 1.4.4: ultima app in primo piano diversa da MG4 Clima e dal clima originale (SystemUI esclusa). */
+    static volatile String lastOther = "";
 
     /**
      * Finestra del SystemUI: si legge subito l'accensione; se è appena cambiata il pannello l'ha aperto il clima.
@@ -318,6 +320,7 @@ public final class ClimaGuard extends AccessibilityService {
         applyFilter(Store.joystick(this) != Store.JOY_OFF);
         main.postDelayed(this::prepareCover, 25_000);
         Tema.start(this);     // 1.4.3: tema giorno/notte come il launcher (controllo ogni 20 s)
+        Ritorno.bind(this);   // 1.4.4: sessione Android Auto / CarPlay (AllGo) per il ritorno alla chiusura
         Remote.start(this);   // 1.4.2: aggiornamenti e avvisi da remoto (dopo 2 minuti, poi ogni 6 ore)
         ProjectionZone.attach(this);
         if (bg == null) {
@@ -353,6 +356,8 @@ public final class ClimaGuard extends AccessibilityService {
             return;
         }
         if (e.getPackageName() != null) fgPkg = e.getPackageName().toString();
+        // 1.4.4: l'ultima app davanti che non è MG4 Clima né il clima originale (per tornare lì alla chiusura)
+        if (!fgPkg.isEmpty() && !getPackageName().equals(fgPkg) && !hvacPkg.equals(fgPkg)) lastOther = fgPkg;
         ProjectionZone.onForeground(this, fgPkg);   // 1.4.2: zona clima durante Android Auto / CarPlay
         // 1.4.0: un'altra app (non la nostra né il clima originale) davanti → via la finestra pronta
         // (1.4.1: il filtro dei tasti resta, ma con un'altra app davanti non consuma niente)

@@ -21,6 +21,10 @@
     <uses-permission android:name="android.permission.STATUS_BAR" />
     <!-- 1.4.2: zona sopra la barra in alto durante Android Auto / CarPlay (finestra di sistema, chiave di piattaforma) -->
     <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW" />
+    <!-- 1.4.4: zona clima sopra la barra durante Android Auto/CarPlay (finestra 2017, firma platform) -->
+    <uses-permission android:name="android.permission.STATUS_BAR_SERVICE" />
+    <!-- 1.4.4: alla chiusura si riporta davanti Android Auto/CarPlay se Clima era stata aperta da lì -->
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
     <!-- aggiornamenti di MG4 Clima dalle impostazioni (firma di sistema) -->
     <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.DELETE_PACKAGES" />

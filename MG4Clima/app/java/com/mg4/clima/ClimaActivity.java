@@ -78,7 +78,10 @@ public final class ClimaActivity extends Activity {
         joy = new Joystick(this, new Joystick.Listener() {
             @Override
             public void onKey(int code, boolean down, boolean lp, boolean consumed) {
-                h.post(() -> onWheelKey(code, down, lp, consumed));
+                h.post(() -> {
+                    armAutoClose();   // 1.4.4: ogni tasto del joystick fa ripartire il conteggio
+                    onWheelKey(code, down, lp, consumed);
+                });
             }
 
             @Override
@@ -96,7 +99,31 @@ public final class ClimaActivity extends Activity {
         }
         Store.event(this, "schermata aperta · " + Model.get(this) + (Model.manual(this) ? " (scelto a mano)" : ""));
         fromGuard(getIntent());
+        opened(getIntent());
         fromLauncher(getIntent());
+    }
+
+    /** 1.4.4: da dove è stata aperta (zona sopra la barra, oppure l'app che c'era davanti): lì si torna alla chiusura. */
+    private void opened(Intent i) {
+        String z = i == null ? null : i.getStringExtra(Ritorno.EXTRA_FROM);
+        if (z != null) Ritorno.onOpen(this, z, "zona sopra la barra");
+        else Ritorno.onOpen(this, ClimaGuard.lastOther, originalAt > 0 ? "al posto del clima originale" : "apertura");
+    }
+
+    // ---- 1.4.4: chiusura automatica dopo N secondi senza tocchi né tasti del joystick (issue #11) ----------------
+    private final Runnable autoCloseR = () -> {
+        if (!resumed) return;
+        if (testRunning) {   // durante il test o la verifica non si chiude
+            armAutoClose();
+            return;
+        }
+        close("chiusura automatica dopo " + Store.autoClose(this) + " s senza tocchi");
+    };
+
+    private void armAutoClose() {
+        h.removeCallbacks(autoCloseR);
+        int sec = Store.autoClose(this);
+        if (sec > 0 && resumed) h.postDelayed(autoCloseR, sec * 1000L);
     }
 
     @Override
@@ -104,6 +131,7 @@ public final class ClimaActivity extends Activity {
         super.onNewIntent(i);
         overridePendingTransition(0, 0);
         fromGuard(i);
+        opened(i);
         fromLauncher(i);
     }
 
@@ -170,6 +198,7 @@ public final class ClimaActivity extends Activity {
         Tema.listener = this::applyTheme;   // 1.4.3: il tema cambia anche con la schermata aperta
         applyTheme();
         resumed = true;
+        armAutoClose();   // 1.4.4
         filterCodes.clear();
         joy.register();   // 1.3.3: tasti del volante solo con la schermata aperta e in primo piano
         // 1.4.0: tasti in esclusiva (filtro dell'accessibilità) solo con la schermata in primo piano e il joystick acceso
@@ -518,6 +547,16 @@ public final class ClimaActivity extends Activity {
                     Store.event(this, "chiusura con swipe: " + Store.swipeName(swModes[i]));
                     edges();
                 }), false);
+        // 1.4.4: chiusura automatica senza tocchi (issue #11): Mai / 10 / 20 / 30 / 60 s
+        int acSel = 0;
+        for (int i = 0; i < Store.AUTO_CLOSE.length; i++) if (Store.AUTO_CLOSE[i] == Store.autoClose(this)) acSel = i;
+        String[] acNames = new String[Store.AUTO_CLOSE.length];
+        for (int i = 0; i < acNames.length; i++) acNames[i] = i == 0 ? L.s(R.string.s_never) : Store.AUTO_CLOSE[i] + " s";
+        s.row(c1, L.s(R.string.s_autoclose), L.s(R.string.s_autoclose_sub), s.choices(acNames, acSel, i -> {
+            Store.setAutoClose(this, Store.AUTO_CLOSE[i]);
+            Store.event(this, "chiusura automatica: " + (i == 0 ? "mai" : Store.AUTO_CLOSE[i] + " s senza tocchi"));
+            armAutoClose();
+        }), false);
         // 1.3.3: comandi dal joystick del volante (solo con la schermata aperta)
         // 1.4.0: solo spento / acceso (il joystick sinistro non manda codici suoi); spiegazione se non c'è l'esclusiva
         int js = Store.joystick(this), ex = Store.joyExclusive(this);
@@ -735,6 +774,8 @@ public final class ClimaActivity extends Activity {
                     boolean moving = r.contains(AutoTest.MOVING);
                     if (ok) Store.addVerified(this, ver);
                     if (ok) Store.setPendingVerify(this, "");
+                    // 1.4.4: fallita (non interrotta): non si ripropone da sola per questa coppia di versioni
+                    if (!ok && !moving && !r.startsWith("interrotto")) Store.setVerifyFailed(this, BuildInfo.version(this), ver);
                     Store.event(this, "verifica " + ver + (ok ? ": riuscita" : moving ? ": interrotta (auto in movimento, si può riprendere)"
                             : ": non riuscita") + " · " + r);
                     LogSend.send(this, "verifica", res -> h.post(() -> {
@@ -752,6 +793,7 @@ public final class ClimaActivity extends Activity {
         if (!ClimaGuard.hasOriginalApp(this) || ClimaGuard.originalKnown(this)) return;
         String ver = ClimaGuard.originalVersion(this);
         // 1.3.1: si chiede una volta per versione (prima solo dopo che l'originale era stata aperta)
+        if (Store.verifyFailed(this, BuildInfo.version(this), ver)) return;   // 1.4.4: già fallita, solo a mano
         boolean pending = ver.equals(Store.pendingVerify(this));
         if (!pending && ver.equals(Store.askedVerify(this))) return;
         if (System.currentTimeMillis() < Store.bypassUntil(this)) return;
@@ -1143,6 +1185,7 @@ public final class ClimaActivity extends Activity {
     protected void onPause() {
         resumed = false;
         Tema.listener = null;
+        h.removeCallbacks(autoCloseR);
         ClimaGuard.keyListener(null);   // i tasti tornano subito alle altre app (un tasto già premuto finisce da noi)
         shadeBlock(false);
         ClimaGuard.edges(this, 0);
@@ -1232,6 +1275,7 @@ public final class ClimaActivity extends Activity {
      */
     @Override
     public boolean dispatchTouchEvent(android.view.MotionEvent e) {
+        if (e.getActionMasked() == android.view.MotionEvent.ACTION_DOWN) armAutoClose();   // 1.4.4
         int mode = Store.swipeMode(this);
         if (mode != Store.SWIPE_OFF && swipe != null && (sheet == null || !sheet.showing())) {
             if (e.getActionMasked() == android.view.MotionEvent.ACTION_DOWN) {
@@ -1301,10 +1345,7 @@ public final class ClimaActivity extends Activity {
     private void close(String how) {
         if (sheet != null && sheet.showing()) sheet.close();
         Store.event(this, "chiusura: " + how + " → chiusa");
-        try {
-            startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        } catch (Throwable ignored) {
-        }
+        Ritorno.back(this);   // 1.4.4: torna ad Android Auto / CarPlay se era stata aperta da lì, altrimenti home
         finish();
     }
 }

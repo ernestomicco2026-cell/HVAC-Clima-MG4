@@ -23,7 +23,10 @@ public final class HvacClient {
             // impostazioni dell'app clima originale (1.2.0): valore come l'originale
             SET_AUTO_LEVEL = 16, SET_ECON_LINK = 17, SET_DEFROST_LINK = 18,
             // 1.4.0: temperatura col valore grezzo dell'auto, in decimi di grado (solo la verifica di LO / HI, caradapter)
-            SET_DRV_TEMP_RAW = 19;
+            SET_DRV_TEMP_RAW = 19,
+            // 1.4.4: comandi diretti per il ripristino della verifica (solo SWI68/SWI133/DBI68): sedile spento,
+            // ricircolo interno, aria esterna. Senza valore (come il launcher).
+            DRV_SEAT_OFF = 20, PSG_SEAT_OFF = 21, LOOP_INNER = 22, LOOP_OUTSIDE = 23;
 
     /** Intensità di AUTO nei valori dell'auto: 2 bassa, 1 media, 0 alta (come l'app originale). */
     public static final int AUTO_LOW = 2, AUTO_MEDIUM = 1, AUTO_HIGH = 0;
@@ -257,6 +260,12 @@ public final class HvacClient {
         State s = readNow();
         String ch = diff(prev, s);
         if (!ch.isEmpty()) Store.event(ctx, (testing ? "  · letto: " : "cambiato: ") + ch);
+        // 1.4.4: SWI69/SWI132: valore grezzo che l'auto riporta dopo ogni modifica di temperatura (per capire
+        // l'intervallo vero dai log; il comportamento non cambia)
+        if (s.caradapter && prev != null && !Float.isNaN(s.tempRaw)
+                && (Float.isNaN(prev.tempRaw) || Math.abs(s.tempRaw - prev.tempRaw) > 0.01f))
+            Store.event(ctx, "clima.tempGrezza = " + s.tempRaw + " (prima " + prev.tempRaw + ") · mostrata " + s.temp
+                    + " · intervallo in uso " + CarAdapterBackend.rangeText());
         prev = s;
         final State st = s;
         Store.diag(ctx, st.dump());

@@ -2,7 +2,6 @@ package com.mg4.clima;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -17,20 +16,20 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * 1.4.3: tema giorno/notte uguale a quello del launcher MG4. Fonti, in ordine:
+ * Tema giorno/notte uguale a quello del launcher. Fonti, in ordine:
  * <ol>
- *   <li>il launcher MG4: se scrive il tema applicato in Settings.Global "mg4_tema" ("giorno"/"notte"), si usa quello
- *       subito (il launcher lo ha già confermato). Oggi i launcher non lo scrivono ancora;</li>
- *   <li>la stessa regola del launcher 1.0.3 (svc/DayNight.java della SWI68): uiMode del sistema solo se è affidabile
- *       (ha detto "notte" nelle ultime 72 ore) e non è bloccato (non cambia da 12 ore di accensione e dice il
- *       contrario del sole, oppure alla prima accensione dice "notte" con il sole sopra +10°);</li>
- *   <li>alba e tramonto calcolati senza internet dall'ultima posizione nota (se manca, fuso orario e Italia).</li>
+ *   <li>1.4.4: il tema scritto nel sistema dal launcher MG4 (come faceva il launcher SAIC):
+ *       SWI68/SWI133 {@code UiModeManager.getNightMode()} (non Configuration.uiMode, che sulla SWI133 resta su "notte");
+ *       SWI69/SWI132 Settings.System {@code SKIN_THEME_CONFIG} (0 = scuro, 1 = chiaro), con il broadcast
+ *       {@code com.saicmotor.changeSkin}. Vale se è affidabile (ha detto "notte" o è cambiato nelle ultime 72 ore) e non è
+ *       bloccato (fermo da 12 ore di accensione e contrario al sole, o "notte" alla prima accensione col sole sopra +10°).
+ *       Quando cambia si applica subito;</li>
+ *   <li>alba e tramonto calcolati senza internet dall'ultima posizione nota (se manca, fuso orario e Italia), con 60 s
+ *       di conferma (regola del launcher 1.0.3, senza i fari).</li>
  * </ol>
- * Con le fonti 2 e 3 un cambio si applica solo se resta uguale per 60 s. I fari non si leggono (il launcher li usa).
  */
 final class Tema {
-    static final String LAUNCHER_KEY = "mg4_tema";
-    private static final String LAUNCHER_PKG = "com.mg4.launcher";
+    static final String SKIN_KEY = "SKIN_THEME_CONFIG", SKIN_ACTION = "com.saicmotor.changeSkin";
     private static final long CONFIRM_MS = 60_000, TICK_MS = 20_000;
     private static final long RELIABLE_WINDOW_MS = 72L * 60 * 60 * 1000, UI_STUCK_ON_MS = 12L * 60 * 60 * 1000;
     private static final double ITALY_LAT = 42.5, ITALY_LON = 12.5;
@@ -52,7 +51,7 @@ final class Tema {
     }
 
     private static SharedPreferences sp(Context c) {
-        return c.getSharedPreferences("mg4clima_tema", Context.MODE_PRIVATE);
+        return c.getSharedPreferences("mg4clima_tema2", Context.MODE_PRIVATE);
     }
 
     /** Tema da usare adesso (true = giorno). Alla prima chiamata si calcola subito. */
@@ -75,14 +74,20 @@ final class Tema {
                 work.postDelayed(this, TICK_MS);
             }
         });
-        try {
-            ctx.getContentResolver().registerContentObserver(Settings.Global.getUriFor(LAUNCHER_KEY), false,
+        try {   // SWI69/SWI132: il launcher scrive SKIN_THEME_CONFIG e manda com.saicmotor.changeSkin
+            ctx.getContentResolver().registerContentObserver(Settings.System.getUriFor(SKIN_KEY), false,
                     new ContentObserver(work) {
                         @Override
                         public void onChange(boolean self) {
                             evaluate(ctx, false);
                         }
                     });
+            ctx.registerReceiver(new android.content.BroadcastReceiver() {
+                @Override
+                public void onReceive(Context x, android.content.Intent i) {
+                    work.post(() -> evaluate(ctx, false));
+                }
+            }, new android.content.IntentFilter(SKIN_ACTION), null, work);
         } catch (Throwable ignored) {
         }
         new Thread(() -> ensureLocationPermission(ctx), "mg4-clima-posizione").start();
@@ -105,9 +110,8 @@ final class Tema {
         boolean target;
         boolean fromLauncher;
         try {
-            String l = launcherTheme(c);
-            fromLauncher = l != null;
-            target = fromLauncher ? "giorno".equals(l) : compute(c);
+            target = compute(c);
+            fromLauncher = fromSystem;   // tema scritto dal launcher: già deciso da lui, si applica subito
         } catch (Throwable e) {
             source = "errore " + e.getClass().getSimpleName();
             return;
@@ -123,7 +127,7 @@ final class Tema {
         long now = SystemClock.elapsedRealtime();
         if (fromLauncher || immediate) {
             pending = null;
-            applyNow(c, target, fromLauncher ? "dal launcher" : "subito");
+            applyNow(c, target, fromLauncher ? "dal sistema" : "subito");
         } else if (pending == null || pending != target) {
             pending = target;
             pendingSince = now;
@@ -144,40 +148,45 @@ final class Tema {
         }
     }
 
-    /** Tema scritto dal launcher MG4 ("giorno"/"notte"), null se il launcher non lo espone. */
-    static String launcherTheme(Context c) {
-        String v;
-        try {
-            v = Settings.Global.getString(c.getContentResolver(), LAUNCHER_KEY);
-        } catch (Throwable e) {
-            return null;
-        }
-        if (!"giorno".equals(v) && !"notte".equals(v)) return null;
-        try {
-            c.getPackageManager().getPackageInfo(LAUNCHER_PKG, 0);
-        } catch (Throwable e) {
-            return null;   // valore rimasto da un launcher tolto
-        }
-        source = "launcher MG4 (" + LAUNCHER_KEY + ")";
-        detail = "";
-        return v;
-    }
-
     // ---- regola del launcher 1.0.3, senza i fari ------------------------------------------------------------------
+
+    private static boolean fromSystem;
+    private static String sysName = "—";
+
+    /** 1.4.4: tema scritto nel sistema dal launcher: 1 = notte, 0 = giorno, -1 = non c'è. */
+    /** Solo per i test e gli screenshot: tema di sistema simulato (-2 = no). */
+    static volatile int testNight = -2;
+
+    static int systemNight(Context c) {
+        if (testNight != -2) {
+            sysName = "test";
+            return testNight;
+        }
+        if (Model.saic(c)) {   // SWI68 / SWI133
+            sysName = "UiModeManager";
+            try {
+                android.app.UiModeManager um = (android.app.UiModeManager) c.getSystemService(Context.UI_MODE_SERVICE);
+                int m = um.getNightMode();
+                return m == android.app.UiModeManager.MODE_NIGHT_YES ? 1 : m == android.app.UiModeManager.MODE_NIGHT_NO ? 0 : -1;
+            } catch (Throwable e) {
+                return -1;
+            }
+        }
+        sysName = SKIN_KEY;   // SWI69 / SWI132
+        try {
+            int v = Settings.System.getInt(c.getContentResolver(), SKIN_KEY, -1);
+            return v == 0 ? 1 : v == 1 ? 0 : -1;
+        } catch (Throwable e) {
+            return -1;
+        }
+    }
 
     private static boolean compute(Context c) {
         SharedPreferences sp = sp(c);
-        int ui = c.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        int uiNight = ui == Configuration.UI_MODE_NIGHT_YES ? 1 : ui == Configuration.UI_MODE_NIGHT_NO ? 0 : -1;
-        String uiTxt = uiNight == 1 ? "notte" : uiNight == 0 ? "giorno" : "non definito";
-        int mgr = -1;
-        try {
-            android.app.UiModeManager um = (android.app.UiModeManager) c.getSystemService(Context.UI_MODE_SERVICE);
-            int m = um.getNightMode();
-            mgr = m == android.app.UiModeManager.MODE_NIGHT_YES ? 1 : m == android.app.UiModeManager.MODE_NIGHT_NO ? 0 : -1;
-        } catch (Throwable ignored) {
-        }
-        boolean sysNight = uiNight == 1 || mgr == 1;
+        fromSystem = false;
+        int uiNight = systemNight(c);
+        String uiTxt = uiNight == 1 ? "notte" : uiNight == 0 ? "giorno" : "non c'è";
+        boolean sysNight = uiNight == 1;
         long wall = System.currentTimeMillis();
         trackUiChanges(sp, uiNight, wall);
         long prevSeen = sp.getLong(K_SYS_NIGHT_AT, 0);
@@ -203,19 +212,20 @@ final class Tema {
                     markStuck(sp, "prima accensione, notte con il sole a " + Math.round(sun.elevation) + "°");
             }
             if (sp.getBoolean(K_UI_STUCK, false)) {
-                stuckTxt = "uiMode " + uiTxt + " (" + sp.getString(K_UI_STUCK_WHY, "bloccato") + ": ignorato)";
+                stuckTxt = sysName + " " + uiTxt + " (" + sp.getString(K_UI_STUCK_WHY, "bloccato") + ": ignorato)";
                 reliable = false;
             }
         }
         long at = sp.getLong(K_UI_CHANGED_AT, 0);
-        String hist = "ultimo cambio uiMode " + (at == 0 ? "mai visto" : new SimpleDateFormat("dd/MM HH:mm", Locale.ITALY).format(new Date(at)))
+        String hist = "ultimo cambio " + sysName + " " + (at == 0 ? "mai visto" : new SimpleDateFormat("dd/MM HH:mm", Locale.ITALY).format(new Date(at)))
                 + " (" + (sp.getLong(K_UI_ON_MS, 0) + onPending) / 3_600_000L + " h di accensione da allora)";
-        detail = (stuckTxt.isEmpty() ? "" : stuckTxt + " · ") + hist + " · uiMode " + uiTxt + " · " + sunTxt;
-        if (reliable) {
-            source = "sistema (uiMode, affidabile)";
+        detail = (stuckTxt.isEmpty() ? "" : stuckTxt + " · ") + hist + " · " + sysName + " " + uiTxt + " · " + sunTxt;
+        if (reliable && uiNight >= 0) {
+            source = "sistema (" + sysName + ", scritto dal launcher)";
+            fromSystem = true;
             return !sysNight;
         }
-        source = "orario (alba/tramonto)";
+        source = "orario (alba/tramonto)" + (uiNight < 0 ? ", " + sysName + " non c'è" : ", " + sysName + " non affidabile");
         return sun.elevation >= -0.833;
     }
 

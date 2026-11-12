@@ -138,6 +138,46 @@ public final class Store {
     }
 
     /** 1.3.3: parti già fatte del test / della verifica interrotti ("" = niente da riprendere). */
+    /**
+     * 1.4.4: prova della verifica non riuscita (sedili, volante, ricircolo), per versione di MG4 Clima e versione
+     * dell'app clima originale: non si ripete, si usa il risultato salvato. "" = mai fallita.
+     */
+    public static String partFailed(Context c, String climaVer, String origVer, String part) {
+        return sp(c).getString("provaKo_" + climaVer + "_" + origVer + "_" + part, "");
+    }
+
+    public static void setPartFailed(Context c, String climaVer, String origVer, String part, String detail) {
+        sp(c).edit().putString("provaKo_" + climaVer + "_" + origVer + "_" + part, detail).apply();
+    }
+
+    /** 1.4.4: verifica già fallita per questa coppia di versioni: non si ripropone da sola all'apertura. */
+    public static boolean verifyFailed(Context c, String climaVer, String origVer) {
+        return sp(c).getBoolean("verificaKo_" + climaVer + "_" + origVer, false);
+    }
+
+    public static void setVerifyFailed(Context c, String climaVer, String origVer) {
+        sp(c).edit().putBoolean("verificaKo_" + climaVer + "_" + origVer, true).apply();
+    }
+
+    /** 1.4.4: ultimo ritorno alla chiusura (riga clima.ritorno). */
+    private static volatile String ritorno = "nessuna chiusura in questa accensione";
+
+    public static void setRitorno(Context c, String line) {
+        ritorno = line;
+        event(c, "clima.ritorno = " + line);
+    }
+
+    /** 1.4.4: chiusura automatica dopo N secondi senza tocchi (0 = mai). */
+    public static final int[] AUTO_CLOSE = {0, 10, 20, 30, 60};
+
+    public static int autoClose(Context c) {
+        return sp(c).getInt("chiudiDopo", 0);
+    }
+
+    public static void setAutoClose(Context c, int sec) {
+        sp(c).edit().putInt("chiudiDopo", sec).apply();
+    }
+
     public static String testProgress(Context c, String kind) {
         return sp(c).getString("ripresa_" + kind, "");
     }
@@ -456,6 +496,8 @@ public final class Store {
         sb.append("aggiornamento.stato = ").append(Remote.updateState()).append('\n');
         sb.append("avvisi.stato = ").append(Remote.noticeState()).append('\n');
         sb.append("tema = ").append(Tema.stateText(c)).append('\n');
+        sb.append("clima.ritorno = ").append(ritorno).append(" · chiusura automatica ")
+                .append(autoClose(c) == 0 ? "mai" : autoClose(c) + " s").append('\n');
         sb.append("clima.proiezione = ").append(ProjectionZone.stateText(c)).append('\n');
         sb.append("scritte sui pulsanti: ").append(showLabels(c) ? "sì" : "no").append(" · finestra pronta: ")
                 .append(quickCover(c) ? "sì" : "no").append('\n');

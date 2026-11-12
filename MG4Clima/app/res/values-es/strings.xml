@@ -188,11 +188,14 @@
     <string name="b_try" formatted="false">Probar</string>
     <string name="n_title">Novedades de la %1$s</string>
     <string name="n_sub" formatted="false">Qué cambia en esta versión</string>
-    <string name="n_body" formatted="false">• Colores iguales a los del launcher MG4: de noche grises neutros sin tonos azules, botones activos como en la pantalla de inicio\n• El azul queda solo para A/C y aire frío; el calor tiene el mismo naranja de día y de noche\n• Tema día/noche alineado con el launcher: se acabó el launcher claro con el clima oscuro</string>
+    <string name="n_body" formatted="false">• La verificación deja siempre asientos, volante y recirculación como estaban, aunque se interrumpa\n• Clima desde la barra superior con Android Auto y CarPlay: ventana corregida\n• Al cerrar MG4 Clima vuelves a Android Auto o CarPlay si lo abriste desde allí\n• Nueva opción: cerrar solo tras 10, 20, 30 o 60 segundos sin toques\n• Tema día/noche leído de lo que el launcher escribe en el sistema</string>
     <string name="s_joy_conflict" formatted="false">Otra app usa el joystick</string>
     <string name="s_joy_conflict_sub">%1$s puede tomar las mismas teclas del volante: desactiva el joystick en la otra app para usarlo con MG4 Clima</string>
     <string name="s_proj" formatted="false">Clima durante Android Auto y CarPlay</string>
     <string name="s_proj_sub" formatted="false">Con Android Auto o CarPlay delante, toca el centro de la barra superior para abrir MG4 Clima</string>
+    <string name="s_autoclose" formatted="false">Cerrar solo después de</string>
+    <string name="s_autoclose_sub" formatted="false">Segundos sin toques ni teclas del joystick; luego vuelve a donde lo abriste</string>
+    <string name="s_never" formatted="false">Nunca</string>
     <string name="r_notice" formatted="false">Aviso</string>
     <string name="r_update_title">MG4 Clima %1$s disponible</string>
     <string name="r_update_msg" formatted="false">Hay una versión nueva de MG4 Clima.</string>

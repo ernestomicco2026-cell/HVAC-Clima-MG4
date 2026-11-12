@@ -56,6 +56,10 @@ final class SaicBackend implements HvacClient.Backend {
             case HvacClient.REAR_DEFROST_OPEN: return 50;
             case HvacClient.REAR_DEFROST_CLOSE: return 51;
             case HvacClient.SET_WHEEL_PRESS: return 52;
+            case HvacClient.DRV_SEAT_OFF: return 35;    // 1.4.4: sedile guida spento (diretto)
+            case HvacClient.PSG_SEAT_OFF: return 39;    // 1.4.4: sedile passeggero spento (diretto)
+            case HvacClient.LOOP_INNER: return 10;      // 1.4.4: ricircolo interno (diretto)
+            case HvacClient.LOOP_OUTSIDE: return 11;    // 1.4.4: aria esterna (diretto)
             default: return -1;
         }
     }
