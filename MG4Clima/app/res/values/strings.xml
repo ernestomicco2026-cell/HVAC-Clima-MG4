@@ -188,7 +188,7 @@
     <string name="b_try" formatted="false">Try</string>
     <string name="n_title">What\'s new in %1$s</string>
     <string name="n_sub" formatted="false">What changes in this version</string>
-    <string name="n_body" formatted="false">• The check always puts seats, steering wheel and recirculation back as they were, even if it stops\n• Climate from the top bar during Android Auto and CarPlay: window fixed\n• Closing MG4 Climate takes you back to Android Auto or CarPlay if you opened it from there\n• New option: close automatically after 10, 20, 30 or 60 seconds without touches\n• Day/night theme read from what the launcher writes to the system</string>
+    <string name="n_body" formatted="false">• Climate from the top bar during Android Auto and CarPlay: it now really opens, also as a panel over the projection\n• The original climate drop-down closes only if MG4 Climate really appears\n• If MG4 Launcher is removed, MG4 Climate turns the car\'s original home back on</string>
     <string name="s_joy_conflict" formatted="false">Another app uses the joystick</string>
     <string name="s_joy_conflict_sub">%1$s can take the same steering-wheel keys: turn the joystick off in the other app to use it with MG4 Climate</string>
     <string name="s_proj" formatted="false">Climate during Android Auto and CarPlay</string>
@@ -196,6 +196,7 @@
     <string name="s_autoclose" formatted="false">Close automatically after</string>
     <string name="s_autoclose_sub" formatted="false">Seconds without touches or joystick keys; then it goes back to where you opened it</string>
     <string name="s_never" formatted="false">Never</string>
+    <string name="p_settings_later" formatted="false">Settings open from MG4 Climate in full screen</string>
     <string name="r_notice" formatted="false">Notice</string>
     <string name="r_update_title">MG4 Climate %1$s available</string>
     <string name="r_update_msg" formatted="false">There is a new version of MG4 Climate.</string>

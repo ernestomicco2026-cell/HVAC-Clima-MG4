@@ -25,6 +25,9 @@
     <uses-permission android:name="android.permission.STATUS_BAR_SERVICE" />
     <!-- 1.4.4: alla chiusura si riporta davanti Android Auto/CarPlay se Clima era stata aperta da lì -->
     <uses-permission android:name="android.permission.REORDER_TASKS" />
+    <!-- 1.4.5: HomeRescue (issue launcher #29): riaccende la home MG se MG4 Launcher viene tolto -->
+    <uses-permission android:name="android.permission.CHANGE_COMPONENT_ENABLED_STATE" />
+    <uses-permission android:name="android.permission.SET_PREFERRED_APPLICATIONS" />
     <!-- aggiornamenti di MG4 Clima dalle impostazioni (firma di sistema) -->
     <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.DELETE_PACKAGES" />
@@ -82,6 +85,18 @@
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 1.4.5: HomeRescue, copiata da Mg4-Launcher-SWI68/extra/HomeRescue (classe autonoma) -->
+        <receiver android:name="com.mg4.homerescue.HomeRescue" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED" />
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
     </application>

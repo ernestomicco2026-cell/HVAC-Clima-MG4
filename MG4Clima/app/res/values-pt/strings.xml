@@ -188,7 +188,7 @@
     <string name="b_try" formatted="false">Testar</string>
     <string name="n_title">Novidades da %1$s</string>
     <string name="n_sub" formatted="false">O que muda nesta versão</string>
-    <string name="n_body" formatted="false">• A verificação repõe sempre bancos, volante e recirculação como estavam, mesmo se for interrompida\n• Climatização a partir da barra superior com Android Auto e CarPlay: janela corrigida\n• Ao fechar o MG4 Clima voltas ao Android Auto ou CarPlay se o abriste de lá\n• Nova opção: fechar sozinho após 10, 20, 30 ou 60 segundos sem toques\n• Tema dia/noite lido do que o launcher escreve no sistema</string>
+    <string name="n_body" formatted="false">• Climatização a partir da barra superior com Android Auto e CarPlay: agora abre mesmo, também como painel sobre a projeção\n• O painel de climatização original só fecha se o MG4 Clima aparecer mesmo\n• Se o MG4 Launcher for removido, o MG4 Clima volta a ativar o ecrã inicial original do carro</string>
     <string name="s_joy_conflict" formatted="false">Outra app usa o joystick</string>
     <string name="s_joy_conflict_sub">%1$s pode ficar com as mesmas teclas do volante: desative o joystick na outra app para o usar com o MG4 Clima</string>
     <string name="s_proj" formatted="false">Clima durante o Android Auto e o CarPlay</string>
@@ -196,6 +196,7 @@
     <string name="s_autoclose" formatted="false">Fechar sozinho depois de</string>
     <string name="s_autoclose_sub" formatted="false">Segundos sem toques nem teclas do joystick; depois volta onde o abriste</string>
     <string name="s_never" formatted="false">Nunca</string>
+    <string name="p_settings_later" formatted="false">As definições abrem-se no MG4 Clima em ecrã inteiro</string>
     <string name="r_notice" formatted="false">Aviso</string>
     <string name="r_update_title">MG4 Clima %1$s disponível</string>
     <string name="r_update_msg" formatted="false">Há uma versão nova do MG4 Clima.</string>

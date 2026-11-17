@@ -198,6 +198,72 @@ public final class ClimaGuard extends AccessibilityService {
     static volatile String lastOther = "";
 
     /**
+     * 1.4.5: "MG4 Clima aperta" solo se la schermata è davvero visibile (tra onResume e onPause) E il servizio vede la
+     * sua finestra davanti. Nessun segno salvato.
+     */
+    boolean climaFront() {
+        return ClimaActivity.resumed && getPackageName().equals(fgPkg);
+    }
+
+    static boolean climaFrontNow() {
+        ClimaGuard g = instance;
+        return g != null && g.climaFront();
+    }
+
+    /** 1.4.5: app davanti vista dal servizio (SystemUI e finestre nostre sovrapposte escluse). */
+    static String foreground() {
+        ClimaGuard g = instance;
+        return g == null ? "-" : g.fgPkg;
+    }
+
+    private final android.os.Handler mainH = new android.os.Handler(android.os.Looper.getMainLooper());
+    private int barTaps;
+
+    /**
+     * 1.4.5 (issue #9): tocco sulla barra con la proiezione davanti (zona o tendina). Avvia MG4 Clima e dopo 1 s
+     * controlla che sia davvero davanti. Se AllGo si è ripreso lo schermo, mostra il pannello sovrapposto. La tendina
+     * originale si chiude solo se Clima (schermata o pannello) è davvero comparsa; altrimenti resta aperta.
+     */
+    void openFromBar(String who) {
+        final String under = fgPkg;
+        final int n = ++barTaps;
+        Store.event(this, "clima.barra #" + n + ": tocco preso da " + who + " sopra " + under + " → avvio MG4 Clima");
+        try {
+            startActivity(new Intent(this, ClimaActivity.class)
+                    .putExtra(Ritorno.EXTRA_FROM, under)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION));
+        } catch (Throwable t) {
+            Store.event(this, "clima.barra #" + n + ": avvio non riuscito " + t.getClass().getSimpleName());
+        }
+        mainH.postDelayed(() -> {
+            boolean tendina = who.startsWith("tendina");
+            if (climaFront()) {
+                Store.event(this, "clima.barra #" + n + ": MG4 Clima davanti dopo 1 s"
+                        + (tendina ? " → chiudo la tendina originale" : ""));
+                if (tendina) {
+                    lastCollapse = 0;
+                    collapse("MG4 Clima aperta davvero dalla barra");
+                }
+                return;
+            }
+            String now = fgPkg;
+            if (ProjectionZone.isProjection(now)) {
+                boolean ok = Pannello.show(this, now);
+                Store.event(this, "clima.barra #" + n + ": dopo 1 s davanti c'è ancora " + now
+                        + (ok ? " → MG4 Clima come pannello sovrapposto" : " → pannello rifiutato")
+                        + (tendina ? (ok ? ", chiudo la tendina originale" : ", tendina originale lasciata") : ""));
+                if (ok && tendina) {
+                    lastCollapse = 0;
+                    collapse("pannello MG4 Clima mostrato");
+                }
+            } else {
+                Store.event(this, "clima.barra #" + n + ": MG4 Clima non è davanti (davanti " + now + ")"
+                        + (tendina ? ": tendina originale lasciata" : ""));
+            }
+        }, 1000);
+    }
+
+    /**
      * Finestra del SystemUI: si legge subito l'accensione; se è appena cambiata il pannello l'ha aperto il clima.
      * Con MG4 Clima in primo piano il pannello clima di sistema non serve mai (es. tasto fisico del clima): si chiude.
      */
@@ -205,8 +271,8 @@ public final class ClimaGuard extends AccessibilityService {
         sysUiAt = SystemClock.elapsedRealtime();
         String what = e.getPackageName() + "/" + e.getClassName();
         if (seenSysUi.size() < 20 && seenSysUi.add(what)) Store.event(this, "finestra di sistema: " + what);
-        if (panel && getPackageName().equals(fgPkg)) {
-            collapse("MG4 Clima aperta");
+        if (panel && climaFront()) {   // 1.4.5: solo con la schermata davvero davanti
+            collapse("MG4 Clima davanti");
             return;
         }
         if (bg == null || hvac == null) return;
@@ -247,12 +313,19 @@ public final class ClimaGuard extends AccessibilityService {
         if (shown == hvacPageShown) return;
         hvacPageShown = shown;
         if (!shown) return;
-        boolean ours = getPackageName().equals(fgPkg);
+        boolean ours = climaFront();   // 1.4.5: schermata davvero davanti, non un segno rimasto acceso
         long nowE = SystemClock.elapsedRealtime();
         boolean justChanged = nowE - powerChangedAt < 2500;
         boolean atBoot = nowE < bootUntil;   // 1.4.2 (issue #2): pannello che scende all'accensione dell'infotainment
         Store.event(this, "finestra \"hvac page\" vista (sopra " + fgPkg + (justChanged ? ", clima appena cambiato" : "")
                 + (atBoot ? ", all'accensione, " + (nowE / 1000) + " s dall'avvio" : "") + ")");
+        // 1.4.5 (issue #9): con Android Auto / CarPlay davanti e l'opzione accesa il tocco sulla barra ha aperto la
+        // tendina originale (zona assente): si apre MG4 Clima; la tendina si chiude solo se Clima compare davvero
+        if (!ours && !justChanged && !atBoot && Store.projectionZone(this) && ProjectionZone.isProjection(fgPkg)
+                && !Pannello.showing()) {
+            openFromBar("tendina originale");
+            return;
+        }
         if (ours || justChanged || (atBoot && Store.panelMode(this) == Store.PANEL_ALWAYS)) {
             lastCollapse = 0;   // subito, anche se c'è appena stata un'altra serie di chiusure
             collapse(ours ? "finestra vista sopra MG4 Clima" : atBoot && !justChanged ? "pannello all'accensione"
@@ -270,7 +343,7 @@ public final class ClimaGuard extends AccessibilityService {
         int mode = Store.panelMode(this);
         if (mode == Store.PANEL_LEAVE) return;
         // 1.1.0: "solo con MG4 Clima aperto" → sopra le altre app il pannello si lascia
-        if (mode == Store.PANEL_WITH_APP && !getPackageName().equals(fgPkg)) return;
+        if (mode == Store.PANEL_WITH_APP && !climaFront() && !Pannello.showing()) return;
         long t = SystemClock.elapsedRealtime();
         if (t - lastCollapse < 2500) return;   // una serie di chiusure alla volta
         lastCollapse = t;
@@ -320,6 +393,8 @@ public final class ClimaGuard extends AccessibilityService {
         applyFilter(Store.joystick(this) != Store.JOY_OFF);
         main.postDelayed(this::prepareCover, 25_000);
         Tema.start(this);     // 1.4.3: tema giorno/notte come il launcher (controllo ogni 20 s)
+        final Context app = getApplicationContext();   // 1.4.5: riga clima.homeRescue nel log di Clima
+        com.mg4.homerescue.HomeRescue.sink = (k, v) -> Store.event(app, "clima.homeRescue = " + v);
         Ritorno.bind(this);   // 1.4.4: sessione Android Auto / CarPlay (AllGo) per il ritorno alla chiusura
         Remote.start(this);   // 1.4.2: aggiornamenti e avvisi da remoto (dopo 2 minuti, poi ogni 6 ore)
         ProjectionZone.attach(this);
@@ -355,7 +430,15 @@ public final class ClimaGuard extends AccessibilityService {
             onSysUi(e);
             return;
         }
+        // 1.4.5 (issue #9): le finestre nostre che non sono la schermata vera (zona sopra la barra, finestra pronta,
+        // pannello sovrapposto) non contano come "MG4 Clima davanti". Prima la zona, appena aggiunta, faceva credere
+        // al servizio che Clima fosse aperta: si toglieva da sola dopo 1 s e la tendina originale veniva richiusa.
+        if (e.getPackageName() != null && getPackageName().contentEquals(e.getPackageName())) {
+            CharSequence cls = e.getClassName();
+            if (cls == null || !ClimaActivity.class.getName().contentEquals(cls)) return;
+        }
         if (e.getPackageName() != null) fgPkg = e.getPackageName().toString();
+        Pannello.onForeground(fgPkg);   // 1.4.5: pannello sovrapposto solo con la proiezione davanti
         // 1.4.4: l'ultima app davanti che non è MG4 Clima né il clima originale (per tornare lì alla chiusura)
         if (!fgPkg.isEmpty() && !getPackageName().equals(fgPkg) && !hvacPkg.equals(fgPkg)) lastOther = fgPkg;
         ProjectionZone.onForeground(this, fgPkg);   // 1.4.2: zona clima durante Android Auto / CarPlay

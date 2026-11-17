@@ -188,7 +188,7 @@
     <string name="b_try" formatted="false">Sprawdź</string>
     <string name="n_title">Nowości w wersji %1$s</string>
     <string name="n_sub" formatted="false">Co się zmienia w tej wersji</string>
-    <string name="n_body" formatted="false">• Sprawdzenie zawsze przywraca fotele, kierownicę i obieg powietrza, nawet gdy zostanie przerwane\n• Klimatyzacja z górnego paska przy Android Auto i CarPlay: poprawione okno\n• Po zamknięciu MG4 Klimatyzacji wracasz do Android Auto lub CarPlay, jeśli otworzyłeś ją stamtąd\n• Nowa opcja: zamknij samoczynnie po 10, 20, 30 lub 60 sekundach bez dotyku\n• Motyw dzień/noc odczytywany z tego, co launcher zapisuje w systemie</string>
+    <string name="n_body" formatted="false">• Klimatyzacja z górnego paska przy Android Auto i CarPlay: teraz naprawdę się otwiera, także jako panel nad projekcją\n• Oryginalny panel klimatyzacji zamyka się tylko wtedy, gdy MG4 Klimatyzacja naprawdę się pojawi\n• Jeśli MG4 Launcher zostanie usunięty, MG4 Klimatyzacja ponownie włącza oryginalny ekran główny auta</string>
     <string name="s_joy_conflict" formatted="false">Inna aplikacja używa joysticka</string>
     <string name="s_joy_conflict_sub">%1$s może przejmować te same klawisze kierownicy: wyłącz joystick w drugiej aplikacji, aby używać go z MG4 Klimatyzacją</string>
     <string name="s_proj" formatted="false">Klimatyzacja podczas Android Auto i CarPlay</string>
@@ -196,6 +196,7 @@
     <string name="s_autoclose" formatted="false">Zamknij samoczynnie po</string>
     <string name="s_autoclose_sub" formatted="false">Sekundy bez dotyku i klawiszy joysticka; potem wraca tam, skąd został otwarty</string>
     <string name="s_never" formatted="false">Nigdy</string>
+    <string name="p_settings_later" formatted="false">Ustawienia otwierają się w MG4 Klimatyzacji na pełnym ekranie</string>
     <string name="r_notice" formatted="false">Komunikat</string>
     <string name="r_update_title">MG4 Klimatyzacja %1$s dostępna</string>
     <string name="r_update_msg" formatted="false">Jest nowa wersja MG4 Klimatyzacji.</string>

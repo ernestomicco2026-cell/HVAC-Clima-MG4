@@ -188,7 +188,7 @@
     <string name="b_try" formatted="false">Dene</string>
     <string name="n_title">%1$s sürümünde yenilikler</string>
     <string name="n_sub" formatted="false">Bu sürümde neler değişiyor</string>
-    <string name="n_body" formatted="false">• Kontrol, yarıda kalsa bile koltukları, direksiyonu ve iç sirkülasyonu her zaman eski haline getirir\n• Android Auto ve CarPlay sırasında üst çubuktan klima: pencere düzeltildi\n• MG4 Klima\'yı Android Auto veya CarPlay\'den açtıysan, kapatınca oraya dönersin\n• Yeni seçenek: dokunulmadan 10, 20, 30 veya 60 saniye sonra kendiliğinden kapat\n• Gündüz/gece teması, launcher\'ın sisteme yazdığından okunur</string>
+    <string name="n_body" formatted="false">• Android Auto ve CarPlay sırasında üst çubuktan klima: artık gerçekten açılıyor, projeksiyonun üstünde panel olarak da\n• Orijinal klima perdesi yalnızca MG4 Klima gerçekten görünürse kapanır\n• MG4 Launcher kaldırılırsa MG4 Klima aracın orijinal ana ekranını yeniden açar</string>
     <string name="s_joy_conflict" formatted="false">Başka bir uygulama joysticki kullanıyor</string>
     <string name="s_joy_conflict_sub">%1$s aynı direksiyon tuşlarını alabilir: MG4 Klima ile kullanmak için diğer uygulamada joysticki kapat</string>
     <string name="s_proj" formatted="false">Android Auto ve CarPlay sırasında klima</string>
@@ -196,6 +196,7 @@
     <string name="s_autoclose" formatted="false">Şu süreden sonra kendiliğinden kapat</string>
     <string name="s_autoclose_sub" formatted="false">Dokunma veya joystick tuşu olmadan geçen saniye; sonra açtığın yere döner</string>
     <string name="s_never" formatted="false">Asla</string>
+    <string name="p_settings_later" formatted="false">Ayarlar MG4 Klima tam ekrandayken açılır</string>
     <string name="r_notice" formatted="false">Duyuru</string>
     <string name="r_update_title">MG4 Klima %1$s mevcut</string>
     <string name="r_update_msg" formatted="false">MG4 Klima\'nın yeni bir sürümü var.</string>

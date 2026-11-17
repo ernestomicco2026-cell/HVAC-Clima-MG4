@@ -45,7 +45,7 @@ final class ProjectionZone {
         boolean want = Store.projectionZone(g) && isProjection(pkg);
         if (want && zone == null) show(g);
         else if (!want && zone != null && !pkg.equals(g.getPackageName())) hide(g, "davanti " + pkg);
-        else if (!want && zone != null) hide(g, "MG4 Clima aperta");
+        else if (!want && zone != null) hide(g, "schermata MG4 Clima davanti");   // 1.4.5: solo la schermata vera
     }
 
     /** Opzione cambiata dalle impostazioni. */
@@ -122,14 +122,7 @@ final class ProjectionZone {
 
     private static void open(ClimaGuard g) {
         opens++;
-        Store.event(g, "clima.proiezione: tocco sulla zona sopra " + lastPkg + " → apro MG4 Clima (aperture " + opens + ")");
-        try {
-            g.startActivity(new Intent(g, ClimaActivity.class)
-                    .putExtra(Ritorno.EXTRA_FROM, lastPkg)   // 1.4.4: alla chiusura si torna qui
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION));
-        } catch (Throwable e) {
-            Store.event(g, "clima.proiezione: apertura non riuscita " + e);
-        }
+        g.openFromBar("zona sopra la barra");   // 1.4.5: avvio, controllo dopo 1 s, pannello se AllGo riprende lo schermo
     }
 
     /** Riga clima.proiezione: zona attiva sì/no, tipo di finestra, aperture. */

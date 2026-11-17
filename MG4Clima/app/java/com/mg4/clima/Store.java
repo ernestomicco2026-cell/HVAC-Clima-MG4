@@ -496,6 +496,10 @@ public final class Store {
         sb.append("aggiornamento.stato = ").append(Remote.updateState()).append('\n');
         sb.append("avvisi.stato = ").append(Remote.noticeState()).append('\n');
         sb.append("tema = ").append(Tema.stateText(c)).append('\n');
+        sb.append("clima.aperta = ").append(ClimaActivity.apertaText()).append(" · davanti ").append(ClimaGuard.foreground())
+                .append(" · pannello ").append(Pannello.stateText()).append('\n');
+        String hr = com.mg4.homerescue.HomeRescue.last(c);
+        sb.append("clima.homeRescue = ").append(hr == null ? "niente da segnalare" : hr).append('\n');
         sb.append("clima.ritorno = ").append(ritorno).append(" · chiusura automatica ")
                 .append(autoClose(c) == 0 ? "mai" : autoClose(c) + " s").append('\n');
         sb.append("clima.proiezione = ").append(ProjectionZone.stateText(c)).append('\n');

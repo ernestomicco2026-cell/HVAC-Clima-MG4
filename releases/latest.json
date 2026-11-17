@@ -1,9 +1,9 @@
 {
   "MG4Clima": {
-    "version": "1.4.4",
-    "apk": "releases/MG4Clima-1.4.4.apk",
-    "size": 518935,
-    "sha256": "1cfe94ad796c8bbaf73283b71e882cb76138c1a05193a1b54c886914f83f0ae9",
-    "notes": "La verifica rimette sempre com'erano sedili, volante e ricircolo. Clima dalla barra con Android Auto e CarPlay, ritorno alla proiezione alla chiusura. Nuova opzione: chiudi da solo dopo N secondi. Tema giorno/notte letto dal sistema."
+    "version": "1.4.5",
+    "apk": "releases/MG4Clima-1.4.5.apk",
+    "size": 527127,
+    "sha256": "b88ef675e1253641f65da58ff342c79d677257c2c675886ce67ab23dff4453fd",
+    "notes": "Clima dalla barra in alto durante Android Auto e CarPlay: ora si apre davvero, anche come pannello sopra la proiezione. La tendina clima originale si chiude solo se MG4 Clima compare davvero. Se MG4 Launcher viene tolto, MG4 Clima riaccende la home originale dell'auto."
   }
 }
