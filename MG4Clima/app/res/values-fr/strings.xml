@@ -188,7 +188,7 @@
     <string name="b_try" formatted="false">Tester</string>
     <string name="n_title">Nouveautés de la %1$s</string>
     <string name="n_sub" formatted="false">Ce qui change dans cette version</string>
-    <string name="n_body" formatted="false">• Climat depuis la barre du haut avec Android Auto et CarPlay : il s\'ouvre vraiment, aussi en panneau au-dessus de la projection\n• Le volet climat d\'origine ne se ferme que si MG4 Climat apparaît vraiment\n• Si MG4 Launcher est supprimé, MG4 Climat réactive l\'écran d\'accueil d\'origine de la voiture</string>
+    <string name="n_body" formatted="false">• Avec Android Auto, le premier appui sur la barre du haut ouvre tout de suite MG4 Climat\n• Le thème sombre choisi dans le launcher est toujours suivi ; nouvelle option Thème : Automatique, Clair, Sombre\n• Température avec flèches haut/bas et ventilation avec gauche/droite, comme le joystick\n• Nouvelle option pour inverser le siège conducteur et le siège passager\n• Le panneau au-dessus d\'Android Auto et CarPlay change de thème même ouvert</string>
     <string name="s_joy_conflict" formatted="false">Une autre appli utilise le joystick</string>
     <string name="s_joy_conflict_sub">%1$s peut prendre les mêmes touches du volant : désactive le joystick dans l\'autre appli pour l\'utiliser avec MG4 Climat</string>
     <string name="s_proj" formatted="false">Climat pendant Android Auto et CarPlay</string>
@@ -197,6 +197,14 @@
     <string name="s_autoclose_sub" formatted="false">Secondes sans toucher ni touche du joystick ; puis retour là où tu l\'as ouvert</string>
     <string name="s_never" formatted="false">Jamais</string>
     <string name="p_settings_later" formatted="false">Les réglages s\'ouvrent depuis MG4 Climat en plein écran</string>
+    <string name="s_model_auto_short" formatted="false">Auto</string>
+    <string name="s_theme" formatted="false">Thème</string>
+    <string name="s_theme_sub" formatted="false">Automatique suit le thème du launcher MG4 ou du système</string>
+    <string name="s_theme_auto" formatted="false">Automatique</string>
+    <string name="s_theme_light" formatted="false">Clair</string>
+    <string name="s_theme_dark" formatted="false">Sombre</string>
+    <string name="s_swap_seats" formatted="false">Inverser siège conducteur et passager</string>
+    <string name="s_swap_seats_sub" formatted="false">Si le chauffage s\'allume sur le mauvais siège (par exemple en conduite à droite)</string>
     <string name="r_notice" formatted="false">Avis</string>
     <string name="r_update_title">MG4 Climat %1$s disponible</string>
     <string name="r_update_msg" formatted="false">Il y a une nouvelle version de MG4 Climat.</string>

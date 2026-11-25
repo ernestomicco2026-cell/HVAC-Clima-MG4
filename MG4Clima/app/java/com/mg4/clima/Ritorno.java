@@ -68,6 +68,13 @@ final class Ritorno {
         via = how;
     }
 
+    /** 1.4.6: ultima chiusura fatta da MG4 Clima (elapsedRealtime): serve per non scambiarla con AllGo che si riprende lo schermo. */
+    private static volatile long backAt;
+
+    static boolean closedRecently(long ms) {
+        return backAt > 0 && android.os.SystemClock.elapsedRealtime() - backAt < ms;
+    }
+
     static boolean fromProjection() {
         return ProjectionZone.isProjection(from);
     }
@@ -120,6 +127,7 @@ final class Ritorno {
             } catch (Throwable ignored) {
             }
         }
+        backAt = android.os.SystemClock.elapsedRealtime();
         String line = "aperto da " + opened + " (" + via + ") · tornato a " + result;
         Store.setRitorno(a, line);
         from = "-";

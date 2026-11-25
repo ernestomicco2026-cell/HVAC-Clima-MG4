@@ -34,6 +34,13 @@ final class Pannello {
         return guard;
     }
 
+    /** 1.4.6: ultima chiusura del pannello (elapsedRealtime), per non riaprirlo da solo subito dopo. */
+    private static volatile long hiddenAt;
+
+    static boolean closedRecently(long ms) {
+        return hiddenAt > 0 && android.os.SystemClock.elapsedRealtime() - hiddenAt < ms;
+    }
+
     static boolean showing() {
         return view != null;
     }
@@ -59,6 +66,13 @@ final class Pannello {
                 shown++;
                 startClient(g, v);
                 armAutoClose();
+                // 1.4.6: cambia tema anche mentre è aperto (come la schermata)
+                Tema.panelListener = () -> {
+                    ClimaView pv = view;
+                    if (pv == null) return;
+                    pv.theme();
+                    pv.setBackgroundColor(pv.BG);
+                };
                 Store.event(g, "clima.pannello: mostrato sopra " + under + " · finestra " + type
                         + (refused.length() > 0 ? " (rifiutate: " + refused + ")" : ""));
                 return true;
@@ -121,6 +135,8 @@ final class Pannello {
     static void hide(String why) {
         ClimaView v = view;
         view = null;
+        if (v != null) hiddenAt = android.os.SystemClock.elapsedRealtime();
+        Tema.panelListener = null;
         main.removeCallbacks(autoClose);
         if (v == null) return;
         HvacClient c = client;

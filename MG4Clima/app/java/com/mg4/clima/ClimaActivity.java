@@ -371,6 +371,16 @@ public final class ClimaActivity extends Activity {
                     Store.event(this, "cruscotto " + (i == 1 ? "realistico" : "disegnato"));
                     settings();
                 }), false);
+        // 1.4.6 (issue #13): tema Automatico (come il launcher MG4 / il sistema) / Chiaro / Scuro
+        s.row(c0, L.s(R.string.s_theme), L.s(R.string.s_theme_sub),
+                s.choices(new String[]{L.s(R.string.s_theme_auto), L.s(R.string.s_theme_light), L.s(R.string.s_theme_dark)},
+                        Store.themeMode(this), i -> {
+                            Store.setThemeMode(this, i);
+                            Store.event(this, "tema scelto: " + (i == 0 ? "automatico" : i == 1 ? "chiaro" : "scuro"));
+                            Tema.evaluate(getApplicationContext(), true);
+                            applyTheme();
+                            settings();
+                        }), false);
         s.row(c0, L.s(R.string.s_anim), L.s(R.string.s_anim_sub),
                 s.toggle(Store.animatedAir(this), v -> {
                     Store.setAnimatedAir(this, v);
@@ -530,10 +540,18 @@ public final class ClimaActivity extends Activity {
         String sw = Model.software();
         String how = Model.manual(this) ? L.f(R.string.s_model_manual, Model.detected(this))
                 : L.s(R.string.s_model_auto) + (sw.isEmpty() ? "" : " · " + sw);
-        String[] names = {"Auto", "68", "69", "132", "133"};
+        String[] names = {L.s(R.string.s_model_auto_short), "68", "69", "132", "133"};
         int sel = 0;
         if (Model.manual(this)) for (int i = 0; i < Model.ALL.length; i++) if (Model.ALL[i].equals(model)) sel = i + 1;
-        s.row(c4, Model.label(model), how, s.choices(names, sel, i -> confirmModel(i == 0 ? "" : Model.ALL[i - 1])), true);
+        boolean seats = last.hasSeatHeat();
+        s.row(c4, Model.label(model), how, s.choices(names, sel, i -> confirmModel(i == 0 ? "" : Model.ALL[i - 1])), !seats);
+        // 1.4.6 (issue #12): sedili guida/passeggero invertiti (per esempio con la guida a destra)
+        if (seats) s.row(c4, L.s(R.string.s_swap_seats), L.s(R.string.s_swap_seats_sub),
+                s.toggle(Store.swapSeats(this), v -> {
+                    Store.setSwapSeats(this, v);
+                    client.setSwapSeats(v);
+                    Store.event(this, "sedili: scambio guida/passeggero " + (v ? "acceso" : "spento"));
+                }), true);
 
         // ---- strumenti
         s.label(L.s(R.string.s_tools));

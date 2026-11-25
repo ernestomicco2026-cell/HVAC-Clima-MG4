@@ -167,6 +167,26 @@ public final class Store {
         event(c, "clima.ritorno = " + line);
     }
 
+    /** 1.4.6 (issue #12): scambio dei sedili guida/passeggero (comandi e letture), spento di serie. */
+    public static boolean swapSeats(Context c) {
+        return sp(c).getBoolean("scambiaSedili", false);
+    }
+
+    public static void setSwapSeats(Context c, boolean on) {
+        sp(c).edit().putBoolean("scambiaSedili", on).apply();
+    }
+
+    /** 1.4.6: tema di MG4 Clima: Automatico (come il launcher/sistema), Chiaro, Scuro. */
+    public static final int THEME_AUTO = 0, THEME_LIGHT = 1, THEME_DARK = 2;
+
+    public static int themeMode(Context c) {
+        return sp(c).getInt("temaScelto", THEME_AUTO);
+    }
+
+    public static void setThemeMode(Context c, int m) {
+        sp(c).edit().putInt("temaScelto", m).apply();
+    }
+
     /** 1.4.4: chiusura automatica dopo N secondi senza tocchi (0 = mai). */
     public static final int[] AUTO_CLOSE = {0, 10, 20, 30, 60};
 
@@ -292,6 +312,15 @@ public final class Store {
             return null;
         }
         return r;
+    }
+
+    /** 1.4.6: SWI69/SWI132 con LO nascosto: minimo numerico misurato dalla verifica (0 = non misurato). */
+    public static int minNumeric(Context c, String version) {
+        return sp(c).getInt("minimoNumerico_" + version, 0);
+    }
+
+    public static void setMinNumeric(Context c, String version, int v) {
+        sp(c).edit().putInt("minimoNumerico_" + version, v).apply();
     }
 
     public static void setTempRange(Context c, String version, float loSend, float loRead, float hiSend, float hiRead, int fanMax) {
@@ -496,6 +525,10 @@ public final class Store {
         sb.append("aggiornamento.stato = ").append(Remote.updateState()).append('\n');
         sb.append("avvisi.stato = ").append(Remote.noticeState()).append('\n');
         sb.append("tema = ").append(Tema.stateText(c)).append('\n');
+        sb.append("sedili = guida rilevata dall'auto: non disponibile (l'app clima originale non la legge e non scambia i sedili)")
+                .append(" · guida nella grafica: ").append(rightHand(c) ? "destra" : "sinistra")
+                .append(" · scambio guida/passeggero: ").append(swapSeats(c) ? "sì (opzione)" : "no").append('\n');
+        sb.append("clima.avvio = ").append(ClimaGuard.avvioText()).append('\n');
         sb.append("clima.aperta = ").append(ClimaActivity.apertaText()).append(" · davanti ").append(ClimaGuard.foreground())
                 .append(" · pannello ").append(Pannello.stateText()).append('\n');
         String hr = com.mg4.homerescue.HomeRescue.last(c);

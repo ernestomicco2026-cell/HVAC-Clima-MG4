@@ -87,6 +87,7 @@ final class ProjectionZone {
                 wm.addView(v, lp);
                 zone = v;
                 type = typeName(t);
+                ClimaGuard.onZoneShown();   // 1.4.6: riga clima.avvio
                 Store.event(g, "clima.proiezione: zona attiva sopra " + lastPkg + " · finestra " + type
                         + " · " + ZONE_W + "×" + lp.height + " px" + (refused.length() > 0 ? " (rifiutate: " + refused + ")" : ""));
                 return;

@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-<a href="releases/MG4Clima-1.4.5.apk"><img alt="Scarica / Download 1.4.5" src="https://img.shields.io/badge/Scarica%20%2F%20Download-1.4.5-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
+<a href="releases/MG4Clima-1.4.6.apk"><img alt="Scarica / Download 1.4.6" src="https://img.shields.io/badge/Scarica%20%2F%20Download-1.4.6-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
 <a href="https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT"><img alt="Sostieni il progetto con PayPal · Support the project with PayPal" src="https://img.shields.io/badge/Sostieni%20%2F%20Support-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white"></a>
 </p>
 
@@ -213,7 +213,7 @@ Scarica l'APK dalla cartella [`releases/`](releases/), poi scegli uno dei due me
 
 **Metodo 1 — Da chiavetta USB (senza computer).** Serve poter aprire un file manager sull'infotainment.
 
-1. Copia `MG4Clima-1.4.5.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
+1. Copia `MG4Clima-1.4.6.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
 2. Inserisci la chiavetta, apri il file manager e tocca l'APK.
 3. Se Android dice che non può installare app da questa fonte: tocca **Impostazioni**, attiva **Consenti da questa
    fonte** e torna indietro.
@@ -223,7 +223,7 @@ Scarica l'APK dalla cartella [`releases/`](releases/), poi scegli uno dei due me
 collegato all'auto. Il firmware MG può bloccare l'installazione normale delle app: l'opzione `-f` la permette.
 
 ```bash
-adb install -r -f MG4Clima-1.4.5.apk
+adb install -r -f MG4Clima-1.4.6.apk
 ```
 
 Poi apri il clima come al solito (tasto, barra o launcher): al primo avvio MG4 Clima si attiva da sola.
@@ -281,6 +281,9 @@ Anche solo **2 €** sono un aiuto prezioso per continuare a sviluppare e provar
 
 ### Versioni
 
+#### 1.4.6
+- Con Android Auto il primo tocco sulla barra apre subito MG4 Clima; il tema scuro scelto nel launcher viene sempre seguito, più l'opzione Tema Automatico/Chiaro/Scuro; temperatura con frecce su/giù e ventola con sinistra/destra, come il joystick; opzione per invertire i sedili guida e passeggero (guida a destra); il pannello sovrapposto cambia tema anche aperto; verifica automatica corretta sulle auto con intervallo 17–33.
+
 #### 1.4.5
 - **Clima dalla barra in alto durante Android Auto e CarPlay (issue #9).** La zona sopra la barra si toglieva da sola dopo un secondo: il servizio scambiava la zona stessa, che è una finestra di MG4 Clima, per MG4 Clima aperta. Per lo stesso motivo la tendina clima originale veniva richiusa senza che comparisse niente. Ora "MG4 Clima aperta" vale solo con la schermata davvero visibile. Dopo il tocco MG4 Clima controlla entro 1 secondo di essere davanti; se Android Auto o CarPlay si riprendono lo schermo, si apre come pannello sopra la proiezione.
 - **La tendina clima originale si chiude solo se MG4 Clima compare davvero**; altrimenti resta aperta.
@@ -296,13 +299,13 @@ Anche solo **2 €** sono un aiuto prezioso per continuare a sviluppare e provar
 - **Tema giorno/notte dal sistema**: MG4 Clima legge il tema che il launcher scrive nel sistema. Se il valore manca o non cambia mai, valgono alba e tramonto come prima.
 - Diagnostica: righe nuove `clima.ritorno` e, sulle SWI69/SWI132, `clima.tempGrezza` (il valore che l'auto riporta dopo ogni cambio di temperatura); nella verifica «ripristinato a … (comando diretto)» oppure «NON ripristinato».
 
+<details>
+<summary><b>Versioni precedenti</b></summary>
+
 #### 1.4.3
 - **Colori uguali al launcher MG4.** Di notte grigi neutri al posto delle tinte blu, anche nel cruscotto disegnato. I pulsanti accesi diventano pieni come nella home del launcher. Il blu resta solo per A/C e per l'aria fredda; il caldo ha lo stesso arancio di giorno e di notte.
 - **Tema giorno/notte allineato al launcher.** Prima MG4 Clima seguiva solo il sistema, che su alcune auto resta fisso su "notte": il launcher era chiaro e il clima scuro. Ora usa la stessa regola del launcher: il sistema solo se è affidabile, altrimenti alba e tramonto. Quando il launcher pubblicherà il tema applicato, MG4 Clima userà direttamente quello.
 - Diagnostica: riga nuova `tema` (fonte e tema applicato).
-
-<details>
-<summary><b>Versioni precedenti</b></summary>
 
 #### 1.4.2
 - **Temperatura con l'intervallo vero dell'auto.** Sulle SWI68, SWI133 e DBI68 minimo e massimo si leggono dall'auto (17 = LO e 33 = HI restano solo come riserva). La verifica sale un grado alla volta fino a dove l'auto arriva davvero e usa quel valore come HI: sul modello turco DBI68, che si ferma a 31, la verifica ora passa.
@@ -600,7 +603,7 @@ Download the APK from the [`releases/`](releases/) folder, then choose one of th
 
 **Method 1 — From a USB stick (no computer).** You need to be able to open a file manager on the infotainment.
 
-1. Copy `MG4Clima-1.4.5.apk` to a USB stick formatted as **FAT32** or **exFAT**.
+1. Copy `MG4Clima-1.4.6.apk` to a USB stick formatted as **FAT32** or **exFAT**.
 2. Insert the stick, open the file manager and tap the APK.
 3. If Android says it can't install apps from this source: tap **Settings**, enable **Allow from this source** and go back.
 4. Tap **Install**.
@@ -609,7 +612,7 @@ Download the APK from the [`releases/`](releases/) folder, then choose one of th
 connected to the car. The MG firmware may block normal app installation: the `-f` option allows it.
 
 ```bash
-adb install -r -f MG4Clima-1.4.5.apk
+adb install -r -f MG4Clima-1.4.6.apk
 ```
 
 Then open the climate as usual (button, bar or launcher): on first start MG4 Clima activates itself.
@@ -664,6 +667,9 @@ Even just **€2** is a precious help to keep developing and testing new version
 
 ### Changelog
 
+#### 1.4.6
+- With Android Auto the first touch on the bar opens MG4 Clima straight away; the dark theme chosen in the launcher is always followed, plus a Theme option Automatic/Light/Dark; temperature with up/down arrows and fan with left/right, like the joystick; option to swap driver and passenger seats (right-hand drive); the overlay panel changes theme while open; automatic check fixed on cars with a 17–33 range.
+
 #### 1.4.5
 - **Climate from the top bar during Android Auto and CarPlay (issue #9).** The zone over the bar removed itself after one second: the service took the zone, which is an MG4 Climate window, for MG4 Climate being open. For the same reason the original climate drop-down was closed while nothing appeared. Now "MG4 Climate open" holds only when the screen is really visible. After the tap MG4 Climate checks within 1 second that it is in front; if Android Auto or CarPlay take the screen back, it opens as a panel over the projection.
 - **The original climate drop-down closes only if MG4 Climate really appears**; otherwise it stays open.
@@ -679,13 +685,13 @@ Even just **€2** is a precious help to keep developing and testing new version
 - **Day/night theme from the system**: MG4 Climate reads the theme the launcher writes to the system. If the value is missing or never changes, sunrise and sunset are used as before.
 - Diagnostics: new `clima.ritorno` line and, on SWI69/SWI132, `clima.tempGrezza` (the value the car reports after each temperature change); in the check "ripristinato a … (comando diretto)" or "NON ripristinato".
 
+<details>
+<summary><b>Older versions</b></summary>
+
 #### 1.4.3
 - **Colours match the MG4 launcher.** Neutral greys at night instead of blue tints, in the drawn dashboard too. Active buttons turn solid like on the launcher home. Blue is kept only for A/C and cold air; heat has the same orange by day and by night.
 - **Day/night theme aligned with the launcher.** MG4 Climate used to follow only the system, which on some cars stays stuck on "night": the launcher was light and the climate screen dark. It now uses the launcher's rule: the system only when it is reliable, otherwise sunrise and sunset. Once the launcher publishes its applied theme, MG4 Climate will use that directly.
 - Diagnostics: new `tema` line (source and applied theme).
-
-<details>
-<summary><b>Older versions</b></summary>
 
 #### 1.4.2
 - **Temperature with the car's real range.** On SWI68, SWI133 and DBI68 the minimum and maximum are read from the car (17 = LO and 33 = HI stay only as a fallback). The check goes up one degree at a time to where the car really goes and uses that value as HI: on the Turkish DBI68 model, which stops at 31, the check now passes.

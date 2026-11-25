@@ -195,6 +195,7 @@ public final class HvacClient {
         ctx = c.getApplicationContext();
         model = Model.get(ctx);
         backend = Model.saic(ctx) ? new SaicBackend(ctx, Model.SWI133.equals(model)) : new CarAdapterBackend(ctx, Model.SWI69.equals(model));
+        swapSeats = Store.swapSeats(ctx);   // 1.4.6
     }
 
     private void begin(String threadName, boolean poll) {
@@ -253,7 +254,35 @@ public final class HvacClient {
 
     /** Manda un comando (thread del clima o test automatico). arg null = senza argomenti. */
     public void send(int cmd, Integer arg) throws Exception {
-        backend.send(cmd, arg);
+        backend.send(swapSeats ? swapCmd(cmd) : cmd, arg);
+    }
+
+    // ---- 1.4.6 (issue #12): "Inverti sedile guida e passeggero" (opzione, spenta di serie) -----------------------
+    // L'app clima originale non scambia niente: usa i comandi "guidatore" e "passeggero" del servizio così come sono
+    // (nessuna configurazione di guida a destra letta). Per chi ha i sedili invertiti l'opzione scambia comandi E
+    // letture qui, una volta sola per schermata, pannello, joystick e verifica.
+
+    private volatile boolean swapSeats;
+
+    public void setSwapSeats(boolean on) {
+        swapSeats = on;
+    }
+
+    static int swapCmd(int cmd) {
+        switch (cmd) {
+            case SET_DRV_SEAT_PRESS: return SET_PSG_SEAT_PRESS;
+            case SET_PSG_SEAT_PRESS: return SET_DRV_SEAT_PRESS;
+            case DRV_SEAT_OFF: return PSG_SEAT_OFF;
+            case PSG_SEAT_OFF: return DRV_SEAT_OFF;
+            default: return cmd;
+        }
+    }
+
+    private void swapRead(State s) {
+        if (!swapSeats) return;
+        int d = s.seatDrv;
+        s.seatDrv = s.seatPsg;
+        s.seatPsg = d;
     }
 
     private void read() {
@@ -303,6 +332,7 @@ public final class HvacClient {
         } catch (Throwable e) {
             s.error = e.toString();
         }
+        swapRead(s);   // 1.4.6
         return s;
     }
 }

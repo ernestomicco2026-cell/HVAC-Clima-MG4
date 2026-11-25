@@ -1,9 +1,9 @@
 {
   "MG4Clima": {
-    "version": "1.4.5",
-    "apk": "releases/MG4Clima-1.4.5.apk",
-    "size": 527127,
-    "sha256": "b88ef675e1253641f65da58ff342c79d677257c2c675886ce67ab23dff4453fd",
-    "notes": "Clima dalla barra in alto durante Android Auto e CarPlay: ora si apre davvero, anche come pannello sopra la proiezione. La tendina clima originale si chiude solo se MG4 Clima compare davvero. Se MG4 Launcher viene tolto, MG4 Clima riaccende la home originale dell'auto."
+    "version": "1.4.6",
+    "apk": "releases/MG4Clima-1.4.6.apk",
+    "size": 535457,
+    "sha256": "198f0ff327e9a6cf9da3eac779ec3fc2a68384799a07c2c009a24eb17c670a26",
+    "notes": "Con Android Auto il primo tocco sulla barra apre subito MG4 Clima; il tema scuro scelto nel launcher viene sempre seguito, più l'opzione Tema Automatico/Chiaro/Scuro; temperatura con frecce su/giù e ventola con sinistra/destra, come il joystick; opzione per invertire i sedili guida e passeggero; il pannello sovrapposto cambia tema anche aperto."
   }
 }

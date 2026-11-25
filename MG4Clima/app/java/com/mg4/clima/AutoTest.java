@@ -373,6 +373,20 @@ public final class AutoTest {
     }
 
     /** Sale o scende di un grado alla volta fino a target (come il tasto + dell'app originale). */
+    /**
+     * 1.4.6: rimette una temperatura dopo LO/HI. Sulle SWI69/SWI132 un grado alla volta (dopo la discesa a 18 o la
+     * salita a HI il salto diretto può essere rifiutato), sulle SAIC come prima.
+     */
+    private void setTempBack(String what, boolean car, int target) {
+        if (!car) {
+            setValue(what, HvacClient.SET_DRV_TEMP, target, s -> s.temp);
+            return;
+        }
+        stepTemp(target);
+        int v = safe().temp;
+        check(what + " = " + target, v == target, "letto " + v + " (un grado alla volta)");
+    }
+
     private void stepTemp(int target) {
         int cur = safe().temp;
         int guard = 0;
@@ -398,6 +412,8 @@ public final class AutoTest {
     // Il risultato si salva per versione dell'app clima (Store.setTempRange) e lo usano i backend.
     private float calLoSend = Float.NaN, calLoRead = Float.NaN, calHiSend = Float.NaN, calHiRead = Float.NaN;
     private int calFanMax = -1;
+    /** 1.4.6: SWI69/SWI132: minimo numerico misurato scendendo un grado alla volta (0 = non misurato). */
+    private int calMinNum, descended;
 
     /** Temperatura come la manda l'auto: grezza (caradapter, decimali) o intera (SAIC). */
     private float raw(HvacClient.State s) {
@@ -429,8 +445,46 @@ public final class AutoTest {
             for (int i = 0; i < tries.length; i++) tries[i] = from + i;
         }
         StringBuilder tried = new StringBuilder();
+        if (car) {
+            // 1.4.6: prima si scende un grado alla volta fino a 18, come per HI: dai log della 1.4.5 la SWI69 rifiuta il
+            // salto diretto (25 → 17 riletto 25) e LO restava nascosto. Se l'auto si ferma prima, quello è il minimo
+            // numerico vero (la schermata non scende oltre) e LO resta nascosto.
+            descended = 0;
+            int cur = Math.round(raw(safe())), lastOk = cur;
+            boolean blocked = false;
+            while (cur > 18) {
+                final int n = cur - 1;
+                send("temperatura " + n + " (giù un grado alla volta)", HvacClient.SET_DRV_TEMP, n);
+                float r = waitRaw(x -> same((float) x, n));
+                if (!same(r, n)) {   // riprova una volta: può essere solo un ritardo
+                    send("temperatura " + n + " (giù un grado alla volta, di nuovo)", HvacClient.SET_DRV_TEMP, n);
+                    r = waitRaw(x -> same((float) x, n));
+                }
+                if (!same(r, n)) {
+                    // ferma davvero solo se rilegge il gradino di prima; un valore diverso = non si sa: niente minimo salvato
+                    blocked = same(r, lastOk);
+                    log("· temperatura giù un grado alla volta: " + n + " → riletto " + r
+                            + (blocked ? ", l'auto si ferma a " + lastOk : ", risposta non chiara: minimo non salvato"));
+                    if (!blocked) {
+                        SystemClock.sleep(600);
+                        return;
+                    }
+                    break;
+                }
+                cur = n;
+                lastOk = n;
+            }
+            if (blocked) {
+                calMinNum = lastOk;
+                log("· temperatura LO NASCOSTO: minimo numerico misurato " + lastOk + " (la schermata non scende oltre)");
+                SystemClock.sleep(600);
+                return;
+            }
+            log("· temperatura giù un grado alla volta fino a " + cur + " ✓");
+            descended = cur;
+        }
         if (car) {   // caradapter: si scende, ci si ferma al primo rifiutato
-            float okSend = Float.NaN, okRead = Float.NaN;
+            float okSend = Float.NaN, okRead = descended > 0 ? descended : Float.NaN;   // 1.4.6: si parte dal gradino raggiunto
             boolean minProved = false;   // l'auto ha "bloccato" il valore più basso su quello accettato: è il suo minimo
             boolean all = true;
             for (float t : tries) {
@@ -454,6 +508,9 @@ public final class AutoTest {
             if (!Float.isNaN(okSend) && (okRead < 16 || minProved || all)) {
                 calLoSend = okSend;
                 calLoRead = okRead;
+            } else if (Float.isNaN(okSend) && minProved && descended > 0) {
+                calMinNum = descended;   // 1.4.6: già il primo LO rifiutato e l'auto resta sul gradino: minimo vero
+                log("· temperatura LO NASCOSTO: l'auto resta a " + descended + " (minimo numerico misurato)");
             }
         } else {   // SAIC: si sale, il primo che l'auto rilegge uguale è LO
             for (float t : tries) {
@@ -554,6 +611,7 @@ public final class AutoTest {
     /** Salva l'intervallo misurato e lo fa usare subito al backend. */
     private void saveRange(boolean car) {
         Store.setTempRange(ctx, version(), calLoSend, calLoRead, calHiSend, calHiRead, calFanMax);
+        if (car) Store.setMinNumeric(ctx, version(), Float.isNaN(calLoSend) ? calMinNum : 0);   // 1.4.6
         if (car) CarAdapterBackend.loadLimits(ctx);
         else SaicBackend.loadLimits(ctx);
         log("· clima.intervallo = " + (car ? CarAdapterBackend.rangeText() : SaicBackend.rangeText()));
@@ -593,12 +651,12 @@ public final class AutoTest {
             int t1 = mid + 2;
             setValue("temperatura", HvacClient.SET_DRV_TEMP, t1, s -> s.temp);
             calibrateLow(car, lo, mid);   // 1.4.2: LO reale dell'auto
-            setValue("temperatura (dopo LO)", HvacClient.SET_DRV_TEMP, mid, s -> s.temp);
+            setTempBack("temperatura (dopo LO)", car, mid);   // 1.4.6: a gradini sulle SWI69/SWI132
             calibrateHigh(car, hi);       // 1.4.2: HI reale dell'auto (un grado alla volta)
             saveRange(car);
             HvacClient.State s2 = safe();
-            if (t0 >= s2.tempMin && t0 <= s2.tempMax) setValue("temperatura (ripristino)", HvacClient.SET_DRV_TEMP, t0, s -> s.temp);
-            else setValue("temperatura (ripristino)", HvacClient.SET_DRV_TEMP, mid, s -> s.temp);
+            if (t0 >= s2.tempMin && t0 <= s2.tempMax) setTempBack("temperatura (ripristino)", car, t0);
+            else setTempBack("temperatura (ripristino)", car, mid);
             did("temperatura");
         }
 

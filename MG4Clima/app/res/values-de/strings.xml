@@ -110,7 +110,7 @@
     <string name="b_show" formatted="false">Anzeigen</string>
     <string name="b_send" formatted="false">Senden</string>
     <string name="b_cancel" formatted="false">Abbrechen</string>
-    <string name="c_update" formatted="false">Update</string>
+    <string name="c_update" formatted="false">Aktualisierung</string>
     <string name="c_update_msg">MG4 Klima %1$s installieren? Der Bildschirm schließt sich für einige Sekunden.</string>
     <string name="b_activate" formatted="false">Aktivieren</string>
     <string name="s_verify" formatted="false">Klima-App prüfen</string>
@@ -188,7 +188,7 @@
     <string name="b_try" formatted="false">Testen</string>
     <string name="n_title">Neu in %1$s</string>
     <string name="n_sub" formatted="false">Was sich in dieser Version ändert</string>
-    <string name="n_body" formatted="false">• Klima über die obere Leiste mit Android Auto und CarPlay: öffnet sich jetzt wirklich, auch als Fenster über der Projektion\n• Das originale Klima-Menü schließt sich nur, wenn MG4 Klima wirklich erscheint\n• Wird MG4 Launcher entfernt, schaltet MG4 Klima den originalen Startbildschirm des Autos wieder ein</string>
+    <string name="n_body" formatted="false">• Mit Android Auto öffnet die erste Berührung der oberen Leiste sofort MG4 Klima\n• Das im Launcher gewählte dunkle Design wird immer übernommen; neue Option Design: Automatisch, Hell, Dunkel\n• Temperatur mit Pfeilen hoch/runter und Gebläse mit links/rechts, wie am Joystick\n• Neue Option, um Fahrer- und Beifahrersitz zu tauschen\n• Das Fenster über Android Auto und CarPlay wechselt das Design auch im geöffneten Zustand</string>
     <string name="s_joy_conflict" formatted="false">Eine andere App nutzt den Joystick</string>
     <string name="s_joy_conflict_sub">%1$s kann dieselben Lenkradtasten übernehmen: schalte den Joystick in der anderen App aus, um ihn mit MG4 Klima zu nutzen</string>
     <string name="s_proj" formatted="false">Klima während Android Auto und CarPlay</string>
@@ -197,6 +197,14 @@
     <string name="s_autoclose_sub" formatted="false">Sekunden ohne Berührung oder Joystick-Tasten; danach geht es dorthin zurück, wo du es geöffnet hast</string>
     <string name="s_never" formatted="false">Nie</string>
     <string name="p_settings_later" formatted="false">Die Einstellungen öffnen sich in MG4 Klima im Vollbild</string>
+    <string name="s_model_auto_short" formatted="false">Auto</string>
+    <string name="s_theme" formatted="false">Design</string>
+    <string name="s_theme_sub" formatted="false">Automatisch folgt dem Design des MG4 Launchers oder des Systems</string>
+    <string name="s_theme_auto" formatted="false">Automatisch</string>
+    <string name="s_theme_light" formatted="false">Hell</string>
+    <string name="s_theme_dark" formatted="false">Dunkel</string>
+    <string name="s_swap_seats" formatted="false">Fahrer- und Beifahrersitz tauschen</string>
+    <string name="s_swap_seats_sub" formatted="false">Wenn die Heizung im falschen Sitz angeht (zum Beispiel bei Rechtslenkung)</string>
     <string name="r_notice" formatted="false">Hinweis</string>
     <string name="r_update_title">MG4 Klima %1$s verfügbar</string>
     <string name="r_update_msg" formatted="false">Es gibt eine neue Version von MG4 Klima.</string>

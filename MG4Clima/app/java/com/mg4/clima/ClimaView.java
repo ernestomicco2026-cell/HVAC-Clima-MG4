@@ -764,16 +764,19 @@ public final class ClimaView extends View {
         text(c, tl, cx0, y + 14, 17, SUB, Paint.Align.LEFT, regular);
         y += 22;
         tile(c, cx0, y, 380, 118, 24, CHIP);
-        icon(c, R.drawable.ic_left, cx0 + 26, y + 39, 40, 40, usable ? TEXT : SUB);
-        icon(c, R.drawable.ic_right, cx0 + 380 - 66, y + 39, 40, 40, usable ? TEXT : SUB);
+        // 1.4.6 (issue #14): frecce giù/su come il joystick e il pannello originale, sempre ai lati del numero:
+        // ▼ a sinistra abbassa, ▲ a destra alza (metà sinistra / metà destra del riquadro, come prima)
+        icon(c, R.drawable.ic_down, cx0 + 26, y + 39, 40, 40, usable ? TEXT : SUB);
+        icon(c, R.drawable.ic_up, cx0 + 380 - 66, y + 39, 40, 40, usable ? TEXT : SUB);
         hit("temp-", cx0, y, 190, 118);
         hit("temp+", cx0 + 190, y, 190, 118);
         String t = st.temp < 0 ? "–" : st.temp <= st.tempMin ? "LO" : st.temp >= st.tempMax ? "HI" : String.valueOf(st.temp);
-        text(c, t, cx0 + 190, y + 92, 92, on ? TEXT : SUB, Paint.Align.CENTER, light);
+        float tcx = cx0 + 190;
+        text(c, t, tcx, y + 92, 92, on ? TEXT : SUB, Paint.Align.CENTER, light);
         if (Character.isDigit(t.charAt(0))) {
             p.setTextSize(92);
             float tw = p.measureText(t);
-            text(c, "°", cx0 + 190 + tw / 2 + 4, y + 40, 28, SUB, Paint.Align.LEFT, regular);
+            text(c, "°", tcx + tw / 2 + 4, y + 40, 28, SUB, Paint.Align.LEFT, regular);
         }
         // ventola
         y += 118 + 20;

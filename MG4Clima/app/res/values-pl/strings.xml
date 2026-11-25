@@ -188,7 +188,7 @@
     <string name="b_try" formatted="false">Sprawdź</string>
     <string name="n_title">Nowości w wersji %1$s</string>
     <string name="n_sub" formatted="false">Co się zmienia w tej wersji</string>
-    <string name="n_body" formatted="false">• Klimatyzacja z górnego paska przy Android Auto i CarPlay: teraz naprawdę się otwiera, także jako panel nad projekcją\n• Oryginalny panel klimatyzacji zamyka się tylko wtedy, gdy MG4 Klimatyzacja naprawdę się pojawi\n• Jeśli MG4 Launcher zostanie usunięty, MG4 Klimatyzacja ponownie włącza oryginalny ekran główny auta</string>
+    <string name="n_body" formatted="false">• Przy Android Auto pierwsze dotknięcie górnego paska od razu otwiera MG4 Klimatyzację\n• Ciemny motyw wybrany w launcherze jest zawsze stosowany; nowa opcja Motyw: Automatyczny, Jasny, Ciemny\n• Temperatura strzałkami góra/dół, a nawiew lewo/prawo, jak na joysticku\n• Nowa opcja zamiany fotela kierowcy i pasażera\n• Panel nad Android Auto i CarPlay zmienia motyw także wtedy, gdy jest otwarty</string>
     <string name="s_joy_conflict" formatted="false">Inna aplikacja używa joysticka</string>
     <string name="s_joy_conflict_sub">%1$s może przejmować te same klawisze kierownicy: wyłącz joystick w drugiej aplikacji, aby używać go z MG4 Klimatyzacją</string>
     <string name="s_proj" formatted="false">Klimatyzacja podczas Android Auto i CarPlay</string>
@@ -197,6 +197,14 @@
     <string name="s_autoclose_sub" formatted="false">Sekundy bez dotyku i klawiszy joysticka; potem wraca tam, skąd został otwarty</string>
     <string name="s_never" formatted="false">Nigdy</string>
     <string name="p_settings_later" formatted="false">Ustawienia otwierają się w MG4 Klimatyzacji na pełnym ekranie</string>
+    <string name="s_model_auto_short" formatted="false">Auto</string>
+    <string name="s_theme" formatted="false">Motyw</string>
+    <string name="s_theme_sub" formatted="false">Automatyczny działa jak motyw launchera MG4 lub systemu</string>
+    <string name="s_theme_auto" formatted="false">Automatyczny</string>
+    <string name="s_theme_light" formatted="false">Jasny</string>
+    <string name="s_theme_dark" formatted="false">Ciemny</string>
+    <string name="s_swap_seats" formatted="false">Zamień fotel kierowcy i pasażera</string>
+    <string name="s_swap_seats_sub" formatted="false">Jeśli ogrzewanie włącza się w złym fotelu (na przykład w aucie z kierownicą po prawej)</string>
     <string name="r_notice" formatted="false">Komunikat</string>
     <string name="r_update_title">MG4 Klimatyzacja %1$s dostępna</string>
     <string name="r_update_msg" formatted="false">Jest nowa wersja MG4 Klimatyzacji.</string>

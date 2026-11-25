@@ -100,16 +100,22 @@ final class CarAdapterBackend implements HvacClient.Backend {
             fanMaxCal = -1;
             source = lo != null || hi != null ? "verifica 1.4.0" : "riserva";
         }
-        tMin = noLo ? TEMP_MIN : (int) Math.floor(loRead + 0.001f);
+        // 1.4.6: con LO nascosto, il minimo numerico misurato dalla verifica (la schermata non scende oltre)
+        int mn = noLo ? Store.minNumeric(c, ver) : 0;
+        minMeasured = mn >= 14 && mn <= 22;
+        tMin = noLo ? (minMeasured ? mn - 1 : TEMP_MIN) : (int) Math.floor(loRead + 0.001f);
         tMax = noHi ? TEMP_MAX : (int) Math.ceil(hiRead - 0.001f);
         if (tMax - tMin < 6) {   // valori assurdi: riserva
             tMin = TEMP_MIN;
             tMax = TEMP_MAX;
+            minMeasured = false;
             loSend = loRead = CAR_LO;
             hiSend = hiRead = CAR_HI;
             source = "riserva (misura non valida)";
         }
     }
+
+    private static boolean minMeasured;
 
     static String limitsText() {
         return "LO " + (noLo ? "nascosto" : String.valueOf(loSend)) + " · HI " + (noHi ? "nascosto" : String.valueOf(hiSend));
@@ -117,7 +123,7 @@ final class CarAdapterBackend implements HvacClient.Backend {
 
     /** Riga clima.intervallo: minimo e massimo numerici, LO, HI (mandato → riletto) e da dove vengono. */
     static String rangeText() {
-        return "minimo " + (tMin + 1) + " · massimo " + (tMax - 1)
+        return "minimo " + (tMin + 1) + (minMeasured ? " (misurato)" : "") + " · massimo " + (tMax - 1)
                 + " · LO " + (noLo ? "nascosto" : tMin + " (" + loSend + " → " + loRead + ")")
                 + " · HI " + (noHi ? "nascosto" : tMax + " (" + hiSend + " → " + hiRead + ")")
                 + (fanMaxCal > 0 ? " · ventola 1–" + fanMaxCal : "")

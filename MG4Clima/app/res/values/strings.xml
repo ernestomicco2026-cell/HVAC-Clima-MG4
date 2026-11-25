@@ -188,7 +188,7 @@
     <string name="b_try" formatted="false">Try</string>
     <string name="n_title">What\'s new in %1$s</string>
     <string name="n_sub" formatted="false">What changes in this version</string>
-    <string name="n_body" formatted="false">• Climate from the top bar during Android Auto and CarPlay: it now really opens, also as a panel over the projection\n• The original climate drop-down closes only if MG4 Climate really appears\n• If MG4 Launcher is removed, MG4 Climate turns the car\'s original home back on</string>
+    <string name="n_body" formatted="false">• With Android Auto the first touch on the top bar opens MG4 Climate straight away\n• The dark theme chosen in the launcher is always followed; new Theme option: Automatic, Light, Dark\n• Temperature with up/down arrows and fan with left/right, like the joystick\n• New option to swap the driver and passenger seat\n• The panel over Android Auto and CarPlay changes theme while open</string>
     <string name="s_joy_conflict" formatted="false">Another app uses the joystick</string>
     <string name="s_joy_conflict_sub">%1$s can take the same steering-wheel keys: turn the joystick off in the other app to use it with MG4 Climate</string>
     <string name="s_proj" formatted="false">Climate during Android Auto and CarPlay</string>
@@ -197,6 +197,14 @@
     <string name="s_autoclose_sub" formatted="false">Seconds without touches or joystick keys; then it goes back to where you opened it</string>
     <string name="s_never" formatted="false">Never</string>
     <string name="p_settings_later" formatted="false">Settings open from MG4 Climate in full screen</string>
+    <string name="s_model_auto_short" formatted="false">Auto</string>
+    <string name="s_theme" formatted="false">Theme</string>
+    <string name="s_theme_sub" formatted="false">Automatic follows the MG4 launcher or system theme</string>
+    <string name="s_theme_auto" formatted="false">Automatic</string>
+    <string name="s_theme_light" formatted="false">Light</string>
+    <string name="s_theme_dark" formatted="false">Dark</string>
+    <string name="s_swap_seats" formatted="false">Swap driver and passenger seat</string>
+    <string name="s_swap_seats_sub" formatted="false">If heating turns on in the wrong seat (for example with right-hand drive)</string>
     <string name="r_notice" formatted="false">Notice</string>
     <string name="r_update_title">MG4 Climate %1$s available</string>
     <string name="r_update_msg" formatted="false">There is a new version of MG4 Climate.</string>

@@ -188,7 +188,7 @@
     <string name="b_try" formatted="false">Dene</string>
     <string name="n_title">%1$s sürümünde yenilikler</string>
     <string name="n_sub" formatted="false">Bu sürümde neler değişiyor</string>
-    <string name="n_body" formatted="false">• Android Auto ve CarPlay sırasında üst çubuktan klima: artık gerçekten açılıyor, projeksiyonun üstünde panel olarak da\n• Orijinal klima perdesi yalnızca MG4 Klima gerçekten görünürse kapanır\n• MG4 Launcher kaldırılırsa MG4 Klima aracın orijinal ana ekranını yeniden açar</string>
+    <string name="n_body" formatted="false">• Android Auto açıkken üst çubuğa ilk dokunuş MG4 Klima\'yı hemen açar\n• Launcher\'da seçilen koyu tema her zaman izlenir; yeni Tema seçeneği: Otomatik, Açık, Koyu\n• Joystick gibi: sıcaklık yukarı/aşağı, fan sol/sağ oklarla\n• Sürücü ve yolcu koltuğunu değiştirmek için yeni seçenek\n• Android Auto ve CarPlay üzerindeki panel açıkken de temayı değiştirir</string>
     <string name="s_joy_conflict" formatted="false">Başka bir uygulama joysticki kullanıyor</string>
     <string name="s_joy_conflict_sub">%1$s aynı direksiyon tuşlarını alabilir: MG4 Klima ile kullanmak için diğer uygulamada joysticki kapat</string>
     <string name="s_proj" formatted="false">Android Auto ve CarPlay sırasında klima</string>
@@ -197,6 +197,14 @@
     <string name="s_autoclose_sub" formatted="false">Dokunma veya joystick tuşu olmadan geçen saniye; sonra açtığın yere döner</string>
     <string name="s_never" formatted="false">Asla</string>
     <string name="p_settings_later" formatted="false">Ayarlar MG4 Klima tam ekrandayken açılır</string>
+    <string name="s_model_auto_short" formatted="false">Oto</string>
+    <string name="s_theme" formatted="false">Tema</string>
+    <string name="s_theme_sub" formatted="false">Otomatik, MG4 launcher\'ın veya sistemin temasını izler</string>
+    <string name="s_theme_auto" formatted="false">Otomatik</string>
+    <string name="s_theme_light" formatted="false">Açık</string>
+    <string name="s_theme_dark" formatted="false">Koyu</string>
+    <string name="s_swap_seats" formatted="false">Sürücü ve yolcu koltuğunu değiştir</string>
+    <string name="s_swap_seats_sub" formatted="false">Isıtma yanlış koltukta açılıyorsa (örneğin sağdan direksiyonlu araçlarda)</string>
     <string name="r_notice" formatted="false">Duyuru</string>
     <string name="r_update_title">MG4 Klima %1$s mevcut</string>
     <string name="r_update_msg" formatted="false">MG4 Klima\'nın yeni bir sürümü var.</string>

@@ -46,6 +46,8 @@ final class Tema {
     private static final Handler main = new Handler(Looper.getMainLooper());
     /** Schermata aperta da ridisegnare quando il tema cambia (thread principale). */
     static volatile Runnable listener;
+    /** 1.4.6: pannello sovrapposto (Android Auto/CarPlay) da ridisegnare quando il tema cambia. */
+    static volatile Runnable panelListener;
 
     private Tema() {
     }
@@ -110,8 +112,16 @@ final class Tema {
         boolean target;
         boolean fromLauncher;
         try {
-            target = compute(c);
-            fromLauncher = fromSystem;   // tema scritto dal launcher: già deciso da lui, si applica subito
+            int mode = Store.themeMode(c);
+            if (mode != Store.THEME_AUTO) {   // 1.4.6: scelta a mano nelle impostazioni di MG4 Clima
+                target = mode == Store.THEME_LIGHT;
+                source = "scelta nelle impostazioni (" + (target ? "Chiaro" : "Scuro") + ")";
+                detail = "";
+                fromLauncher = true;   // si applica subito
+            } else {
+                target = compute(c);
+                fromLauncher = fromSystem;   // tema scritto dal launcher: già deciso da lui, si applica subito
+            }
         } catch (Throwable e) {
             source = "errore " + e.getClass().getSimpleName();
             return;
@@ -143,8 +153,9 @@ final class Tema {
         lastChange = new SimpleDateFormat("dd/MM HH:mm:ss", Locale.ITALY).format(new Date()) + " (" + how + ")";
         Store.event(c, "tema = fonte " + source + " · applicato " + (day ? "giorno" : "notte") + " (" + how + ")");
         if (changed) {
-            Runnable l = listener;
+            Runnable l = listener, pl = panelListener;
             if (l != null) main.post(l);
+            if (pl != null) main.post(pl);
         }
     }
 
@@ -181,12 +192,44 @@ final class Tema {
         }
     }
 
+    /**
+     * 1.4.6 (issue #13): versione del launcher MG4 se è uno di quelli che scrivono il tema nel sistema (SWI68 ≥ 1.0.4,
+     * SWI69 ≥ 0.4.4, SWI132 ≥ 0.3.3, SWI133 ≥ 0.3.4), altrimenti null.
+     */
+    static String launcherWriting(Context c) {
+        String v;
+        try {
+            v = c.getPackageManager().getPackageInfo("com.mg4.launcher", 0).versionName;
+        } catch (Throwable e) {
+            return null;
+        }
+        if (v == null) return null;
+        String m = Model.get(c), min = Model.SWI68.equals(m) ? "1.0.4" : Model.SWI69.equals(m) ? "0.4.4"
+                : Model.SWI132.equals(m) ? "0.3.3" : Model.SWI133.equals(m) ? "0.3.4" : null;
+        try {
+            return min != null && Updater.compare(v, min) >= 0 ? v : null;
+        } catch (Throwable e) {
+            return null;
+        }
+    }
+
     private static boolean compute(Context c) {
         SharedPreferences sp = sp(c);
         fromSystem = false;
         int uiNight = systemNight(c);
         String uiTxt = uiNight == 1 ? "notte" : uiNight == 0 ? "giorno" : "non c'è";
         boolean sysNight = uiNight == 1;
+        // 1.4.6 (issue #13): con il launcher MG4 che scrive il tema, Clima lo segue SEMPRE: niente protezione contro il
+        // tema bloccato (scattava a vuoto quando nel launcher si sceglie "Notte" a mano). La protezione resta per le
+        // auto senza il nostro launcher.
+        String lv = uiNight >= 0 ? launcherWriting(c) : null;
+        if (lv != null) {
+            trackUiChanges(sp, uiNight, System.currentTimeMillis());
+            source = "launcher MG4 " + lv + " (" + sysName + " " + uiTxt + ")";
+            detail = "seguito sempre (protezione contro il tema bloccato non usata)";
+            fromSystem = true;
+            return !sysNight;
+        }
         long wall = System.currentTimeMillis();
         trackUiChanges(sp, uiNight, wall);
         long prevSeen = sp.getLong(K_SYS_NIGHT_AT, 0);
