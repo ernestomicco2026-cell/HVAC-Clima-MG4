@@ -1,0 +1,83 @@
+# Crea da sola la Release su GitHub quando viene pubblicata una nuova versione (push di releases/latest.json,
+# che si fa solo dopo l'ok di Ernesto). Allegato: l'APK indicato in latest.json. Descrizione: le note di
+# latest.json + la riga di installazione. Se la Release esiste già non tocca niente (né Release né APK vecchi).
+# Si può lanciare anche a mano da Actions → "Release automatica" → Run workflow, per recuperare una versione.
+name: Release automatica
+
+on:
+  push:
+    branches: [main]
+    paths: ['releases/latest.json', '.github/workflows/release-automatica.yml']
+  workflow_dispatch:
+    inputs:
+      versione:
+        description: "Versione da pubblicare (vuoto = quella di releases/latest.json), es. 1.4.6"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency: release-automatica
+
+env:
+  TITOLO: "Mg4 Clima"          # es. "Mg4 Launcher SWI68" → titolo "Mg4 Launcher SWI68 v1.0.6"
+  PREFISSO_TAG: ""  # "v" per i launcher, vuoto per MG4 Clima
+  CHIAVE_JSON: "MG4Clima"     # vuoto per i launcher, "MG4Clima" per MG4 Clima
+  STILE: "clima"            # launcher | clima
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepara la Release
+        id: p
+        env:
+          VERSIONE: ${{ github.event.inputs.versione }}
+        run: |
+          python3 - <<'PY'
+          import json, os, hashlib, sys
+          d = json.load(open("releases/latest.json"))
+          k = os.environ["CHIAVE_JSON"]
+          if k: d = d[k]
+          ultima = d["version"]
+          ver = (os.environ.get("VERSIONE") or "").strip().lstrip("vV") or ultima
+          if ver == ultima:
+              apk, note = d["apk"], (d.get("notes") or "").strip()
+              if not os.path.isfile(apk):
+                  apk = "releases/" + os.path.basename(apk)
+              if str(d.get("size", "")) and os.path.isfile(apk) and os.path.getsize(apk) != int(d["size"]):
+                  sys.exit("::error::La dimensione di %s non corrisponde a latest.json" % apk)
+              if d.get("sha256") and os.path.isfile(apk) and hashlib.sha256(open(apk, "rb").read()).hexdigest() != d["sha256"]:
+                  sys.exit("::error::Lo sha256 di %s non corrisponde a latest.json" % apk)
+          else:
+              base = os.path.basename(d["apk"]).replace(ultima, ver)
+              apk, note = "releases/" + base, "Vedi il changelog nel README (versione %s)." % ver
+          if not os.path.isfile(apk):
+              sys.exit("::error::Non trovo %s nel repository" % apk)
+          nome = os.path.basename(apk)
+          if os.environ["STILE"] == "clima":
+              corpo = "MG4 Clima\n- **MG4Clima** %s: %s → `%s`\n\nInstallazione / Installation: `adb install -r -f <file>.apk`\n" % (ver, note if note.endswith(".") else note + ".", nome)
+          else:
+              corpo = "%s\n\nInstallazione: `adb install -r -f %s` oppure Impostazioni del launcher → Aggiornamenti.\n" % (note, nome)
+          open(os.environ["RUNNER_TEMP"] + "/note.md", "w").write(corpo)
+          tag = os.environ["PREFISSO_TAG"] + ver
+          with open(os.environ["GITHUB_OUTPUT"], "a") as o:
+              o.write("tag=%s\napk=%s\nultima=%s\n" % (tag, apk, "true" if ver == ultima else "false"))
+          PY
+
+      - name: Crea la Release (solo se non c'è già)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.p.outputs.tag }}
+          APK: ${{ steps.p.outputs.apk }}
+          ULTIMA: ${{ steps.p.outputs.ultima }}
+        run: |
+          if gh release view "$TAG" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "La Release $TAG esiste già: non tocco niente."
+            exit 0
+          fi
+          gh release create "$TAG" "$APK" -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "$TITOLO $TAG" --notes-file "$RUNNER_TEMP/note.md" --latest="$ULTIMA"
+          echo "Creata la Release $TAG con $APK"

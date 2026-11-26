@@ -19,7 +19,8 @@
   Autore: `ernestomicco2026-cell <ernesto.micco@gmail.com>`.
   I dettagli delle modifiche vanno solo nel changelog del README.
 - Non toccare gli APK vecchi in `releases/` né le Release di GitHub: restano tutti.
-  La Release su GitHub la crea Ernesto.
+  La Release su GitHub la crea da sola l'azione "Release automatica" (`.github/workflows/release-automatica.yml`)
+  quando si pubblica `releases/latest.json`, cioè dopo l'ok di Ernesto: non crearla a mano.
 
 ## File segreti ed esclusi da git
 - `tools/android.jar`, `tools/d8.jar`, `tools/apksig.jar`, `tools/log-token.txt` e ogni token sono esclusi da git
