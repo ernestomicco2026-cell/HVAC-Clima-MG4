@@ -210,5 +210,9 @@
     <string name="r_update_msg" formatted="false">C\'è una versione nuova di MG4 Clima.</string>
     <string name="b_ok" formatted="false">OK</string>
     <string name="b_later" formatted="false">Più tardi</string>
+    <string name="c_seats_rhd" formatted="false">Sedili</string>
+    <string name="c_seats_rhd_msg" formatted="false">Hai scelto la guida a destra. Vuoi invertire anche i comandi dei sedili, guida e passeggero?</string>
+    <string name="b_yes" formatted="false">Sì</string>
+    <string name="b_no" formatted="false">No</string>
     <string name="u_bad_sign" formatted="false">firma diversa: non installato</string>
 </resources>

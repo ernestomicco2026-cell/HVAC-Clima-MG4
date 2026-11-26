@@ -210,5 +210,9 @@
     <string name="r_update_msg" formatted="false">Há uma versão nova do MG4 Clima.</string>
     <string name="b_ok" formatted="false">OK</string>
     <string name="b_later" formatted="false">Mais tarde</string>
+    <string name="c_seats_rhd" formatted="false">Bancos</string>
+    <string name="c_seats_rhd_msg" formatted="false">Escolheste a condução à direita. Queres trocar também os comandos dos bancos do condutor e do passageiro?</string>
+    <string name="b_yes" formatted="false">Sim</string>
+    <string name="b_no" formatted="false">Não</string>
     <string name="u_bad_sign" formatted="false">assinatura diferente: não instalado</string>
 </resources>

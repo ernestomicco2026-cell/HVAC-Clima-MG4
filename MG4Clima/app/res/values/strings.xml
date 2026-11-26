@@ -210,5 +210,9 @@
     <string name="r_update_msg" formatted="false">There is a new version of MG4 Climate.</string>
     <string name="b_ok" formatted="false">OK</string>
     <string name="b_later" formatted="false">Later</string>
+    <string name="c_seats_rhd" formatted="false">Seats</string>
+    <string name="c_seats_rhd_msg" formatted="false">You chose right-hand drive. Do you also want to swap the driver and passenger seat controls?</string>
+    <string name="b_yes" formatted="false">Yes</string>
+    <string name="b_no" formatted="false">No</string>
     <string name="u_bad_sign" formatted="false">different signature: not installed</string>
 </resources>

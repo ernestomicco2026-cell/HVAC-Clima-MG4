@@ -288,6 +288,10 @@ S = {
     "r_update_msg": ("C'è una versione nuova di MG4 Clima.", "There is a new version of MG4 Climate.", "Hay una versión nueva de MG4 Clima.", "Es gibt eine neue Version von MG4 Klima.", "Há uma versão nova do MG4 Clima.", "Il y a une nouvelle version de MG4 Climat.", "MG4 Klima'nın yeni bir sürümü var.", "Jest nowa wersja MG4 Klimatyzacji."),
     "b_ok": ("OK", "OK", "OK", "OK", "OK", "OK", "Tamam", "OK"),
     "b_later": ("Più tardi", "Later", "Más tarde", "Später", "Mais tarde", "Plus tard", "Sonra", "Później"),
+    "c_seats_rhd": ("Sedili", "Seats", "Asientos", "Sitze", "Bancos", "Sièges", "Koltuklar", "Fotele"),
+    "c_seats_rhd_msg": ("Hai scelto la guida a destra. Vuoi invertire anche i comandi dei sedili, guida e passeggero?", "You chose right-hand drive. Do you also want to swap the driver and passenger seat controls?", "Has elegido el volante a la derecha. ¿Quieres invertir también los mandos de los asientos del conductor y del pasajero?", "Du hast Rechtslenkung gewählt. Sollen auch die Sitzbedienungen von Fahrer und Beifahrer getauscht werden?", "Escolheste a condução à direita. Queres trocar também os comandos dos bancos do condutor e do passageiro?", "Vous avez choisi la conduite à droite. Voulez-vous aussi inverser les commandes des sièges conducteur et passager ?", "Sağdan direksiyonu seçtiniz. Sürücü ve yolcu koltuğu kumandalarını da değiştirmek ister misiniz?", "Wybrano kierownicę po prawej. Czy zamienić też sterowanie fotelem kierowcy i pasażera?"),
+    "b_yes": ("Sì", "Yes", "Sí", "Ja", "Sim", "Oui", "Evet", "Tak"),
+    "b_no": ("No", "No", "No", "Nein", "Não", "Non", "Hayır", "Nie"),
     "u_bad_sign": ("firma diversa: non installato", "different signature: not installed", "firma distinta: no instalado", "andere Signatur: nicht installiert", "assinatura diferente: não instalado", "signature différente : non installé", "farklı imza: yüklenmedi", "inny podpis: nie zainstalowano"),
 }
 

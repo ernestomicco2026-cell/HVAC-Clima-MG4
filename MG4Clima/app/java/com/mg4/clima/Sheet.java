@@ -234,6 +234,11 @@ final class Sheet {
 
     /** Conferma nello stesso stile: scheda centrale con testo e due pulsanti. */
     void confirm(String title, String msg, String cancel, String ok, Runnable onOk) {
+        confirm(title, msg, cancel, ok, onOk, null);
+    }
+
+    /** 1.4.7: come sopra, con un'azione anche per il pulsante di sinistra (onCancel può essere null). */
+    void confirm(String title, String msg, String cancel, String ok, Runnable onOk, Runnable onCancel) {
         FrameLayout dim = new FrameLayout(c);
         dim.setBackgroundColor(0xB3000000);
         dim.setClickable(true);
@@ -245,7 +250,10 @@ final class Sheet {
         box.addView(tv(msg, 19, sub, false), margins(-2, -2, 0, dp(14), 0, 0));
         LinearLayout btns = new LinearLayout(c);
         btns.setGravity(Gravity.END);
-        btns.addView(button(cancel, v -> host.removeView(dim)));
+        btns.addView(button(cancel, v -> {
+            host.removeView(dim);
+            if (onCancel != null) onCancel.run();
+        }));
         TextView okb = button(ok, v -> {
             host.removeView(dim);
             onOk.run();

@@ -246,7 +246,7 @@ public final class ClimaView extends View {
         }
         // schermi: solo le nostre indicazioni
         rr(c, g.barX, g.barY, g.barW, 7, 3.5f, 0xFF34C77B, 0, 0);
-        String time = new SimpleDateFormat("HH:mm", Locale.ITALY).format(new Date());
+        String time = new SimpleDateFormat("HH:mm", Locale.US).format(new Date());
         int scr = TEXT;
         flatText(c, time, g.clockX, g.clockY, g.clockSize, scr, Paint.Align.CENTER);
         flatText(c, tempText(), g.tempX, g.tempY, g.tempSize, scr, Paint.Align.LEFT);
@@ -715,7 +715,7 @@ public final class ClimaView extends View {
 
     private void drawDashTexts(Canvas c, float cx) {
         float wx = cx - 270, sx = cx - 150;
-        String time = new SimpleDateFormat("HH:mm", Locale.ITALY).format(new Date());
+        String time = new SimpleDateFormat("HH:mm", Locale.US).format(new Date());
         text(c, time, x(cx, wx), 192, 24, 0xFFE6E9ED, Paint.Align.CENTER, regular);
         text(c, tempText(), x(cx, sx + 24), 136, 30, 0xFFF2F3F5, rhd ? Paint.Align.RIGHT : Paint.Align.LEFT, regular);
         if (!Float.isNaN(st.outTemp)) {

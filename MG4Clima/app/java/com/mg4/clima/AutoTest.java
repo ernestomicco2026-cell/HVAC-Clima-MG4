@@ -227,7 +227,10 @@ public final class AutoTest {
             offCode = -1;
         }
         int v = f.applyAsInt(s);
-        if (v == v0) return;   // già com'era
+        if (v == v0) {   // già com'era (1.4.7: scritto nel log, per vederlo in auto)
+            log("✓ " + what + " alla fine a " + v0 + ", come all'inizio");
+            return;
+        }
         String how = "";
         boolean stopMoving = false;
         for (int attempt = 1; attempt <= 3 && v != v0 && !stopMoving; attempt++) {

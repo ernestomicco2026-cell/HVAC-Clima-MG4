@@ -3,6 +3,7 @@ build/
 tools/android.jar
 tools/d8.jar
 tools/log-token.txt
+tools/log-relay.txt
 __pycache__/
 tools/sysui-token.txt
 tools/apksig.jar

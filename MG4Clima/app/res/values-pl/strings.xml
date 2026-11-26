@@ -210,5 +210,9 @@
     <string name="r_update_msg" formatted="false">Jest nowa wersja MG4 Klimatyzacji.</string>
     <string name="b_ok" formatted="false">OK</string>
     <string name="b_later" formatted="false">Później</string>
+    <string name="c_seats_rhd" formatted="false">Fotele</string>
+    <string name="c_seats_rhd_msg" formatted="false">Wybrano kierownicę po prawej. Czy zamienić też sterowanie fotelem kierowcy i pasażera?</string>
+    <string name="b_yes" formatted="false">Tak</string>
+    <string name="b_no" formatted="false">Nie</string>
     <string name="u_bad_sign" formatted="false">inny podpis: nie zainstalowano</string>
 </resources>

@@ -159,12 +159,12 @@ public final class Store {
         sp(c).edit().putBoolean("verificaKo_" + climaVer + "_" + origVer, true).apply();
     }
 
-    /** 1.4.4: ultimo ritorno alla chiusura (riga clima.ritorno). */
+    /** 1.4.4: ultimo ritorno alla chiusura (1.4.7: riga clima.chiusura). */
     private static volatile String ritorno = "nessuna chiusura in questa accensione";
 
     public static void setRitorno(Context c, String line) {
         ritorno = line;
-        event(c, "clima.ritorno = " + line);
+        event(c, "clima.chiusura: " + line);
     }
 
     /** 1.4.6 (issue #12): scambio dei sedili guida/passeggero (comandi e letture), spento di serie. */
@@ -174,6 +174,15 @@ public final class Store {
 
     public static void setSwapSeats(Context c, boolean on) {
         sp(c).edit().putBoolean("scambiaSedili", on).apply();
+    }
+
+    /** 1.4.7 (issue #12): domanda "invertire anche i sedili?" già fatta (una volta sola, alla guida a destra). */
+    public static boolean seatsRhdAsked(Context c) {
+        return sp(c).getBoolean("sediliDestraChiesto", false);
+    }
+
+    public static void setSeatsRhdAsked(Context c) {
+        sp(c).edit().putBoolean("sediliDestraChiesto", true).apply();
     }
 
     /** 1.4.6: tema di MG4 Clima: Automatico (come il launcher/sistema), Chiaro, Scuro. */
@@ -420,7 +429,7 @@ public final class Store {
 
     /** Ora con i millisecondi, per misurare il lampeggio (1.3.1). */
     public static String ms(long wall) {
-        return new SimpleDateFormat("HH:mm:ss.SSS", Locale.ITALY).format(new Date(wall));
+        return new SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(new Date(wall));
     }
 
     public static void setSwipeMode(Context c, int m) {
@@ -490,7 +499,7 @@ public final class Store {
 
     public static synchronized void event(Context c, String what) {
         eventCount++;
-        String line = new SimpleDateFormat("HH:mm:ss", Locale.ITALY).format(new Date()) + "  " + what;
+        String line = new SimpleDateFormat("HH:mm:ss", Locale.US).format(new Date()) + "  " + what;
         Log.i(TAG, what);
         EVENTS.addLast(line);
         while (EVENTS.size() > 400) EVENTS.removeFirst();
@@ -507,7 +516,7 @@ public final class Store {
     public static synchronized String text(Context c) {
         StringBuilder sb = new StringBuilder();
         sb.append("MG4 Clima ").append(BuildInfo.version(c)).append(" · ")
-                .append(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.ITALY).format(new Date())).append('\n');
+                .append(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.US).format(new Date())).append('\n');
         sb.append("modello: ").append(Model.get(c)).append(Model.manual(c) ? " (scelto a mano)" : " (riconosciuto: " + Model.how(c) + ")")
                 .append(" · software ").append(Model.software().isEmpty() ? "?" : Model.software()).append('\n');
         int pm = panelMode(c);
@@ -533,7 +542,7 @@ public final class Store {
                 .append(" · pannello ").append(Pannello.stateText()).append('\n');
         String hr = com.mg4.homerescue.HomeRescue.last(c);
         sb.append("clima.homeRescue = ").append(hr == null ? "niente da segnalare" : hr).append('\n');
-        sb.append("clima.ritorno = ").append(ritorno).append(" · chiusura automatica ")
+        sb.append("clima.chiusura = ").append(ritorno).append(" · chiusura automatica ")
                 .append(autoClose(c) == 0 ? "mai" : autoClose(c) + " s").append('\n');
         sb.append("clima.proiezione = ").append(ProjectionZone.stateText(c)).append('\n');
         sb.append("scritte sui pulsanti: ").append(showLabels(c) ? "sì" : "no").append(" · finestra pronta: ")

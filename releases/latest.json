@@ -1,9 +1,9 @@
 {
   "MG4Clima": {
-    "version": "1.4.6",
-    "apk": "releases/MG4Clima-1.4.6.apk",
-    "size": 535457,
-    "sha256": "198f0ff327e9a6cf9da3eac779ec3fc2a68384799a07c2c009a24eb17c670a26",
-    "notes": "Con Android Auto il primo tocco sulla barra apre subito MG4 Clima; il tema scuro scelto nel launcher viene sempre seguito, più l'opzione Tema Automatico/Chiaro/Scuro; temperatura con frecce su/giù e ventola con sinistra/destra, come il joystick; opzione per invertire i sedili guida e passeggero; il pannello sovrapposto cambia tema anche aperto."
+    "version": "1.4.7",
+    "apk": "releases/MG4Clima-1.4.7.apk",
+    "size": 539553,
+    "sha256": "88b8b93fb40f446d7033274963507b04976a0abc139cd48c5cf7a2a567b13249",
+    "notes": "Invio dei log più sicuro (tramite server ponte); chiudendo MG4 Clima si torna all'app da cui l'hai aperta (anche al launcher MG4 non predefinito); con la guida a destra chiede una volta se invertire anche i sedili; log della tendina più preciso."
   }
 }

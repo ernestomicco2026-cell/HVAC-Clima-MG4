@@ -102,39 +102,54 @@ echo "==> risorse (aapt2)"
   -o "$OUT/base.apk" \
   "$OUT/res/compiled.zip"
 
-echo "==> token dei log"
-# Il token NON è nel repository: sta in tools/log-token.txt (escluso da git) oppure, se il file manca,
-# nella variabile d'ambiente MG4_LOG_TOKEN. Il token non viene mai stampato.
-# Diventa una classe generata in build/ (esclusa da git), offuscata con XOR (solo per non lasciarlo in chiaro nell'APK),
-# e il sorgente generato viene cancellato subito dopo la compilazione.
-#   tools/log-token.txt / MG4_LOG_TOKEN  → LogConfig  (invio dei log nel repository privato dei log)
-gen_token() {
+echo "==> chiave e ponte dei log"
+# Chiave e indirizzo del ponte NON sono nel repository: stanno in tools/log-token.txt e tools/log-relay.txt
+# (esclusi da git) oppure nelle variabili d'ambiente MG4_LOG_TOKEN e MG4_LOG_RELAY. Non vengono mai stampati.
+# Diventano una classe generata in build/ (esclusa da git), offuscata con XOR (solo per non lasciarli in chiaro
+# nell'APK), e il sorgente generato viene cancellato subito dopo la compilazione.
+#   tools/log-token.txt / MG4_LOG_TOKEN  → LogConfig.token()  (APP_KEY del ponte, serve SOLO a consegnare log)
+#   tools/log-relay.txt / MG4_LOG_RELAY  → LogConfig.relay()  (indirizzo base del ponte, https://…)
+gen_logconfig() {
 python3 - "$1" "$2" "$3" <<'PY'
 import os, random, re, sys
-src, dst, cls = sys.argv[1], sys.argv[2], sys.argv[3]
-if os.path.exists(src):
-    tok, fonte = open(src).read().strip(), "tools/log-token.txt"
-else:
-    tok, fonte = os.environ.get("MG4_LOG_TOKEN", "").strip(), "variabile MG4_LOG_TOKEN"
-tok = re.sub(r"[^A-Za-z0-9_]", "", tok)
-key = [random.randrange(1, 255) for _ in tok] or [0]
-enc = [ord(ch) ^ key[i] for i, ch in enumerate(tok)]
+tok_src, relay_src, dst = sys.argv[1], sys.argv[2], sys.argv[3]
+def read(src, env):
+    if os.path.exists(src):
+        return open(src).read().strip(), "tools/" + os.path.basename(src)
+    return os.environ.get(env, "").strip(), "variabile " + env
+tok, ftok = read(tok_src, "MG4_LOG_TOKEN")
+relay, frelay = read(relay_src, "MG4_LOG_RELAY")
+tok = re.sub(r"[^A-Za-z0-9_\-]", "", tok)
+relay = relay.rstrip("/")
+github_tok = tok.startswith(("ghp_", "github_pat_", "gho_", "ghs_", "ghu_", "ghr_"))
+if github_tok:
+    tok = ""   # mai un token GitHub dentro l'app: serve la APP_KEY del ponte
+ok_relay = re.fullmatch(r"https://[A-Za-z0-9.-]+(:[0-9]+)?", relay) is not None and "api.github.com" not in relay
+if not ok_relay:
+    relay = ""
+def arr(s):
+    key = [random.randrange(1, 255) for _ in s] or [0]
+    enc = [ord(ch) ^ key[i] for i, ch in enumerate(s)]
+    return ",".join(map(str, enc)), ",".join(map(str, key[:len(enc)]))
+def method(name, s):
+    a, b = arr(s)
+    return ("    private static final int[] %s_A = {%s};\n    private static final int[] %s_B = {%s};\n"
+            "    static String %s() {\n        char[] c = new char[%s_A.length];\n"
+            "        for (int i = 0; i < %s_A.length; i++) c[i] = (char) (%s_A[i] ^ %s_B[i]);\n        return new String(c);\n    }\n"
+            % (name.upper(), a, name.upper(), b, name, name.upper(), name.upper(), name.upper(), name.upper()))
 os.makedirs(os.path.dirname(dst), exist_ok=True)
 open(dst, "w").write(
     "package com.mg4.clima;\n\n/** Generato da build.sh: non modificare, non salvare in git. */\n"
-    "final class %s {\n    private %s() {}\n"
-    "    private static final int[] A = {%s};\n    private static final int[] B = {%s};\n"
-    "    static String token() {\n        char[] c = new char[A.length];\n"
-    "        for (int i = 0; i < A.length; i++) c[i] = (char) (A[i] ^ B[i]);\n        return new String(c);\n    }\n}\n"
-    % (cls, cls, ",".join(map(str, enc)), ",".join(map(str, key[:len(enc)]))))
-if tok:
-    print("    %s: token presente (da %s)" % (cls, fonte))
-else:
-    print("    ATTENZIONE: token assente (né tools/log-token.txt né MG4_LOG_TOKEN).")
+    "final class LogConfig {\n    private LogConfig() {}\n" + method("token", tok) + method("relay", relay) + "}\n")
+if github_tok:
+    print("    ATTENZIONE: tools/log-token.txt contiene un token GitHub, non la APP_KEY del ponte: NON lo metto nell'APK.")
+print("    chiave: " + ("presente (da %s)" % ftok if tok else "scartata" if github_tok else "ASSENTE (né tools/log-token.txt né MG4_LOG_TOKEN)"))
+print("    ponte:  " + ("presente (da %s)" % frelay if relay else "ASSENTE o non valido (né tools/log-relay.txt né MG4_LOG_RELAY, serve https://…)"))
+if not tok or not relay:
     print("    Compilo lo stesso, ma questo APK NON invierà i log.")
 PY
 }
-gen_token "$T/log-token.txt" "$OUT/gen/com/mg4/clima/LogConfig.java" LogConfig
+gen_logconfig "$T/log-token.txt" "$T/log-relay.txt" "$OUT/gen/com/mg4/clima/LogConfig.java"
 
 echo "==> java (javac, bytecode 8)"
 find "$SRC" "$OUT/gen" -name '*.java' > "$OUT/sources.txt"

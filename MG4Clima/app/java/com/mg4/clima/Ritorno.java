@@ -16,7 +16,7 @@ import java.util.List;
  * <ul>
  *   <li>aperta mentre davanti c'era Android Auto o CarPlay (anche dalla zona sopra la barra): se il servizio AllGo dice
  *       che la sessione è ancora attiva, si riporta davanti il task che c'era (moveTaskToFront), senza riavviare l'app;</li>
- *   <li>altrimenti (dalla home, dal launcher, nessuna sessione, task non trovato): home, come prima.</li>
+ *   <li>altrimenti (1.4.7): torna davanti l'app di prima (vedi {@link #back}). Mai l'intent HOME.</li>
  * </ul>
  * Sessione: servizio com.allgo.rui/.RemoteUIService, interfaccia com.allgo.rui.IRemoteUIService,
  * getActiveRemoteDevice() = transazione 15; la risposta comincia con 0 se non c'è nessun dispositivo in sessione.
@@ -98,37 +98,80 @@ final class Ritorno {
     }
 
     /**
-     * Chiusura: se era stata aperta da Android Auto/CarPlay e la sessione c'è ancora, riporta davanti quel task;
-     * altrimenti la home. Restituisce il testo per il log.
+     * Chiusura. 1.4.7 (issue #16): MAI l'intent HOME (con il launcher MG4 non predefinito portava alla home SAIC).
+     * <ol>
+     *   <li>aperta da Android Auto/CarPlay con la sessione ancora attiva: quel task davanti (moveTaskToFront);</li>
+     *   <li>altrimenti davanti il task dell'app da cui è stata aperta (launcher MG4, altra app), se c'è ancora;</li>
+     *   <li>altrimenti il task più recente che non sia MG4 Clima né l'app clima originale (che sta proprio sotto
+     *       quando MG4 Clima l'ha sostituita: non si deve rivedere), né una proiezione senza sessione;</li>
+     *   <li>se non si trova niente: il nostro task va dietro (moveTaskToBack).</li>
+     * </ol>
+     * Dopo, l'attività chiama finish(). Restituisce il testo per il log.
      */
     static String back(Activity a) {
         String opened = from;
-        String result = "home";
-        if (fromProjection()) {
-            int ses = session();
-            if (ses == 0) result = "home (nessuna sessione AllGo)";
-            else {
-                int task = taskOf(a, opened);
-                if (task < 0) result = "home (task di " + opened + " non trovato)";
-                else {
-                    try {
-                        ((ActivityManager) a.getSystemService(Context.ACTIVITY_SERVICE)).moveTaskToFront(task, 0);
-                        result = opened + " (task " + task + (ses < 0 ? ", AllGo non risponde" : "") + ")";
-                    } catch (Throwable e) {
-                        result = "home (moveTaskToFront non riuscito: " + e.getClass().getSimpleName() + ")";
-                    }
-                }
+        boolean proj = fromProjection();
+        int ses = proj ? session() : -1;
+        String note = null;
+        if (proj && ses == 0) note = "nessuna sessione AllGo";
+        String skip = ClimaGuard.hvacPkg(a);
+        if (!(proj && ses == 0) && !"-".equals(opened) && !opened.equals(skip) && !opened.equals(a.getPackageName())) {
+            int task = taskOf(a, opened, skip);
+            if (task >= 0 && toFront(a, task)) {
+                backAt = android.os.SystemClock.elapsedRealtime();
+                return log(a, opened, opened + " davanti (task " + task + (proj && ses < 0 ? ", AllGo non risponde" : "") + ")");
             }
+            if (task < 0) note = "task di " + opened + " non trovato";
         }
-        if (result.startsWith("home")) {
-            try {
-                a.startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            } catch (Throwable ignored) {
-            }
+        String[] other = new String[1];
+        int task = otherTask(a, skip, ses == 0, other);
+        if (task >= 0 && toFront(a, task)) {
+            backAt = android.os.SystemClock.elapsedRealtime();
+            return log(a, opened, other[0] + " davanti (task più recente, " + task + ")" + (note != null ? " · " + note : ""));
+        }
+        boolean moved;
+        try {
+            moved = a.moveTaskToBack(true);
+        } catch (Throwable e) {
+            moved = false;
         }
         backAt = android.os.SystemClock.elapsedRealtime();
-        String line = "aperto da " + opened + " (" + via + ") · tornato a " + result;
+        return log(a, opened, (moved ? "app di prima (moveTaskToBack + finish)" : "app di prima (solo finish)")
+                + (note != null ? " · " + note : ""));
+    }
+
+    private static boolean toFront(Context c, int task) {
+        try {
+            ((ActivityManager) c.getSystemService(Context.ACTIVITY_SERVICE)).moveTaskToFront(task, 0);
+            return true;
+        } catch (Throwable e) {
+            return false;
+        }
+    }
+
+    /** Task più recente da riportare davanti: non il nostro, non l'app clima originale, non una proiezione senza sessione. */
+    @SuppressWarnings("deprecation")
+    private static int otherTask(Activity a, String hvac, boolean noSession, String[] pkgOut) {
+        try {
+            List<ActivityManager.RunningTaskInfo> tasks =
+                    ((ActivityManager) a.getSystemService(Context.ACTIVITY_SERVICE)).getRunningTasks(30);
+            int mine = a.getTaskId();
+            for (ActivityManager.RunningTaskInfo t : tasks) {
+                if (t.id == mine || t.topActivity == null) continue;
+                String p = t.topActivity.getPackageName();
+                String base = t.baseActivity != null ? t.baseActivity.getPackageName() : p;
+                if (p.equals(a.getPackageName()) || p.equals(hvac) || base.equals(hvac)) continue;
+                if (noSession && ProjectionZone.isProjection(p)) continue;
+                pkgOut[0] = p;
+                return t.id;
+            }
+        } catch (Throwable ignored) {
+        }
+        return -1;
+    }
+
+    private static String log(Activity a, String opened, String result) {
+        String line = "aperta da " + opened + " (" + via + ") · tornata a " + result;
         Store.setRitorno(a, line);
         from = "-";
         via = "-";
@@ -136,11 +179,13 @@ final class Ritorno {
     }
 
     @SuppressWarnings("deprecation")
-    private static int taskOf(Context c, String pkg) {
+    private static int taskOf(Context c, String pkg, String hvac) {
         try {
             List<ActivityManager.RunningTaskInfo> tasks =
                     ((ActivityManager) c.getSystemService(Context.ACTIVITY_SERVICE)).getRunningTasks(30);
             for (ActivityManager.RunningTaskInfo t : tasks) {
+                // 1.4.7: un task con sopra l'app clima originale non si riporta davanti (si rivedrebbe l'originale)
+                if (t.topActivity != null && hvac.equals(t.topActivity.getPackageName())) continue;
                 if ((t.baseActivity != null && pkg.equals(t.baseActivity.getPackageName()))
                         || (t.topActivity != null && pkg.equals(t.topActivity.getPackageName()))) return t.id;
             }

@@ -150,7 +150,7 @@ final class Tema {
     private static void applyNow(Context c, boolean day, String how) {
         boolean changed = applied != null && applied != day;
         applied = day;
-        lastChange = new SimpleDateFormat("dd/MM HH:mm:ss", Locale.ITALY).format(new Date()) + " (" + how + ")";
+        lastChange = new SimpleDateFormat("dd/MM HH:mm:ss", Locale.US).format(new Date()) + " (" + how + ")";
         Store.event(c, "tema = fonte " + source + " · applicato " + (day ? "giorno" : "notte") + " (" + how + ")");
         if (changed) {
             Runnable l = listener, pl = panelListener;
@@ -260,7 +260,7 @@ final class Tema {
             }
         }
         long at = sp.getLong(K_UI_CHANGED_AT, 0);
-        String hist = "ultimo cambio " + sysName + " " + (at == 0 ? "mai visto" : new SimpleDateFormat("dd/MM HH:mm", Locale.ITALY).format(new Date(at)))
+        String hist = "ultimo cambio " + sysName + " " + (at == 0 ? "mai visto" : new SimpleDateFormat("dd/MM HH:mm", Locale.US).format(new Date(at)))
                 + " (" + (sp.getLong(K_UI_ON_MS, 0) + onPending) / 3_600_000L + " h di accensione da allora)";
         detail = (stuckTxt.isEmpty() ? "" : stuckTxt + " · ") + hist + " · " + sysName + " " + uiTxt + " · " + sunTxt;
         if (reliable && uiNight >= 0) {
@@ -386,7 +386,7 @@ final class Tema {
         c.set(Calendar.SECOND, 0);
         c.set(Calendar.MILLISECOND, 0);
         long ms = c.getTimeInMillis() + Math.round(minutesUtc * 60_000);
-        return new SimpleDateFormat("HH:mm", Locale.ITALY).format(new Date(ms));
+        return new SimpleDateFormat("HH:mm", Locale.US).format(new Date(ms));
     }
 
     /** Per i test e gli screenshot: azzera lo stato. */

@@ -107,8 +107,20 @@ public final class ClimaActivity extends Activity {
     /** 1.4.4: da dove è stata aperta (zona sopra la barra, oppure l'app che c'era davanti): lì si torna alla chiusura. */
     private void opened(Intent i) {
         String z = i == null ? null : i.getStringExtra(Ritorno.EXTRA_FROM);
-        if (z != null) Ritorno.onOpen(this, z, "zona sopra la barra");
-        else Ritorno.onOpen(this, ClimaGuard.lastOther, originalAt > 0 ? "al posto del clima originale" : "apertura");
+        if (z != null) {
+            Ritorno.onOpen(this, z, "barra");
+            return;
+        }
+        // 1.4.7: pacchetto del chiamante, se Android lo dice; altrimenti l'app che c'era davanti
+        String caller = null;
+        try {
+            android.net.Uri ref = getReferrer();
+            if (ref != null && "android-app".equals(ref.getScheme())) caller = ref.getHost();
+        } catch (Throwable ignored) {
+        }
+        if (caller != null && caller.equals(getPackageName())) caller = null;
+        Ritorno.onOpen(this, caller != null ? caller : ClimaGuard.lastOther,
+                originalAt > 0 ? "al posto del clima originale" : caller != null ? "chiamante" : "app davanti prima");
     }
 
     // ---- 1.4.4: chiusura automatica dopo N secondi senza tocchi né tasti del joystick (issue #11) ----------------
@@ -200,6 +212,7 @@ public final class ClimaActivity extends Activity {
         Tema.listener = this::applyTheme;   // 1.4.3: il tema cambia anche con la schermata aperta
         applyTheme();
         resumed = true;
+        front = new java.lang.ref.WeakReference<>(this);   // 1.4.7
         aperta(true, "onResume");   // 1.4.5
         armAutoClose();   // 1.4.4
         filterCodes.clear();
@@ -218,6 +231,19 @@ public final class ClimaActivity extends Activity {
      * aperta" serve anche la conferma del servizio di accessibilità ({@link ClimaGuard#climaFront()}).
      */
     static volatile boolean resumed;
+    /** 1.4.7: la schermata in primo piano, per chiuderla dal gesto sul bordo se l'indietro di sistema non va. */
+    private static volatile java.lang.ref.WeakReference<ClimaActivity> front;
+
+    /** 1.4.7: chiude la schermata in primo piano come il tasto indietro (mai l'intent HOME). false = non c'era. */
+    static boolean closeFront(String how) {
+        java.lang.ref.WeakReference<ClimaActivity> w = front;
+        ClimaActivity a = w == null ? null : w.get();
+        if (a == null || !resumed || a.isFinishing()) return false;
+        a.h.post(() -> {
+            if (!a.isFinishing()) a.close(how);
+        });
+        return true;
+    }
     /** 1.4.5: motivo della prossima chiusura (chiusura automatica, ritorno…), per la riga clima.aperta. */
     private static volatile String closing;
     private static volatile String apertaState = "no (mai aperta in questa accensione)";
@@ -361,6 +387,7 @@ public final class ClimaActivity extends Activity {
                     Store.setRightHand(this, i == 1);
                     view.setRightHand(i == 1);
                     settings();
+                    if (i == 1 && !rh) askSeatsRightHand();   // 1.4.7 (issue #12)
                 }), false);
         int ds = Store.dashStyle(this);
         s.row(c0, L.s(R.string.s_dash), L.s(R.string.s_dash_sub),
@@ -564,7 +591,7 @@ public final class ClimaActivity extends Activity {
         long oUntil = Store.bypassUntil(this);
         if (System.currentTimeMillis() < oUntil) {
             s.row(c5, L.s(R.string.s_officina), L.f(R.string.s_officina_on,
-                    new java.text.SimpleDateFormat("dd/MM", java.util.Locale.ITALY).format(new java.util.Date(oUntil))),
+                    new java.text.SimpleDateFormat("dd/MM", java.util.Locale.US).format(new java.util.Date(oUntil))),
                     s.button(L.s(R.string.b_cancel), v -> {
                         Store.bypass(this, 0);
                         Store.event(this, "modalità officina annullata");
@@ -626,6 +653,30 @@ public final class ClimaActivity extends Activity {
                 L.s(R.string.b_cancel), L.s(R.string.b_update), () -> Updater.get(this).install(r));
     }
 
+    /**
+     * 1.4.7 (issue #12): attivata la grafica "Guida a destra", si chiede una volta sola se invertire anche i comandi dei
+     * sedili. Niente cambia senza la risposta; con "No" (o se è già invertito) non si chiede più.
+     */
+    private void askSeatsRightHand() {
+        if (Store.seatsRhdAsked(this) || !last.hasSeatHeat()) return;
+        if (Store.swapSeats(this)) {
+            Store.setSeatsRhdAsked(this);
+            Store.event(this, "clima.sedili: guida a destra accesa, scambio sedili già acceso: non chiesto");
+            return;
+        }
+        Store.event(this, "clima.sedili: guida a destra accesa → domanda sullo scambio dei sedili");
+        sheet.confirm(L.s(R.string.c_seats_rhd), L.s(R.string.c_seats_rhd_msg), L.s(R.string.b_no), L.s(R.string.b_yes), () -> {
+            Store.setSeatsRhdAsked(this);
+            Store.setSwapSeats(this, true);
+            client.setSwapSeats(true);
+            Store.event(this, "clima.sedili: risposta Sì → scambio guida/passeggero acceso");
+            settings();
+        }, () -> {
+            Store.setSeatsRhdAsked(this);
+            Store.event(this, "clima.sedili: risposta No → sedili come prima (scambio spento)");
+        });
+    }
+
     private void confirmModel(String m) {
         String name = m.isEmpty() ? L.f(R.string.c_model_auto, Model.detected(this)) : Model.label(m);
         sheet.confirm(L.s(R.string.c_model), L.f(R.string.c_model_msg, name),
@@ -665,7 +716,7 @@ public final class ClimaActivity extends Activity {
                     sheet.close();
                     Store.bypass(this, days * 24L * 3600_000L);
                     Store.event(this, "modalità officina per " + days + " giorni");
-                    toast(L.f(R.string.s_officina_on, new java.text.SimpleDateFormat("dd/MM", java.util.Locale.ITALY)
+                    toast(L.f(R.string.s_officina_on, new java.text.SimpleDateFormat("dd/MM", java.util.Locale.US)
                             .format(new java.util.Date(Store.bypassUntil(this)))));
                 });
     }
@@ -812,7 +863,7 @@ public final class ClimaActivity extends Activity {
         if (sheet != null && sheet.showing() && KEYS.equals(currentSheet)) {
             String line = code + (down ? " premuto" : " rilasciato") + (lp ? " (lungo)" : "") + ("filtro".equals(from) ? " · filtro" : "");
             Store.event(this, "tasto volante: codice " + line);
-            keysSeen.addFirst(new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ITALY).format(new java.util.Date()) + "  " + line);
+            keysSeen.addFirst(new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US).format(new java.util.Date()) + "  " + line);
             while (keysSeen.size() > 12) keysSeen.removeLast();
             if (down && !lp && assignStep >= 0) {
                 String a = Joystick.ACTIONS[assignStep];
@@ -1102,6 +1153,7 @@ public final class ClimaActivity extends Activity {
     @Override
     protected void onPause() {
         resumed = false;
+        front = null;
         aperta(false, "onPause");   // 1.4.5
         Tema.listener = null;
         h.removeCallbacks(autoCloseR);
@@ -1247,7 +1299,7 @@ public final class ClimaActivity extends Activity {
         return true;
     }
 
-    /** Chiudendo si torna alla home (sotto c'è l'app clima originale, che non si vuole rivedere). */
+    /** Chiudendo si torna all'app di prima (1.4.7: mai l'intent HOME). */
     @Override
     public void onBackPressed() {
         if (sheet != null && sheet.showing()) {
@@ -1266,7 +1318,7 @@ public final class ClimaActivity extends Activity {
         Store.event(this, "chiusura: " + how + " → chiusa");
         closing = how.startsWith("chiusura automatica") ? "chiusura automatica"
                 : Ritorno.fromProjection() ? "ritorno ad Android Auto/CarPlay" : how;
-        Ritorno.back(this);   // 1.4.4: torna ad Android Auto / CarPlay se era stata aperta da lì, altrimenti home
+        Ritorno.back(this);   // 1.4.7: torna ad Android Auto / CarPlay o all'app di prima (mai l'intent HOME)
         finish();
     }
 }

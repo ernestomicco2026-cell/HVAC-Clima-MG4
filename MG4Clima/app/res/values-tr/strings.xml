@@ -210,5 +210,9 @@
     <string name="r_update_msg" formatted="false">MG4 Klima\'nın yeni bir sürümü var.</string>
     <string name="b_ok" formatted="false">Tamam</string>
     <string name="b_later" formatted="false">Sonra</string>
+    <string name="c_seats_rhd" formatted="false">Koltuklar</string>
+    <string name="c_seats_rhd_msg" formatted="false">Sağdan direksiyonu seçtiniz. Sürücü ve yolcu koltuğu kumandalarını da değiştirmek ister misiniz?</string>
+    <string name="b_yes" formatted="false">Evet</string>
+    <string name="b_no" formatted="false">Hayır</string>
     <string name="u_bad_sign" formatted="false">farklı imza: yüklenmedi</string>
 </resources>

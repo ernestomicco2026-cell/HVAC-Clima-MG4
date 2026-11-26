@@ -362,7 +362,7 @@ public final class ClimaGuard extends AccessibilityService {
     /** 1.4.5 (5a): il log dice se la tendina si è chiusa davvero o è rimasta (impostazione "lascia il pannello"). */
     private String closeTendina(String why) {
         lastCollapse = 0;
-        if (collapse(why)) return " → tendina originale chiusa";
+        if (collapse(why)) return panel ? " → chiusura della tendina originale chiesta" : " → tendina originale chiusa";
         return Store.panelMode(this) == Store.PANEL_LEAVE
                 ? " → tendina originale lasciata (impostazione «lascia il pannello»)" : " → tendina originale non chiusa";
     }
@@ -481,6 +481,7 @@ public final class ClimaGuard extends AccessibilityService {
         long t = SystemClock.elapsedRealtime();
         if (t - lastCollapse < 2500) return false;   // una serie di chiusure alla volta
         lastCollapse = t;
+        boolean ok = true;
         if (panel) {
             SysUiPanel.closeSoon(this, why);
         } else {
@@ -492,6 +493,7 @@ public final class ClimaGuard extends AccessibilityService {
             } catch (Throwable e) {
                 Throwable c = e instanceof java.lang.reflect.InvocationTargetException && e.getCause() != null ? e.getCause() : e;
                 r = "non chiuso: " + c;
+                ok = false;   // 1.4.7: il log della barra non deve dire "chiusa" se non lo è
             }
             Store.event(this, "menù a tendina " + r + " (" + why + ")");
         }
@@ -500,7 +502,7 @@ public final class ClimaGuard extends AccessibilityService {
             lastSend = now;
             LogSend.send(this, "tendina", null);
         }
-        return true;
+        return ok;
     }
 
     @Override
@@ -723,12 +725,10 @@ public final class ClimaGuard extends AccessibilityService {
                         boolean done = performGlobalAction(GLOBAL_ACTION_BACK);
                         Store.event(ClimaGuard.this, "chiusura: " + g + " → indietro " + (done ? "mandato" : "non riuscito"));
                         if (!done) {
-                            edgeBackAt = 0;
-                            try {
-                                startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
-                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                            } catch (Throwable ignored) {
-                            }
+                            // 1.4.7: niente intent HOME: si chiude la schermata come con il tasto indietro
+                            boolean closed = ClimaActivity.closeFront(g);
+                            if (!closed) edgeBackAt = 0;
+                            Store.event(ClimaGuard.this, "chiusura: " + g + " → " + (closed ? "chiusa direttamente" : "schermata non davanti"));
                         }
                         return true;
                     }

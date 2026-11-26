@@ -254,7 +254,7 @@ public final class HomeRescue extends BroadcastReceiver {
         Log.i(TAG, line);
         try {
             SharedPreferences sp = c.getSharedPreferences("mg4homerescue", Context.MODE_PRIVATE);
-            String at = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT).format(new Date());
+            String at = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date());
             sp.edit().putString("ultimo", at + " " + line).apply();
         } catch (Throwable ignored) {
         }

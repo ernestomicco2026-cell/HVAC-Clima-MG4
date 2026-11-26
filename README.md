@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-<a href="releases/MG4Clima-1.4.6.apk"><img alt="Scarica / Download 1.4.6" src="https://img.shields.io/badge/Scarica%20%2F%20Download-1.4.6-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
+<a href="releases/MG4Clima-1.4.7.apk"><img alt="Scarica / Download 1.4.7" src="https://img.shields.io/badge/Scarica%20%2F%20Download-1.4.7-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
 <a href="https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT"><img alt="Sostieni il progetto con PayPal · Support the project with PayPal" src="https://img.shields.io/badge/Sostieni%20%2F%20Support-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white"></a>
 </p>
 
@@ -213,7 +213,7 @@ Scarica l'APK dalla cartella [`releases/`](releases/), poi scegli uno dei due me
 
 **Metodo 1 — Da chiavetta USB (senza computer).** Serve poter aprire un file manager sull'infotainment.
 
-1. Copia `MG4Clima-1.4.6.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
+1. Copia `MG4Clima-1.4.7.apk` su una chiavetta USB formattata **FAT32** o **exFAT**.
 2. Inserisci la chiavetta, apri il file manager e tocca l'APK.
 3. Se Android dice che non può installare app da questa fonte: tocca **Impostazioni**, attiva **Consenti da questa
    fonte** e torna indietro.
@@ -223,7 +223,7 @@ Scarica l'APK dalla cartella [`releases/`](releases/), poi scegli uno dei due me
 collegato all'auto. Il firmware MG può bloccare l'installazione normale delle app: l'opzione `-f` la permette.
 
 ```bash
-adb install -r -f MG4Clima-1.4.6.apk
+adb install -r -f MG4Clima-1.4.7.apk
 ```
 
 Poi apri il clima come al solito (tasto, barra o launcher): al primo avvio MG4 Clima si attiva da sola.
@@ -238,6 +238,12 @@ dell'installazione.
 
 Per problemi seri l'app può anche **aggiornarsi da sola** a una versione minima, solo ad auto ferma, e mostrare
 **avvisi importanti** scritti nel repository (nella lingua dell'app, una volta sola o fino a quando premi OK).
+
+### MG4 Store
+
+C'è anche **MG4 Store**: scarica e aggiorna tutte le nostre app MG4 (launcher, Clima, Games e le prossime).
+Si trova anche nel launcher MG4, con l'icona **Store**.
+Repository: [github.com/ernestomicco2026-cell/store](https://github.com/ernestomicco2026-cell/store)
 
 ### Tornare al clima originale
 
@@ -280,6 +286,13 @@ Anche solo **2 €** sono un aiuto prezioso per continuare a sviluppare e provar
 [![Offrimi un caffè con PayPal](https://img.shields.io/badge/Offrimi%20un%20caff%C3%A8-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT)
 
 ### Versioni
+
+#### 1.4.7
+- Invio dei log più sicuro (tramite server ponte).
+- **Chiudendo MG4 Clima si torna all'app da cui l'hai aperta** (issue #16): launcher MG4 anche quando non è la home predefinita, app clima originale, Android Auto o CarPlay. Prima si finiva sulla home SAIC.
+- **Guida a destra**: quando la attivi, MG4 Clima chiede una volta sola se invertire anche i comandi dei sedili (issue #12).
+- Il log dice il vero sulla tendina originale (chiusa, lasciata o non chiusa); date dei log sempre con cifre normali.
+- Diagnostica: righe nuove `log.invio`, `clima.chiusura` (al posto di `clima.ritorno`) e `clima.sedili`.
 
 #### 1.4.6
 - Con Android Auto il primo tocco sulla barra apre subito MG4 Clima; il tema scuro scelto nel launcher viene sempre seguito, più l'opzione Tema Automatico/Chiaro/Scuro; temperatura con frecce su/giù e ventola con sinistra/destra, come il joystick; opzione per invertire i sedili guida e passeggero (guida a destra); il pannello sovrapposto cambia tema anche aperto; verifica automatica corretta sulle auto con intervallo 17–33.
@@ -603,7 +616,7 @@ Download the APK from the [`releases/`](releases/) folder, then choose one of th
 
 **Method 1 — From a USB stick (no computer).** You need to be able to open a file manager on the infotainment.
 
-1. Copy `MG4Clima-1.4.6.apk` to a USB stick formatted as **FAT32** or **exFAT**.
+1. Copy `MG4Clima-1.4.7.apk` to a USB stick formatted as **FAT32** or **exFAT**.
 2. Insert the stick, open the file manager and tap the APK.
 3. If Android says it can't install apps from this source: tap **Settings**, enable **Allow from this source** and go back.
 4. Tap **Install**.
@@ -612,7 +625,7 @@ Download the APK from the [`releases/`](releases/) folder, then choose one of th
 connected to the car. The MG firmware may block normal app installation: the `-f` option allows it.
 
 ```bash
-adb install -r -f MG4Clima-1.4.6.apk
+adb install -r -f MG4Clima-1.4.7.apk
 ```
 
 Then open the climate as usual (button, bar or launcher): on first start MG4 Clima activates itself.
@@ -626,6 +639,12 @@ SHA-256 fingerprint and signature). You can also update from a computer, with th
 
 For serious problems the app can also **update itself** to a minimum version, only with the car stopped, and show
 **important notices** written in the repository (in the app language, once or until you press OK).
+
+### MG4 Store
+
+There is also **MG4 Store**: it downloads and updates all our MG4 apps (launcher, Clima, Games and the next ones).
+You can also find it in the MG4 launcher, with the **Store** icon.
+Repository: [github.com/ernestomicco2026-cell/store](https://github.com/ernestomicco2026-cell/store)
 
 ### Going back to the original climate
 
@@ -666,6 +685,13 @@ Even just **€2** is a precious help to keep developing and testing new version
 [![Buy me a coffee with PayPal](https://img.shields.io/badge/Buy%20me%20a%20coffee-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT)
 
 ### Changelog
+
+#### 1.4.7
+- Safer log upload (through a relay server).
+- **Closing MG4 Climate goes back to the app you opened it from** (issue #16): the MG4 launcher even when it is not the default home, the original climate app, Android Auto or CarPlay. Before, you ended up on the SAIC home.
+- **Right-hand drive**: when you turn it on, MG4 Climate asks once whether to swap the seat controls too (issue #12).
+- The log tells the truth about the original drop-down (closed, left open or not closed); log dates always use plain digits.
+- Diagnostics: new `log.invio`, `clima.chiusura` (replaces `clima.ritorno`) and `clima.sedili` lines.
 
 #### 1.4.6
 - With Android Auto the first touch on the bar opens MG4 Clima straight away; the dark theme chosen in the launcher is always followed, plus a Theme option Automatic/Light/Dark; temperature with up/down arrows and fan with left/right, like the joystick; option to swap driver and passenger seats (right-hand drive); the overlay panel changes theme while open; automatic check fixed on cars with a 17–33 range.

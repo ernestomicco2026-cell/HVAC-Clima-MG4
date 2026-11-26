@@ -23,6 +23,8 @@ final class Pannello {
     private static ClimaView view;
     private static HvacClient client;
     private static String type = "-";
+    /** 1.4.7: app sotto il pannello (per la riga clima.chiusura). */
+    private static String under = "-";
     private static int shown;
     private static final Runnable autoClose = () -> hide("chiusura automatica dopo " + Store.autoClose(ctx()) + " s senza tocchi");
     private static ClimaGuard guard;
@@ -49,6 +51,7 @@ final class Pannello {
     static boolean show(ClimaGuard g, String under) {
         if (view != null) return true;
         guard = g;
+        Pannello.under = under == null ? "-" : under;
         WindowManager wm = (WindowManager) g.getSystemService(Context.WINDOW_SERVICE);
         StringBuilder refused = new StringBuilder();
         for (int t : new int[]{TYPE_SUB_PANEL, WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY}) {
@@ -148,6 +151,8 @@ final class Pannello {
         } catch (Throwable ignored) {
         }
         Store.event(g, "clima.pannello: tolto (" + why + ")");
+        // 1.4.7: il pannello non apre niente: chiudendolo resta davanti l'app che era sotto
+        Store.setRitorno(g, "aperta da " + under + " (pannello) · tornata a " + under + " (era sotto il pannello)");
     }
 
     /** Dal servizio a ogni cambio di app davanti: senza proiezione davanti il pannello non serve. */
